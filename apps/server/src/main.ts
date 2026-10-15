@@ -19,15 +19,18 @@ try {
     }
     const address = app.listeningOrigin;
     // One machine-readable line for owned-process startup and readiness tests.
-    process.stdout.write(`${JSON.stringify({ event: 'listening', address, dataDir: options.dataDir, stage: 'S04' })}\n`);
+    process.stdout.write(`${JSON.stringify({ event: 'listening', address, dataDir: options.dataDir, stage: 'S05' })}\n`);
     let stopping = false;
     const stop = async () => {
       if (stopping) return;
       stopping = true;
       try { await app.close(); } finally { await storage.close(); }
     };
-    process.once('SIGTERM', () => { void stop(); });
-    process.once('SIGINT', () => { void stop(); });
+    const requestStop = () => { void stop().catch(() => {
+      process.stderr.write('任务状态保存或关闭失败，请检查数据后重启\n'); process.exitCode = 1;
+    }); };
+    process.once('SIGTERM', requestStop);
+    process.once('SIGINT', requestStop);
   }
 } catch (error) {
   // CLI validation errors are deliberately sanitized in parseStartup.

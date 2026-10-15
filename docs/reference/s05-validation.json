@@ -1,0 +1,1607 @@
+{
+  "stage": "S05",
+  "recordedAt": "2026-10-15T10:05:40.487256+00:00",
+  "targetParent": "fec1e58f680157d608368c8e3f177b8f033b3739",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux local filesystem"
+  },
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --reporter=json --outputFile=.tools/s05-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json > .tools/s05-playwright.json",
+      "exitCode": 0
+    },
+    {
+      "command": "bash .tools/start-server.sh",
+      "exitCode": 0
+    }
+  ],
+  "dependenciesChanged": false,
+  "coldInstall": "S04 existing evidence; no new S05 npm ci claim",
+  "vitest": {
+    "files": 29,
+    "total": 288,
+    "passed": 288,
+    "failed": 0,
+    "pending": 0,
+    "reportSha256": "831dfe0f68595b90c987aff1649c6d069f51e5d4d9ed05adaa439844b39d0f05",
+    "suites": [
+      {
+        "file": "tests/integration/cancellation.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "cancels at real persisted before-parse boundary without publishing a successful result",
+            "status": "passed"
+          },
+          {
+            "name": "cancels at real persisted after-parse boundary without publishing a successful result",
+            "status": "passed"
+          },
+          {
+            "name": "cancels at real persisted before-final boundary without publishing a successful result",
+            "status": "passed"
+          },
+          {
+            "name": "cancels queued tasks and applies backpressure without losing accepted originals",
+            "status": "passed"
+          },
+          {
+            "name": "configuration changes during parsing are explicit and do not mix captured versions",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/config-crash.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "config survives real SIGKILL at before-rename with one complete revision",
+            "status": "passed"
+          },
+          {
+            "name": "config survives real SIGKILL at after-rename with one complete revision",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/documents-api.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "persists text/source before 202 and exposes the real job, parsed preview and unchanged corpus",
+            "status": "passed"
+          },
+          {
+            "name": "accepts real multipart Office and keeps display name separate from disk key",
+            "status": "passed"
+          },
+          {
+            "name": "deduplicates concurrent identical bytes and permits the same name for different contents",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid names/formats, invalid body, pagination and foreign Origin without accepting documents",
+            "status": "passed"
+          },
+          {
+            "name": "rejects multipart traversal, empty/oversized files and extra files/fields",
+            "status": "passed"
+          },
+          {
+            "name": "refuses a symlink source or actual I/O conflict and does not acknowledge acceptance",
+            "status": "passed"
+          },
+          {
+            "name": "imports all nine real formats through the actual upload/worker/persisted-result path",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/health.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "real executable server without inherited environment distinguishes a live process from a ready knowledge base",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves explicit empty, editable model configuration",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /settings/models",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves hashed assets with JavaScript MIME",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /api/v1/missing",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /assets/missing.js",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /missing-page",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment rejects unsupported POST to model settings",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment rejects foreign Origin and hostile Host",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment accepts the exact same Origin and sets defensive response headers",
+            "status": "passed"
+          },
+          {
+            "name": "ignores business environment variable overrides",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/ingestion-commit.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "never returns 202 on before-current snapshot failure; published state is explicitly fenced",
+            "status": "passed"
+          },
+          {
+            "name": "never returns 202 on after-current snapshot failure; published state is explicitly fenced",
+            "status": "passed"
+          },
+          {
+            "name": "a completed indexed snapshot wins over cancellation without losing its contributions",
+            "status": "passed"
+          },
+          {
+            "name": "refuses a replaced staging directory symlink and surfaces actual artifact write failure",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/jobs-restart.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "retains every acknowledged source/job across SIGKILL and requires manual retry",
+            "status": "passed"
+          },
+          {
+            "name": "retains every acknowledged source/job across SIGTERM and requires manual retry",
+            "status": "passed"
+          },
+          {
+            "name": "preserves failed and parked attempts on restart without automatic retry",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing/corrupt originals after acknowledgement instead of silently dropping documents",
+            "status": "passed"
+          },
+          {
+            "name": "retains queued acknowledgement when killed immediately after the third 202",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt completed artifacts on restart and keeps the damaged bytes for diagnosis",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/jobs.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "retains a diagnosable parser failure; explicit repeated retry creates only one next attempt",
+            "status": "passed"
+          },
+          {
+            "name": "configured models park at the explicit S06 boundary without any model charges or fake processed state",
+            "status": "passed"
+          },
+          {
+            "name": "cancels parked work idempotently and manual retry captures new configuration version",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/models-api.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "tests three distinct unsaved candidate endpoints with no indexing/save side effects",
+            "status": "passed"
+          },
+          {
+            "name": "saves without sending requests; survives service restart with masked keys and default role reuse",
+            "status": "passed"
+          },
+          {
+            "name": "returns 409 on stale revisions and keeps all saved fields",
+            "status": "passed"
+          },
+          {
+            "name": "rejects foreign-origin writes/tests and non-JSON form writes without model requests",
+            "status": "passed"
+          },
+          {
+            "name": "key omit/clear/replace is real on the wire and endpoint edits cannot forward an old key",
+            "status": "passed"
+          },
+          {
+            "name": "keeps synthetic keys out of GET, errors and server output, even if upstream echoes them",
+            "status": "passed"
+          },
+          {
+            "name": "browser disconnect cancels the upstream candidate request and leaves config unchanged",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/snapshot-crash.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "survives actual SIGKILL at after-namespace:kv.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:document-status.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-chunks.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-entities.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-relations.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:graph.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-manifest with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at before-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current-sync with one complete old/new generation",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/snapshot.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "publishes all namespaces, restores Unicode/float32/graph/statuses and captures stable old views",
+            "status": "passed"
+          },
+          {
+            "name": "serializes concurrent deltas from the latest state and isolates escaped drafts",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-namespace failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-manifest failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on before-current failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current failure",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current-sync failure",
+            "status": "passed"
+          },
+          {
+            "name": "does not acknowledge a real filesystem write error (including when tests run as root)",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt CURRENT, preserves it, and supports explicit validated recovery",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on checksum without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on manifest without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on version without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-current without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-file without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on current-symlink without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "checks mixed-space even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks dangling-edge even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-source even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-vector even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid contributions before writing and drains accepted commits before closing",
+            "status": "passed"
+          },
+          {
+            "name": "does not initialize a blank database over unrecognized pre-existing data",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/storage-lifecycle.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "boots the real server with storage, rejects a second process and retains data on restart",
+            "status": "passed"
+          },
+          {
+            "name": "CLI refuses damaged storage before listening and offers explicit inspect/recover commands",
+            "status": "passed"
+          },
+          {
+            "name": "returns 503 rather than healthy readiness when a published commit has fenced storage",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/test-infrastructure.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "isolates test directories and removes only owned files",
+            "status": "passed"
+          },
+          {
+            "name": "provides input-sensitive HTTP model fixtures with recorded protocol requests",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/writer-lock.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "rejects another writer in the same process and permits a different data directory",
+            "status": "passed"
+          },
+          {
+            "name": "does not steal an aged live lock or trust forged owner metadata, and releases on SIGKILL",
+            "status": "passed"
+          },
+          {
+            "name": "refuses a symlink data directory before creating workspace files outside it",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/cli.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "CLI configuration resolves defaults from repository root, independent of cwd",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration uses config then explicit CLI overrides and preserves existing config",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--unknown\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"positional\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration sanitizes malformed or missing config and disallows unknown fields",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration supports help without starting the application",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "internal/contracts/src/contracts.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "query contracts uses mix and the upstream VECTOR/5 defaults",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts naive mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts local mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts global mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts hybrid mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts mix mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 0",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 1",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 2",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 3",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 4",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 5",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 6",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 7",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 8",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 9",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 10",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 11",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts accepts local HTTP profiles",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/v1?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/#x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects API keys in public configuration",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts requires dimensions and finite concurrency",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts validates profile uniqueness and role kinds",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts validates document timestamps, hashes and versions",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires a valid job attempt and explicit cancellation state",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires evidence and rejects non-finite graph weights",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires citation source chunks, without inventing a required page",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'meta', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'references', references: [] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'delta', text: 'Unicode 🧮' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'done', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'error', error: [Object] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'cancelled' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts rejects mixed terminal events and arbitrary error payloads",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/web/src/App.test.tsx",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "shows startup is live while indexing and models remain unavailable",
+            "status": "passed"
+          },
+          {
+            "name": "renders three model roles and real configuration actions",
+            "status": "passed"
+          },
+          {
+            "name": "shows a network failure and retries the actual API boundary",
+            "status": "passed"
+          },
+          {
+            "name": "aborts owned outstanding requests on unmount",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/core/chunker.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "counts fixed local cl100k_base encoding and treats special-token syntax as text",
+            "status": "passed"
+          },
+          {
+            "name": "counts fixed local o200k_base encoding and treats special-token syntax as text",
+            "status": "passed"
+          },
+          {
+            "name": "bounds windows without Unicode loss 0",
+            "status": "passed"
+          },
+          {
+            "name": "bounds windows without Unicode loss 1",
+            "status": "passed"
+          },
+          {
+            "name": "bounds windows without Unicode loss 2",
+            "status": "passed"
+          },
+          {
+            "name": "preserves the tail, overlap, stable IDs and source block locations",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid window/overlap 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid window/overlap 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid window/overlap 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid window/overlap 3",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid window/overlap 4",
+            "status": "passed"
+          },
+          {
+            "name": "handles one-token ASCII windows, rejects too-small Unicode windows and invalid/empty input",
+            "status": "passed"
+          },
+          {
+            "name": "performs parsing and cl100k_base chunking inside the worker using the same counter",
+            "status": "passed"
+          },
+          {
+            "name": "performs parsing and o200k_base chunking inside the worker using the same counter",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/chat.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "sends actual OpenAI request fields/auth and returns text/usage",
+            "status": "passed"
+          },
+          {
+            "name": "decodes split UTF-8/CRLF/multiline SSE, empty and usage-only frames",
+            "status": "passed"
+          },
+          {
+            "name": "converts nonstream JSON when stream was requested",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 3",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 4",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 401 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 403 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 400 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "retries 429 with bounded Retry-After and selected 5xx with a finite attempt count",
+            "status": "passed"
+          },
+          {
+            "name": "bounds response bytes before parsing, even for chunked bodies",
+            "status": "passed"
+          },
+          {
+            "name": "rejects redirects without contacting the redirected host or sending its key",
+            "status": "passed"
+          },
+          {
+            "name": "enforces total timeout and caller cancellation during active requests",
+            "status": "passed"
+          },
+          {
+            "name": "never retries after a delivered SSE delta; missing DONE is not success",
+            "status": "passed"
+          },
+          {
+            "name": "limits concurrency, bounds waiting queue and removes cancelled waiters",
+            "status": "passed"
+          },
+          {
+            "name": "does not replay a network failure after a streamed delta has reached the caller",
+            "status": "passed"
+          },
+          {
+            "name": "cancels a queued request without leaking a semaphore slot or contacting the provider",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/config.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "starts unconfigured, persists versioned private config and restores masked profiles",
+            "status": "passed"
+          },
+          {
+            "name": "implements omit/null/string keys without returning secrets and detaches captures",
+            "status": "passed"
+          },
+          {
+            "name": "serializes competing revisions with one winner and validates references",
+            "status": "passed"
+          },
+          {
+            "name": "rejects masked placeholders, unsafe URLs and malformed input without secret-bearing errors",
+            "status": "passed"
+          },
+          {
+            "name": "keeps old revision/file on pre-publication failure and permits an explicit retry",
+            "status": "passed"
+          },
+          {
+            "name": "fences after publication uncertainty; restart reads the published revision",
+            "status": "passed"
+          },
+          {
+            "name": "refuses corrupted config, insecure permissions and symlinks without overwriting them",
+            "status": "passed"
+          },
+          {
+            "name": "candidate testing preserves save revision and requires explicit key handling for a changed target",
+            "status": "passed"
+          },
+          {
+            "name": "embedding identity includes endpoint/model/dimensions/operator revision, excludes keys and canonicalizes slashes",
+            "status": "passed"
+          },
+          {
+            "name": "blocks nonempty embedding space changes until rebuild exists",
+            "status": "passed"
+          },
+          {
+            "name": "actual filesystem rename failure cannot report success and can be retried after repair",
+            "status": "passed"
+          },
+          {
+            "name": "close drains an accepted save and rejects later writes",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/embedding.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "splits batches and reorders actual input-sensitive embeddings by index",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 3",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 4",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 5",
+            "status": "passed"
+          },
+          {
+            "name": "rejects nonfinite numeric JSON and cancels without dispatching the next batch",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/model-url.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "preserves base prefix https://host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "preserves base prefix https://host/proxy/api/v1/",
+            "status": "passed"
+          },
+          {
+            "name": "preserves base prefix https://host",
+            "status": "passed"
+          },
+          {
+            "name": "appends embeddings only and preserves the complete rerank endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint file:///tmp/key",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://host?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://host/#fragment",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://169.254.169.254/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://2852039166",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://0xa9fea9fe",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://[fe80::1]/",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://[::ffff:169.254.169.254]",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://metadata.google.internal/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://metadata/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://0.0.0.0",
+            "status": "passed"
+          },
+          {
+            "name": "supports explicit loopback/LAN and rejects forbidden DNS answers",
+            "status": "passed"
+          },
+          {
+            "name": "bounds numeric/date Retry-After and handles malformed values",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/rerank.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "sends standard cohere-compatible rerank at a complete endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "sends standard jina-compatible rerank at a complete endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 3",
+            "status": "passed"
+          },
+          {
+            "name": "disabled rerank makes no network call; fallback returns an explicit warning",
+            "status": "passed"
+          },
+          {
+            "name": "explicit fallback never swallows cancellation",
+            "status": "passed"
+          },
+          {
+            "name": "enabled rerank without a bound model reports a configuration error",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/graph.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "canonicalizes undirected edges without ambiguous pair keys",
+            "status": "passed"
+          },
+          {
+            "name": "isolates returned data, counts self loops as NetworkX does, and removes incident edges",
+            "status": "passed"
+          },
+          {
+            "name": "rebuilds adjacency on restore and rejects corrupt canonical IDs/duplicates",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/kv.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "stores Unicode and isolates both incoming and outgoing values",
+            "status": "passed"
+          },
+          {
+            "name": "preserves map keys without prototype pollution or duplicate restores",
+            "status": "passed"
+          },
+          {
+            "name": "rejects non-JSON numbers and unsafe or oversized keys",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/vectors.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "normalizes, returns exact cosine/top-k and uses stable ID ties",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[0,0]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "validates spaces, top-k and thresholds even for empty data",
+            "status": "passed"
+          },
+          {
+            "name": "JSON round-trips float32 without accumulating reload drift",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/parsers/formats.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "parses real txt fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real md fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real html fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real csv fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real json fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real pdf fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real docx fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real xlsx fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "parses real pptx fixture and exact content/location golden in a worker",
+            "status": "passed"
+          },
+          {
+            "name": "refuses empty txt without empty success",
+            "status": "passed"
+          },
+          {
+            "name": "refuses empty md without empty success",
+            "status": "passed"
+          },
+          {
+            "name": "refuses empty html without empty success",
+            "status": "passed"
+          },
+          {
+            "name": "refuses empty csv without empty success",
+            "status": "passed"
+          },
+          {
+            "name": "refuses empty json without empty success",
+            "status": "passed"
+          },
+          {
+            "name": "refuses real empty Office docx",
+            "status": "passed"
+          },
+          {
+            "name": "refuses real empty Office xlsx",
+            "status": "passed"
+          },
+          {
+            "name": "refuses real empty Office pptx",
+            "status": "passed"
+          },
+          {
+            "name": "explicitly requires OCR for empty.pdf",
+            "status": "passed"
+          },
+          {
+            "name": "explicitly requires OCR for scanned.pdf",
+            "status": "passed"
+          },
+          {
+            "name": "rejects encrypted PDF and corrupt PDF/Office with safe errors",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid UTF-8, binary text, malformed JSON/CSV and unsupported extensions",
+            "status": "passed"
+          },
+          {
+            "name": "checks extension/content rather than accepting arbitrary ZIP/PDF bytes",
+            "status": "passed"
+          },
+          {
+            "name": "preserves DOCX sequence, cached/uncached XLSX formulas and numeric/grouped PPTX content",
+            "status": "passed"
+          },
+          {
+            "name": "does not evaluate formula-like CSV or JSON strings and omits Markdown HTML",
+            "status": "passed"
+          },
+          {
+            "name": "fails on missing workbook relations, illegal shared strings or corrupt XML",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for txt with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for md with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for html with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for csv with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for json with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for pdf with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for docx with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for xlsx with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt binary content for pptx with a structured error",
+            "status": "passed"
+          },
+          {
+            "name": "preserves JSON array numeric order beyond ten elements",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/parsers/parser-no-network.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "parses every real format with worker network entry points disabled",
+            "status": "passed"
+          },
+          {
+            "name": "HTML/Markdown external assets and Office external relations make zero HTTP requests",
+            "status": "passed"
+          },
+          {
+            "name": "actual guard rejects fetch and dynamically imported HTTP/HTTPS/TCP entry points",
+            "status": "passed"
+          },
+          {
+            "name": "isolates a real worker heap exhaustion from the parent process",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/parsers/parser-security.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "refuses archive path ../escape.xml without extraction",
+            "status": "passed"
+          },
+          {
+            "name": "refuses archive path /absolute.xml without extraction",
+            "status": "passed"
+          },
+          {
+            "name": "refuses archive path C:/drive.xml without extraction",
+            "status": "passed"
+          },
+          {
+            "name": "refuses archive path a\\b.xml without extraction",
+            "status": "passed"
+          },
+          {
+            "name": "refuses symlink entries, duplicate names and encrypted ZIP flags",
+            "status": "passed"
+          },
+          {
+            "name": "preflights advertised sizes/counts and bounds actual ZIP output",
+            "status": "passed"
+          },
+          {
+            "name": "checks CRC and refuses malformed ZIP containers",
+            "status": "passed"
+          },
+          {
+            "name": "rejects XXE/entity declarations even in unused XML before format extraction",
+            "status": "passed"
+          },
+          {
+            "name": "bounds XML/JSON/HTML/Markdown depth and node budgets",
+            "status": "passed"
+          },
+          {
+            "name": "enforces input/text/block/page/row/column limits and only permits tighter policy",
+            "status": "passed"
+          },
+          {
+            "name": "ignores inert macros and rejects an encrypted CFB Office signature",
+            "status": "passed"
+          },
+          {
+            "name": "terminates timed-out/cancelled workers and releases slots for later work",
+            "status": "passed"
+          },
+          {
+            "name": "bounds worker admission and permits cancellation while queued",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/web/src/api/client.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "rejects non-HTTP-success responses without exposing provider data",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed health payloads rather than declaring readiness",
+            "status": "passed"
+          },
+          {
+            "name": "forwards the cancellation signal to a same-origin model settings request",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "playwright": {
+    "stats": {
+      "startTime": "2026-10-15T10:03:02.386Z",
+      "duration": 18433.577,
+      "expected": 5,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "reportSha256": "c21d4437bd360a35e195990b23d4069db4a52a69e203fb8185396b8082cd0a48",
+    "screenshots": {
+      "test-results/bootstrap-production-UI-ca-0350f-tings-with-no-configuration/s02-model-settings.png": "953afa90caee1015d99339b9e81e476261c0601fb064e2640e3caa693ec14901",
+      "test-results/documents-browser-imports--095fa-etries-and-survives-restart/s05-documents.png": "ab82f2fae697bd2a5ac4ae3f2658019a9e86b3c38d7df6f86662c82eaa27ccbc",
+      "test-results/models-browser-configures--95c67-ed-roles-keys-after-restart/s03-model-settings.png": "ee05fbdafbc6941d6b0d6d7e14a8bd36628d3129f703a19f1d2f325957e924a2",
+      "test-results/parsers-production-UI-disp-6c90d-pability-matrix-and-budgets/s04-capabilities.png": "b3ec2a4a8fb7286005f3e00f76e7655944f2acfc4660fe5fb3ac7e1df817d988"
+    }
+  },
+  "currentInstance": {
+    "stage": "S05",
+    "usable": false,
+    "jobsAvailable": true,
+    "storagePreserved": true,
+    "storage": {
+      "initialized": true,
+      "status": "ready",
+      "generation": "g-ad0efc62-8eb1-475e-9834-1371237199c8",
+      "revision": 0,
+      "corpusRevision": 0
+    },
+    "documents": 0
+  },
+  "configDraft": {
+    "updated": "start_skill",
+    "requiresPublish": true,
+    "installScriptUnchanged": true,
+    "freshTaskRestoreVerified": false
+  },
+  "sourceSha256": {
+    ".gitattributes": "6fbbe550f1d63efa1c8d930717fb22208343703dbbb1f9768f43eef675c54797",
+    "apps/server/package.json": "2e3b0f47cfb5fbeb1a2d0810d067054226dcedba1a20231def6dac449d9907fd",
+    "apps/server/src/app.ts": "343834a8b6191757caa3964223d5da376f61c432fbdf96b246236ef36fe40b49",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "93f4dbc350a130f87b32b7a7502f292db62a7cae5ac1d5c020325f04921c5c31",
+    "apps/server/src/core/chunker.test.ts": "150cacabe065de2c5a75b7fda92c90d7563fdf152b6112a2a1cb5fb740d908d0",
+    "apps/server/src/core/chunker.ts": "0ce18756756175779f52dea1e4023ca17546332b8a8adef983f80cf061ea41e2",
+    "apps/server/src/core/tokenizer.ts": "44aa800106f251a6384e857d87c884f3f719305a3e85ad80a422a082b063ba88",
+    "apps/server/src/documents/files.ts": "788a47784f0a21c8c7ce91d6b04dd044950ef1f5688506cd1f3a4177bc684859",
+    "apps/server/src/documents/service.ts": "6a8a6c73b26accb5887e5e3fd00c01639e7c8a60a027bcf30af52cb1f19c76f2",
+    "apps/server/src/main.ts": "878019d30b2a293aea453e80d713d4866650b6bda604c6bd90f65caa131885cb",
+    "apps/server/src/models/chat.protocol.test.ts": "3c0a2b674f65e3ade292fb7e437a4467b13adbf1f616ad57b50b9fd2b7cf8f82",
+    "apps/server/src/models/client.ts": "61f4d7fff76269fe772e8d5721d31cb9bd2fa3234288055632e16a92e16cce05",
+    "apps/server/src/models/config.test.ts": "812559274dfc1e5e42dd7a049e9552b82789105a221733c5ddb9a8263619136b",
+    "apps/server/src/models/config.ts": "e563d08996f7aea80ccbf518cb88b56bdb1b625f90d227154e0d98aa114d562f",
+    "apps/server/src/models/embedding.protocol.test.ts": "9e30bf849f2f45b9292320c61967a3eddfb8b208ad3e3405dfe2842393930ee0",
+    "apps/server/src/models/errors.ts": "e4da2b34f17bd066de1ac587a53a9c73fad5e8acbb814135f4c9798b42ca8bd6",
+    "apps/server/src/models/http.ts": "5d1a0a56402bdfdf3dfb0755c9e0d008a3c5f600709fa70010777e8d0b41ea2a",
+    "apps/server/src/models/model-url.test.ts": "dd691153c73b934cba1c92217fee5dd70a7c2925648465f10e7b0b90263430c5",
+    "apps/server/src/models/rerank.protocol.test.ts": "48a1254f1fa5e4359eed2ab3a4ba9ffd0cc42ad1a0d25d9339790ab85b939e06",
+    "apps/server/src/models/url.ts": "c9ec575a70017e1be2a8ad35a5fdedbc4773c1fdea6e40669122c61673cec294",
+    "apps/server/src/parsers/archive.ts": "8ae037fe44f98329577c824eea423e97249c29a4d1ca7a2f3cbb1bbac48108fa",
+    "apps/server/src/parsers/common.ts": "7a93cea4d35ccfc1739a5f9f5540ae663dd5ad0f8160cce2a18610ec2e08a8f2",
+    "apps/server/src/parsers/formats.test.ts": "50e0ba48d0f95a10b14e8d2eeccdc9a5e54fd67a60b75c1dba301a1a420a7639",
+    "apps/server/src/parsers/index.ts": "ff76cb622835bfb5c5248757a94f87ecd2a4974d5c3931e75f283577c07586e1",
+    "apps/server/src/parsers/network.ts": "a1754c3e8af3434c215a6bf0ff76675d0f7e817a336274790809cfb37c2ebaab",
+    "apps/server/src/parsers/office.ts": "ac695345fbcd8248ba57c528a96ba5632295f30e6471cfa6f8f9cc58b4cd0d64",
+    "apps/server/src/parsers/parser-no-network.test.ts": "ad84dd56107776837e8fbd46df8735ec205cf238d1acff0e7b4b4e196257b4e6",
+    "apps/server/src/parsers/parser-security.test.ts": "0413f34c0bc834d83d58b59aebbd744d578af9e34b8823f9fb9bb4256c51611d",
+    "apps/server/src/parsers/pdf.ts": "46cd1b279fabc45771b977c1437730164012062c3f835fc2916815615d8fa3e5",
+    "apps/server/src/parsers/text.ts": "2de66ff1a3fa13f5bf5f3372e7571e995eabf17f1973b1e73eb200cd513a17c6",
+    "apps/server/src/parsers/worker.ts": "f18aaedda8793df26165b79b93833f7f7dcc99908ba63258d77ac468e8291f84",
+    "apps/server/src/parsers/xml.ts": "99529e6777658de042dc70b8557889bb978b8d434e52e26eea92aeed05216103",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "1ea004254b04c3c8002845695ce91044a1b7af2c0c24bc6e1120060024532319",
+    "apps/server/src/storage/graph.ts": "637b25aa9df180524e1c7dc89861c8beab70ef429a07bb12dcef61934214b3c4",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "358d110d77544db24ffa9175dffbe5fd7662427661c58314dc975b0cd4612e09",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "c27f204c3c50399f5c73f5c459f4e326cd0ef8e7d111650b3ee9d9531b629e53",
+    "apps/server/src/storage/state.ts": "d01c1c680a34ff0167c604cf024b438366c569c8de698c60cfc63aaf838e149f",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/server/tsconfig.json": "b3b3dbb1eab652d19b7a7b43c997d80c7daae43d999ad819b78d0133b2b91f03",
+    "apps/web/package.json": "27ff56f3d1057afff762ba9ef7acbace3b74d15713ed2e050cc942125c1942db",
+    "apps/web/src/App.test.tsx": "178d9fdd61ca83b50084e7217187a220d1e12c6b805d09ae8a00f52a426e730f",
+    "apps/web/src/App.tsx": "1bbdcdd8fa2bd1e5e13a049e8a28743c178749ece101ca3d7bcdf7daa1d55a1d",
+    "apps/web/src/Documents.tsx": "b0936d7d873efd48b3c16d62e1c90873dc9ab20c32ccc7d768e364b303f7e78b",
+    "apps/web/src/ModelSettings.tsx": "061080a1f1f16cb0ac11e085273f14031b320246e374410da1d3f8304ef17ffb",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "89058c28b3b3909103152777876e3edc789b4ffaf84de3517d02e9ecee112b78",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/style.css": "370a9953359304e0ae061b3169033780b13f62a853e413ce5f468f66daa89e50",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "apps/web/tsconfig.json": "ffff2f934cab3a0918157c1548c8365d8c3cc9d25917d52a107005ba91477d13",
+    "apps/web/vite.config.ts": "ed8d8fcc257c1e9180dc99d2527f8552b13e7972b504fd39ff73f4d1ecc62df0",
+    "eslint.config.js": "b753f6780e2549ae8068ebb4ed827a06cb07a28493c17fbbcd8970db59c1afb4",
+    "internal/contracts/package.json": "1a300e99e344bcfbd828e5c25c6f46600dede0179becf1505b72f07fcc051b33",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "dcab7fb70b8dfe2a486a03633c1f93e8fa814ec0bbf49f9806c83c6edd14bbe3",
+    "internal/contracts/src/parsing.ts": "95ad8c17fe8336d8c01374ac0ba6ca17a1fd13b16128473c79781f48d72fd19d",
+    "internal/contracts/tsconfig.json": "da4ada59566467075ab94a1fa1297cbc3be41523282bb3059116b006b2881eb2",
+    "package-lock.json": "b914e1c0dad6634321922c168df89a443719cd83b5241ee95ae28ff46e035504",
+    "package.json": "3d4483f3b0c13bda885c745b5cb4dad11c5be73d01cae2837a0d23915b32d1a1",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "tests/e2e/bootstrap.spec.ts": "b4b604b57d02778ccbfb34922a335793fba99b9b8400c16df1a25729c13c943a",
+    "tests/e2e/documents.spec.ts": "04e1ea4013253692b0e75a1469cf319d35fab7d5193bcf707bd29d93a9fdcef5",
+    "tests/e2e/models.spec.ts": "0c8f7caf443d199ce42d85b2888711fcdd2a7fac97654db292f51fa44f915204",
+    "tests/e2e/parsers.spec.ts": "03e868e4f93a964dcf5f3da8a95dfc9b050d73ad7629dea0b9086215476bab55",
+    "tests/fixtures/build-documents.mjs": "48679e68b0480f6be181638e936c85156e74f0c57941c065af4049e7d6a489b2",
+    "tests/fixtures/documents-process.mjs": "0ce0be0c265aebd32c47a97d93b994365f45d86c0f3dd6b294d12525761d7764",
+    "tests/fixtures/documents/expected.json": "bb405004ebead14009a8dd9bf8fe0116f395870be655f1dcc7f0798103e4ecd0",
+    "tests/fixtures/documents/sample.json": "7b9d8951a15249de918df41c6d8d7fc59d8911a7628884a5dcc93ffada262dfb",
+    "tests/fixtures/parser-network-probe.mjs": "2c084d325d7619360d3b8d0e63f10c25437e37f63056c169273e9dd4b7f7385e",
+    "tests/fixtures/parser-resource-probe.mjs": "6b1707ae31e9cb7d4ba68b5f13008130f9c3fe26ec7a2a8fd54fab7a2927e16f",
+    "tests/fixtures/storage-process.mjs": "730dc13403b2bfc4fd7d50a6cc93d9445b804bacca824ef09aee3b2fe5a874cf",
+    "tests/helpers/controlled-documents.ts": "1400a8a94a216303674dda608df0b321b73670c2f82428df8a937fa9d549353b",
+    "tests/helpers/document-fixtures.ts": "8951dff80b7e9acd51666250202418b8b7aa36d83321a5cb68b9cb00d3a13784",
+    "tests/helpers/document-service.ts": "8c623abab86620038b8f0ea752d2062854e461c0500d6a08da168ddd89722b40",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/indexed-state.ts": "ac1a6422006aefe9500437c9a6c857cb3c28670f8f01fbd73c0292a8912c5e7e",
+    "tests/helpers/model-profiles.ts": "700d71940940f8091df1a9b32bc7b06462e309c59525ebe44d444d4aff69abe0",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/storage-process.ts": "7f42a924548a6d887f614aea2ae07c1f3a2ab8e627424fdaf209a3f4bc5121c1",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/cancellation.integration.test.ts": "b2569ab1872badeb847b41b03e637e8f68d21ec6067741189cbea0f7cbd67d41",
+    "tests/integration/config-crash.integration.test.ts": "56a9ce24171254efcf7693d63623cf6aa7a3ec41ac7349aa3b85e326702c388b",
+    "tests/integration/documents-api.integration.test.ts": "10b16f21bcf0b74b964568eef0a47519cfa7b71324dced5da90424ae05f77a3e",
+    "tests/integration/health.integration.test.ts": "fb6ac92c480753dd10809f1375e471327e1ad4d5fe40342474dc5b8cadcda8f8",
+    "tests/integration/ingestion-commit.integration.test.ts": "61371c9db727adb1c3f3f95450c90b4376c030f7a49e73b3818d2d43b47a3bbc",
+    "tests/integration/jobs-restart.integration.test.ts": "198ef6e7e1a8bff10b4ba2bfb0c220452a9e10979e5c2fe3792195b540b0bcf9",
+    "tests/integration/jobs.integration.test.ts": "b8001c16e8274c06d045c4b29b1a0f4a76c788224bef87ba3037937dae8eac7c",
+    "tests/integration/models-api.integration.test.ts": "1deed6fc9297dc7183a81abd2e95d0ff79b603b4975aa6455da37ee1867d7405",
+    "tests/integration/snapshot-crash.integration.test.ts": "3ad14db42cd5ca655108ab011036421fa055074fe52bce40ed7c6e0af7483271",
+    "tests/integration/snapshot.integration.test.ts": "ec26e3c2edf545bd159ea2f58b37e1f5a3a2bcfc3a8ca491df69e55e47e341fc",
+    "tests/integration/storage-lifecycle.integration.test.ts": "bd0be57fd0345986928912fbb295db9dd4ae39727861a2a9fc919ae777fa0d2d",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tests/integration/writer-lock.integration.test.ts": "2611d32035444d905954fb699a5dd1b817409639a8004838560f6664f0c9f157",
+    "tsconfig.base.json": "5ce26322ac68850a1568472295f545e1772c0e8a2fa1b169d85a7d8e36e9e7f1",
+    "tsconfig.json": "201730d1d12ab561ce834b1ee1b4819c354376939ee8f399c241e29666deafb8",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "compiledSha256": {
+    "apps/server/dist/app.d.ts": "281956832543abb467eddc767d1e6bf11f59811b5f64c55e3684611da4e8daf9",
+    "apps/server/dist/app.js": "c210e68dfe7321fcb57db653764bd104b3ef87cbfc0f95ec9860429252db4437",
+    "apps/server/dist/cli.d.ts": "5a71a516ce16caedc8fca6bf5f58be385cd49b873a14570ee196ad88a38e2de9",
+    "apps/server/dist/cli.js": "dd5be4fff9a768af8c89b42d20113e09d1dc9900f4af8d665a77c746251a1de9",
+    "apps/server/dist/core/chunker.d.ts": "9f397f8fb0f6e341fcedbff0c86a1a09eb8ebf5fef86c0a7768d5fe7721c9dca",
+    "apps/server/dist/core/chunker.js": "141127f4c948efe80c87b672bbdd5b8785e9fc0db43e88b99f5c2ba0d5bb4c47",
+    "apps/server/dist/core/tokenizer.d.ts": "f6bd149f941ed9a00bb2791d0573de46ea24c82baa84f54521dce6bb17f308f1",
+    "apps/server/dist/core/tokenizer.js": "4d3ec106deb8cf79cdc10a500c0c56dba642183a2a69c76d48d90a2c23612435",
+    "apps/server/dist/documents/files.d.ts": "c0c882b7de1a74d0642504227629d799ec2895c8a74fa3bd98ba119d01011533",
+    "apps/server/dist/documents/files.js": "34cbd4b0091952ca0ef6b6ff218de3ec3ee3ba8cf22573a89386a7bfae697787",
+    "apps/server/dist/documents/service.d.ts": "17109f27e3227edfe0e4c32f3c1befe8f502a45198740438e1741da817818ddc",
+    "apps/server/dist/documents/service.js": "29e814784774603be2872acc508f9459d1701f1391834472d6aae8c7bb39f055",
+    "apps/server/dist/main.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/main.js": "7f37604a078b58dd40bf4a75e666a00509bfc1452b036f0980aa0c9af06f61cd",
+    "apps/server/dist/models/client.d.ts": "2ab2bb693576ac34284d5425151cbd117c5e74a8da3da7448fa51f440d7ec216",
+    "apps/server/dist/models/client.js": "38c3c5a6832e80d9bae88b9d5d42536f59debff74f023c8cb7c319847d95f1e1",
+    "apps/server/dist/models/config.d.ts": "4810a0f8fbeb2e4ee4c6d186a4ceaa5be5e8e6bffaff7404b6cf85765585c5dc",
+    "apps/server/dist/models/config.js": "6d6fcf671748e4d9fb910f9f94b41f91d683b16b8912db018b3a4fe51b8c13ee",
+    "apps/server/dist/models/errors.d.ts": "6119260baef2185d133808a4db74bbb9fc2654c2309b5d829211c8b1275ded3f",
+    "apps/server/dist/models/errors.js": "99b73146782c3aa2610f98a95c8d5bed55eb865f64fe2f63b0c6ce3f23d80e34",
+    "apps/server/dist/models/http.d.ts": "49eff650dc568e74614d329e75b202bd4d9b7d589c41441378f49f8293aa0cb2",
+    "apps/server/dist/models/http.js": "8df24ae843fcefd5ce4f854fa26ca94afb6da360a08e369eb5c982e327e01a21",
+    "apps/server/dist/models/url.d.ts": "121815c7ba140d0d140fb0aa52cfc1cab743b083ee755c507c91e34ab55e11a9",
+    "apps/server/dist/models/url.js": "3749c9fc5659876a1b6930a38ad79240d043e2a4ba0aa46f70dd6380d2b62b58",
+    "apps/server/dist/parsers/archive.d.ts": "7a39315e7069adc24939d50bca9042bb659f0a3b647cb0442f5476a022ed8e5e",
+    "apps/server/dist/parsers/archive.js": "10e49b9f31202dca5c66e297d1b8c2d3bb9ed94d7aa0e7b6440037209b1ae84c",
+    "apps/server/dist/parsers/common.d.ts": "f9d902b5a6cceb4959170f31e1548f8014f05e08e555638bf6e7c3ddbf92af23",
+    "apps/server/dist/parsers/common.js": "e7d6c60808b29e3b413bafa18d5b589172a3cc4eaa659ad406534272eb494680",
+    "apps/server/dist/parsers/index.d.ts": "8deabb54d5e14be9a5a5b8312c9eca6f3e6e8ba9c78ab5b14682d034162a60e9",
+    "apps/server/dist/parsers/index.js": "c8a24129508b11470c1fd775ccbbfb5869b534d20b4f97245a13e150414b4409",
+    "apps/server/dist/parsers/network.d.ts": "7708a098f0a46ab6a915fc7aed2223dd3a20c05dbfa96ad1e002c5cdf4f46966",
+    "apps/server/dist/parsers/network.js": "7096afedb1e9a9b6be3dcaae56b6673636165966cec59d0de579bb7e34f7c4b3",
+    "apps/server/dist/parsers/office.d.ts": "c70a41778217d4e6291d084f8a088623ba3b0713cf43be3ce162a64843ebf8c0",
+    "apps/server/dist/parsers/office.js": "54c33dd260f1d9978150cb0916ccce647205ef08831bb1c6b59a3cf1b42af6a4",
+    "apps/server/dist/parsers/pdf.d.ts": "0050563b2581bd2c1b3e8f407309457dc67eee3fb12a2e6c1f26e9d56a5430f7",
+    "apps/server/dist/parsers/pdf.js": "02ae9953bbed61a72ae34987dada4c891e8167497a499704ac198413b7bf5a39",
+    "apps/server/dist/parsers/text.d.ts": "0956e73a25b9a917824168a113a4e23be445fe160334842f4269cbf33948a0aa",
+    "apps/server/dist/parsers/text.js": "dc44ce053d39fd625ac119c17ad243e1b81264090ea96bcd940ddc3c3090bb2e",
+    "apps/server/dist/parsers/worker.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/parsers/worker.js": "d0ad7f1ed8a028cbe87abf3dae4c6fdf1794b3bdf19d99fc47155962afcaa48f",
+    "apps/server/dist/parsers/xml.d.ts": "ed7f8f51bffe447fee72df763d73edaf7617d74e9c015eb713ab378f77bbddf3",
+    "apps/server/dist/parsers/xml.js": "c822270283012cab233bad492c75bfc6447dbfc90f80709f3c690df95820c989",
+    "apps/server/dist/paths.d.ts": "24ac60ebf4142be60b39763a192a1b471b4944e3b10c6a6fdf8026e090da908d",
+    "apps/server/dist/paths.js": "152a1eb0c8c4224f360d67b01bb464b7de890685cd691070a79f942acfed0ab6",
+    "apps/server/dist/storage/disk.d.ts": "61d87608e350b8c6ee5fcd796f66710fb3c4c93480e1ba5e9d8b43a632a8602b",
+    "apps/server/dist/storage/disk.js": "06c77d9f7bc772860696ad0e5d60045fe81eabde8a77666b53be5231d8eb3c00",
+    "apps/server/dist/storage/graph.d.ts": "396d65b296075098eca6439fc02dacc53f280afacfddddcbf375310d47939753",
+    "apps/server/dist/storage/graph.js": "34ac8c5b67be45558ca5582591ce29139ebf41729b4d28cfa25e878eaded943d",
+    "apps/server/dist/storage/io.d.ts": "8910036f9c08726a64772af328fccaf5b1da07a96a088bfec78c59357f88c708",
+    "apps/server/dist/storage/io.js": "14a1ecaba6ae496d1055a7160a91f13b29fdb41bdb4c817da978a9e9f3850330",
+    "apps/server/dist/storage/kv.d.ts": "f844dc94fa792bac890e2ed9ec5801faef3af685e007a331ecee7c40dbbece79",
+    "apps/server/dist/storage/kv.js": "4c3a3a7d8e3850552144e600e10bd11ca32fb5320026799bf1c725d233d79aac",
+    "apps/server/dist/storage/maintenance.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/storage/maintenance.js": "546005429eed0cd977334a69469c8b457813e1ec151a3f0bd8f4bad6cb5bb79c",
+    "apps/server/dist/storage/recovery.d.ts": "eafadb1b6611ccfebfd17e5b6d632f5d835a1cf27798407e784752b2ed0eb0b3",
+    "apps/server/dist/storage/recovery.js": "7982317bb3a332dd17c04cd281ab8073406a2bc5cae6d6456e3c5219e9346e8e",
+    "apps/server/dist/storage/snapshot.d.ts": "95c1d83713f502f8fa6b893e4782c25edd4bdabf8e8d24e27ec40fbf63b7f86b",
+    "apps/server/dist/storage/snapshot.js": "b5035da8f09b4b16ff4ccb408ec5b4451a07dd5bac1caff2a3dcbf14e4e87219",
+    "apps/server/dist/storage/state.d.ts": "90a9949fff7922f8f590ceab0d94e97fee91f8ec30545603a5f659269be3f3d1",
+    "apps/server/dist/storage/state.js": "153978e5aa5ce9590b31021f9de6d7bfbafd69f4b037335ee995405227bfc180",
+    "apps/server/dist/storage/vectors.d.ts": "14db169da0a0772f8a88c77b736fe4548796a422a65c289c3501d089d5cab5b2",
+    "apps/server/dist/storage/vectors.js": "8ee3e7eac1a95cdf0a31e06da7e796adf4e0a50f5100692f474b4ebee6aa39f9",
+    "apps/server/dist/storage/writer-lock.d.ts": "15053f43d65f5029871ca6791a5ed987b4b5d37d43c098bedd2c9e1c447b7d8a",
+    "apps/server/dist/storage/writer-lock.js": "6df2ece73b331403caa50965d9695fd6e53eaece3c77cffc1cb7f1297e935714",
+    "apps/server/dist/tsconfig.tsbuildinfo": "c5e79c5c27c3da67131a805a4d953be3d4d31784a49f1180a0d7ca1fef07388d",
+    "apps/web/dist/assets/index-BmsT99RN.css": "8ef9356d80ba082dfff4ed1baf1fb0e5cc6597968df65859cfe0003f55172a33",
+    "apps/web/dist/assets/index-Os1dOhb1.js": "7ed55b02c9ac611470bdaeac33fe6e4e8c0c3e1c9f5d65b2e1241733ee7a71bd",
+    "apps/web/dist/index.html": "13873f968895103a2799f84c06f2c0d65b3e7d2493c7929d2cfe466370b7bf50",
+    "internal/contracts/dist/index.d.ts": "a3f77265e8e63d57b341d6821fc96ec46313bbbdfa95d5c27835f20664c3555f",
+    "internal/contracts/dist/index.js": "5c570144fb63b77b10c3c81494805446182169260a4e13f26894efdf0eaae518",
+    "internal/contracts/dist/parsing.d.ts": "4256a67c1bd1b9e819b59256206330bbee7fa9c4e47ac9bd49c6f330a216527e",
+    "internal/contracts/dist/parsing.js": "9efdb0f416e042d878da2e87173bdd03a6ffc1be2e754c84d67b7d46e16a3ca6",
+    "internal/contracts/dist/tsconfig.tsbuildinfo": "d6bdb23e3fd880c7a4ec743ddfdffa5260d19e9d17e8c98e3cba4d8f98edca4c"
+  },
+  "diagnosedIssues": [
+    "Type optional ingestion metadata is validated through JsonSchema before storage; no unsafe cast into persistent values.",
+    "Initial 281-test run had 2 failures: illegal filename/format errors reached Fastify default handling. Registered sanitized error handler before routes; retained 400 and requestId/secret assertions.",
+    "Caught I/O conflict errors preserve cause internally; public messages remain sanitized.",
+    "Serialized artifact quota/publication and final record update prevent concurrent overrun; cancellation uses the latest snapshot at commit.",
+    "Final typecheck/lint/build/288 tests plus 5 browser cases passed."
+  ],
+  "limits": [
+    "S06 extraction/merging/embedding/indexing unimplemented; awaiting_indexing explicitly parks parsed work, never fake processed.",
+    "No document-pipeline model calls/charges in S05; model-stage cancellation acceptance follows S06, existing connection-test cancellation regressed.",
+    "No G01-G12 reference algorithm acceptance, deletion/rebuild, retrieval/answering or actual external provider validation.",
+    "No automatic GC for original/artifact orphans or historical snapshots; physical disk use exceeds referenced-file quotas.",
+    "Schema v1 reads pre-S05 documents/jobs via optional extensions; older executables cannot read new fields/status.",
+    "Linux local filesystem only; no NFS/multi-host/other OS/physical-power-loss guarantee."
+  ]
+}

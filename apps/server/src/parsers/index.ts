@@ -19,7 +19,7 @@ async function acquire(signal: AbortSignal) {
   });
 }
 function release() { const next = waiters.shift(); if (next) { next.signal.removeEventListener('abort', next.abort); next.enter(); } else active--; }
-export interface ParseOptions { signal?: AbortSignal; limits?: Partial<Limits> }
+export interface ParseOptions { signal?: AbortSignal; limits?: Partial<Limits>; onPhase?: (phase: 'parsing' | 'chunking') => void }
 async function runWorker(bytes: Uint8Array, fileName: string, options: ParseOptions, chunking?: ChunkOptions): Promise<{ document: ParsedDocument; chunks: TextChunk[] }> {
   formatOf(fileName); const limits = limitsFor(options.limits);
   if (!(bytes instanceof Uint8Array) || bytes.length > limits.inputBytes) fail('PARSER_LIMIT', '输入文件超过大小限制');
@@ -42,7 +42,10 @@ async function runWorker(bytes: Uint8Array, fileName: string, options: ParseOpti
       detach = () => { signal.removeEventListener('abort', abort); };
       worker!.once('error', () => { reject(new ParserError('PARSER_WORKER_FAILED', '解析 Worker 失败或超出资源限制')); });
       worker!.once('exit', () => { reject(new ParserError('PARSER_WORKER_FAILED', '解析 Worker 意外退出')); });
-      worker!.once('message', (result: unknown) => {
+      worker!.on('message', (result: unknown) => {
+        if (result && typeof result === 'object' && 'event' in result && result.event === 'phase' && 'phase' in result && (result.phase === 'parsing' || result.phase === 'chunking')) {
+          options.onPhase?.(result.phase); return;
+        }
         signal.removeEventListener('abort', abort);
         const response = result as { ok?: boolean; document?: unknown; code?: string; message?: string; chunks?: TextChunk[] };
         if (response.ok) {

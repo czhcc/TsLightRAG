@@ -9,11 +9,13 @@ const request = workerData as { bytes: Uint8Array; fileName: string; limits: Lim
 try {
   const limits = limitsFor(request.limits); const format = formatOf(request.fileName);
   if (request.bytes.length > limits.inputBytes) fail('PARSER_LIMIT', '输入文件超过大小限制');
+  parentPort?.postMessage({ event: 'phase', phase: 'parsing' });
   const out = new Output(limits); let extra = {};
   if (format === 'pdf') extra = await (await import('./pdf.js')).parsePdf(request.bytes, out);
   else if (['docx', 'xlsx', 'pptx'].includes(format)) extra = await (await import('./office.js')).parseOffice(format, request.bytes, out);
   else (await import('./text.js')).parseText(format, request.bytes, out);
   const document = out.finish(format, request.fileName, request.bytes, extra);
+  if (request.chunking) parentPort?.postMessage({ event: 'phase', phase: 'chunking' });
   const chunks = request.chunking ? (await import('../core/chunker.js')).chunkDocument(document, request.chunking) : [];
   parentPort?.postMessage({ ok: true, document, chunks });
 } catch (error) {

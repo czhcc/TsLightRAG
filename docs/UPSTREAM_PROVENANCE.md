@@ -46,3 +46,7 @@
 | fflate / @types/yauzl | 0.8.3 / 3.4.0 | MIT；开发夹具生成/安全变体与类型 |
 
 依赖经 npm/lockfile 获取，未把其源码、原生预编译模块或字体资产 vendoring 到 Git。PDF.js 包内资产/原生可选依赖可能另有附带声明，实际分发 npm 依赖时须同时保留相关 LICENSE/NOTICE/版权，不能只保留本表。根项目与 LightRAG 的许可交付仍在 S12 完整审查；本表不更改 LightRAG 的 MIT 版权约定。
+
+## S05 来源状态
+
+`apps/server/src/documents/`、Worker 阶段通知、文档/任务契约与存储校验、`apps/web/src/Documents.tsx` 以及新导入/任务/取消/重启测试均为新编写，依据本仓库方案实现。未复制上游 pipeline/router/UI/提示词或夹具，无新增第三方依赖。`awaiting_indexing` 是目标端为明确 S05/S06 边界增加的状态，不宣称全部上游任务/API 兼容；GraphRAG 算法及参考验收仍待后续阶段。

@@ -86,6 +86,15 @@ export class WorkspaceDraft {
     for (const [id, job] of this.jobs.entries()) {
       if (job.id !== id || (job.documentId !== null && !docs.has(job.documentId))) throw new Error('Job document reference mismatch');
     }
+    for (const doc of docs.values()) if (doc.ingestion) {
+      const job = this.jobs.get(doc.ingestion.latestJobId);
+      if (doc.ingestion.sourceKey !== `${doc.contentHash}.blob` || !job || job.documentId !== doc.id || job.status !== doc.status) throw new Error('Ingestion job/source reference mismatch');
+    }
+    for (const job of this.jobs.entries().map(([, value]) => value)) {
+      if (job.previousJobId) { const previous = this.jobs.get(job.previousJobId);
+        if (!previous || previous.documentId !== job.documentId || previous.attempt + 1 !== job.attempt) throw new Error('Job attempt chain mismatch'); }
+      if (job.result && job.result.artifactKey !== `${job.id}/prepared.json`) throw new Error('Job artifact identity mismatch');
+    }
     const chunks = new Map(this.kv.textChunks.entries().map(([id, value]) => {
       const chunk = ChunkSchema.parse(value); const doc = docs.get(chunk.docId);
       if (chunk.id !== id || !doc || doc.version !== chunk.docVersion || doc.status !== 'processed') throw new Error('Chunk document reference mismatch');

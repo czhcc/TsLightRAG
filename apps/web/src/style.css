@@ -46,3 +46,5 @@ button:disabled { opacity: .55; cursor: wait; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th, td { text-align: left; padding: 10px; border-bottom: 1px solid #d1ded7; vertical-align: top; }
 th { color: #254e3f; }
+textarea { display: block; box-sizing: border-box; width: min(680px, 100%); max-width: 100%; padding: 10px; border: 1px solid #a8bdb3; border-radius: 5px; font: inherit; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f0f5f2; padding: 16px; }

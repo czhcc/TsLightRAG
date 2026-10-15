@@ -14,7 +14,7 @@ test('production UI displays the actual local parser capability matrix and budge
     expect(response.status()).toBe(200);
     expect(await response.json()).toMatchObject({ parserVersion: 's04-v1', localOnly: true, limits: { inputBytes: 20971520, zipEntries: 10000 } });
     expect((await response.json() as { formats: unknown[] }).formats).toHaveLength(9);
-    expect((await page.request.post(`${service.address}/api/v1/documents`, { data: {} })).status()).toBe(404);
+    expect((await page.request.post(`${service.address}/api/v1/documents`, { data: {} })).status()).toBe(400);
     await page.screenshot({ path: test.info().outputPath('s04-capabilities.png'), fullPage: true });
   } finally { await service.stop(); }
 });

@@ -85,12 +85,14 @@ export const TestModelResultSchema = z.strictObject({
 
 export const DocumentStatusSchema = z.enum([
   'queued', 'parsing', 'chunking', 'extracting', 'embedding', 'committing',
-  'processed', 'failed', 'cancelled', 'awaiting_configuration', 'interrupted',
+  'processed', 'failed', 'cancelled', 'awaiting_configuration', 'awaiting_indexing', 'interrupted',
 ]);
 export const DocumentSchema = z.strictObject({
   id: IdSchema, name: z.string().min(1).max(255), contentHash: z.string().regex(/^[a-f0-9]{64}$/),
   version: z.number().int().positive(), status: DocumentStatusSchema,
   createdAt: timestamp, updatedAt: timestamp,
+  ingestion: z.strictObject({ sourceKey: z.string().regex(/^[a-f0-9]{64}\.blob$/),
+    bytes: z.number().int().min(1).max(20 * 1024 * 1024), latestJobId: IdSchema }).optional(),
 });
 export const JobSchema = z.strictObject({
   id: IdSchema, documentId: IdSchema.nullable(),
@@ -98,7 +100,23 @@ export const JobSchema = z.strictObject({
   status: DocumentStatusSchema, attempt: z.number().int().positive(),
   configRevision: z.number().int().nonnegative(), cancelRequested: z.boolean(),
   error: z.string().max(2000).nullable(), updatedAt: timestamp,
+  phase: z.enum(['queued', 'parsing', 'chunking', 'persisting_parse', 'awaiting_configuration', 'awaiting_indexing', 'failed', 'cancelled', 'interrupted', 'processed']).optional(),
+  previousJobId: IdSchema.optional(), createdAt: timestamp.optional(), errorCode: z.string().max(100).optional(),
+  preparation: z.strictObject({ encoding: z.enum(['cl100k_base', 'o200k_base']),
+    missingRoles: z.array(ModelRoleSchema), configIdentity: z.string().regex(/^[a-f0-9]{64}$/) }).optional(),
+  warnings: z.array(z.strictObject({ code: z.string().max(100), message: z.string().max(2000) })).max(1001).optional(),
+  result: z.strictObject({ artifactKey: z.string().regex(/^j-[a-f0-9-]{36}\/prepared\.json$/),
+    sha256: z.string().regex(/^[a-f0-9]{64}$/), bytes: z.number().int().positive().max(32 * 1024 * 1024),
+    chunks: z.number().int().positive(), blocks: z.number().int().positive(), parserVersion: z.literal('s04-v1') }).optional(),
 });
+export type DocumentRecord = z.infer<typeof DocumentSchema>;
+export type JobRecord = z.infer<typeof JobSchema>;
+export const ImportTextSchema = z.strictObject({ name: z.string().min(1).max(255), text: z.string().min(1).max(2_000_000) });
+export const ImportResultSchema = z.strictObject({ document: DocumentSchema, job: JobSchema, deduplicated: z.boolean() });
+export const DocumentListSchema = z.strictObject({ items: z.array(DocumentSchema), total: z.number().int().nonnegative(),
+  offset: z.number().int().nonnegative(), limit: z.number().int().positive() });
+export const DocumentDetailSchema = z.strictObject({ document: DocumentSchema, job: JobSchema.nullable() });
+export const RetryDocumentSchema = z.strictObject({ expectedJobId: IdSchema });
 export const EntitySchema = z.strictObject({
   id: IdSchema, name: z.string().trim().min(1).max(500), type: z.string().min(1).max(100),
   description: text, sourceChunkIds: z.array(IdSchema).min(1).max(10_000),
@@ -147,11 +165,11 @@ export const StreamEventSchema = z.discriminatedUnion('type', [
 export type StreamEvent = z.infer<typeof StreamEventSchema>;
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S04'), usable: z.literal(false),
+  status: z.literal('ok'), stage: z.literal('S05'), usable: z.literal(false),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),
-  jobs: z.strictObject({ available: z.literal(false) }),
+  jobs: z.strictObject({ available: z.literal(true) }),
 });
 export type Health = z.infer<typeof HealthSchema>;
 

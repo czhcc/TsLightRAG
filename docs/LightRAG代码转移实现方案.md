@@ -11,7 +11,7 @@
 - 分析来源：<https://github.com/HKUDS/LightRAG>。
 - 固定上游提交：`aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 上游提交时间：2026-10-14T22:55:37+08:00；源码版本字段为 `1.5.8`，API 版本字段为 `0347`。以提交 SHA 为分析基准，不以会变化的默认分支或版本字段单独定位。
-- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议及 S04 本地解析/分块已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md) 和 [S04 验证记录](S04_VALIDATION.md)。上传任务、索引、图谱算法和其他业务接口仍为**待实施约定**，不能以基座通过代替功能验收。
+- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块和 S05 文档/持久化任务已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md) 和 [S05 验证记录](S05_VALIDATION.md)。索引、图谱算法和其他业务接口仍为**待实施约定**，不能以基座通过代替功能验收。
 - 配套文档：[LightRAG代码转移实施步骤](LightRAG代码转移实施步骤.md)。
 
 ## 2. 用户要求与迁移边界
@@ -233,7 +233,7 @@ S02 当前实现使用同进程原生 `flock`，Linux 内核负责互斥与进�
 
 ### 5.3 任务、失败与删除
 
-- 状态：`queued → parsing → chunking → extracting → embedding → committing → processed`；任意执行阶段可到 `failed`，取消到 `cancelled`，缺配置到 `awaiting_configuration`，重启遗留执行态标为 `interrupted`。
+- 状态：`queued → parsing → chunking → extracting → embedding → committing → processed`；任意执行阶段可到 `failed`，取消到 `cancelled`，缺配置到 `awaiting_configuration`，重启遗留执行态标为 `interrupted`。S05 新增 `awaiting_indexing`，明确表示本地解析/分块完成、等待 S06 索引，不将其当作 processed。
 - HTTP 网络错误/429/部分 5xx 采用有上限的退避重试；401/403、schema 或维度错误不盲目重试。文档级失败/取消/中断只允许显式重试，避免重启产生不受控模型费用。
 - 支持没有模型配置时启动；文档可解析，但不把未配置 embedding/文本模型的任务标记为已索引。任务配置预检和 UI 给出具体缺项。
 - 删除、清空、重建和索引发布共用写入门；查询仍读已提交快照。删除先建立候选状态，撤销该文档贡献，重算仍被其他文档引用的实体/关系，再原子发布。
@@ -417,7 +417,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 10. 无外部数据库、远程解析器、Python 运行依赖、对外 SDK；保留 MIT 来源与许可，Git 无密钥/原始数据/运行缓存。
 11. G01–G12 对应的 TS 算法实现和源码参考验收齐全，尤其默认 VECTOR 与 WEIGHT 块选择、local/global 排序和三路融合；不可用“有图”“支持五模式”替代核心算法保真门槛。
 
-S01 已验证开发启动 `npm run dev`，以及生产构建后 `npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data` 对应的入口；当前可使用模型编辑/保存、候选协议测试、内部九格式 Worker 解析/分块和页面能力矩阵，见 S03/S04 验证记录；上传任务尚未接通。S11 仍需重新执行完整业务验收，不以这些启动结果替代存储、模型或算法验证。
+S01 已验证开发启动 `npm run dev`，以及生产构建后 `npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data` 对应的入口；当前可使用模型编辑/保存、候选协议测试、内部九格式 Worker 解析/分块和页面能力矩阵，见 S03/S04 验证记录；S05 已接通上传及持久化任务，见 S05 记录。S11 仍需重新执行完整业务验收，不以这些启动结果替代存储、模型或算法验证。
 
 ## 11. 许可、风险与后续决策
 

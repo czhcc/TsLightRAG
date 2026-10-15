@@ -11,7 +11,7 @@ describe('real executable server without inherited environment', () => {
     const response = await fetch(`${service.address}/api/v1/health`);
     expect(response.status).toBe(200);
     const health = HealthSchema.parse(await response.json());
-    expect(health).toMatchObject({ status: 'ok', usable: false, stage: 'S04', storage: { initialized: true } });
+    expect(health).toMatchObject({ status: 'ok', usable: false, stage: 'S05', storage: { initialized: true } });
     expect(health.models.missingRoles).toEqual(['query', 'embedding']);
   });
   it('serves explicit empty, editable model configuration', async () => {
@@ -41,8 +41,8 @@ describe('real executable server without inherited environment', () => {
     expect(response.status).toBe(404);
     expect(ApiErrorSchema.parse(await response.json()).code).toBe('NOT_FOUND');
   });
-  it('does not pretend to save models or accept documents', async () => {
-    for (const path of ['/api/v1/settings/models', '/api/v1/documents']) {
+  it('rejects unsupported POST to model settings', async () => {
+    for (const path of ['/api/v1/settings/models']) {
       const response = await fetch(`${service.address}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
       expect(response.status).toBe(404);
     }

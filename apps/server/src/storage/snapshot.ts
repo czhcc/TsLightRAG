@@ -34,6 +34,8 @@ export class SnapshotView {
   get corpusRevision() { return this.current.manifest.corpusRevision; }
   getKV(namespace: KVName, id: string) { return this.current.state.kv[namespace].get(id); }
   entries(namespace: KVName) { return this.current.state.kv[namespace].entries(); }
+  documents() { return this.current.state.documents.entries().map(([, doc]) => doc); }
+  jobs() { return this.current.state.jobs.entries().map(([, job]) => job); }
   document(id: string) { return this.current.state.documents.get(id); }
   job(id: string) { return this.current.state.jobs.get(id); }
   node(id: string) { return this.current.state.graph.getNode(id); }
