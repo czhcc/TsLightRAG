@@ -5,8 +5,9 @@ import staticFiles from '@fastify/static';
 import multipart from '@fastify/multipart';
 import { ApiErrorSchema, HealthSchema, ModelSettingsSchema } from '@tslightrag/contracts';
 import { webDist } from './paths.js';
+import type { SnapshotStore } from './storage/snapshot.js';
 
-export async function buildApp(options: { staticDir?: string } = {}) {
+export async function buildApp(options: { storage: SnapshotStore; staticDir?: string }) {
   const app = Fastify({ logger: false, bodyLimit: 1024 * 1024 });
   await app.register(multipart, { limits: { fileSize: 20 * 1024 * 1024, files: 1 } });
   app.addHook('onSend', async (_request, reply) => {
@@ -28,11 +29,18 @@ export async function buildApp(options: { staticDir?: string } = {}) {
       }));
     }
   });
-  app.get('/api/v1/health', async () => HealthSchema.parse({
-    status: 'ok', stage: 'S01', usable: false,
-    models: { configured: false, missingRoles: ['query', 'embedding'] },
-    storage: { initialized: false, status: 'not_implemented' }, jobs: { available: false },
-  }));
+  app.get('/api/v1/health', async (request, reply) => {
+    if (!options.storage.healthy) return reply.code(503).send(ApiErrorSchema.parse({
+      code: 'STORAGE_UNAVAILABLE', message: '本地存储不可用，请检查并重启', requestId: request.id,
+    }));
+    const snapshot = options.storage.capture();
+    return HealthSchema.parse({
+      status: 'ok', stage: 'S02', usable: false,
+      models: { configured: false, missingRoles: ['query', 'embedding'] },
+      storage: { initialized: true, status: 'ready', generation: snapshot.generation,
+        revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: false },
+    });
+  });
   app.get('/api/v1/settings/models', async () => ModelSettingsSchema.parse({
     revision: 0, profiles: [], editingAvailable: false,
     bindings: { query: null, extract: null, keyword: null, embedding: null, rerank: null },

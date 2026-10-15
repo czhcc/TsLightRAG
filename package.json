@@ -23,13 +23,16 @@
     "test": "npm run build && vitest run",
     "test:unit": "npm run build && vitest run internal/contracts apps/server/src apps/web/src",
     "test:integration": "npm run build && vitest run tests/integration",
-    "test:e2e": "npm run build && playwright test"
+    "test:e2e": "npm run build && playwright test",
+    "storage:inspect": "node apps/server/dist/storage/maintenance.js inspect",
+    "storage:recover": "node apps/server/dist/storage/maintenance.js recover"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/fs-ext": "2.0.3",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

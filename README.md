@@ -4,11 +4,13 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S01 工程与测试基座已完成。** 服务端和 WebUI 可以构建、启动，提供健康检查及只读模型设置入口。存储、模型保存与调用、文档处理和图谱检索尚未实现；下方业务能力仍为后续计划，不代表完整知识库已可使用。
+> **当前状态：S02 本地存储基座已完成。** 服务启动会初始化或校验文件持久化的内存 KV、向量、图与状态存储。模型保存与调用、文档处理和图谱检索尚未实现；当前页面仍是只读入口，不代表完整知识库已可使用。
 
 ## 快速开始
 
 使用 Node.js **24.19.0** 与 npm **11.9.0**（版本约束见 `.node-version` 和 `package.json`），在仓库根目录执行：
+
+S02 当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 只用于安装时编译，不参与应用运行、文档解析或模型调用。
 
 ```bash
 npm ci
@@ -25,7 +27,7 @@ npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
 npm start -- --config ./startup.json
 ```
 
-可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是 S01 启动配置，不是尚未实现的模型配置文件。S01 只解析并报告 dataDir，不创建数据库，也不读写已有知识库数据。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
+可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置，不是尚未实现的模型配置文件。S02 会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
 
 开发模式：
 
@@ -46,7 +48,25 @@ npm run test:e2e
 
 `npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
 
-S01 验证结果：**71 项测试和 1 项浏览器 E2E 通过**，无失败或跳过；已验证 `npm ci` 后重复构建和测试，以及开发代理。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 与 [S01 验证记录](docs/S01_VALIDATION.md)。
+S02 验证结果：**121 项测试和 1 项浏览器 E2E 通过**，无失败或跳过；包含 10 个真实 SIGKILL 提交边界、单写者与恢复测试。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S02 验证记录](docs/S02_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+
+## 本地存储与恢复
+
+已实现内存 KV、归一化 Float32 向量的 cosine/top-k、无向图及状态/贡献表容器。它们是存储基础，不包含实体抽取、模型 embedding 或 GraphRAG 多模式检索。
+
+数据位于 `data/workspace/default/`，以完整 generation 文件和 `CURRENT` 指针发布。查询持有一个稳定版本；同一 dataDir 只允许一个服务或维护进程持有内核文件锁。锁文件内容和年龄不是判断依据，进程退出后锁由内核释放，不能通过删除 lease 文件解锁。
+
+损坏、未知 schema、缺失文件或无效引用会阻止启动，不自动选择旧代或覆盖成空库。需要恢复时，先停止使用该 dataDir 的服务，再检查并明确选择完整 generation：
+
+```bash
+npm run storage:inspect -- --data-dir ./data
+# CURRENT 损坏时，可从 data/workspace/default/generations 查找候选 ID 后检查：
+npm run storage:inspect -- --data-dir ./data --generation <generation-id>
+# 恢复会回退到选中代，可能丢弃之后的变更；须显式确认：
+npm run storage:recover -- --data-dir ./data --generation <generation-id> --confirm-data-loss
+```
+
+维护命令与应用使用同一个排他锁，运行中的服务会使维护命令失败。恢复前会完整校验目标代，并备份已有 CURRENT。当前保留全部历史及失败候选代便于诊断，没有自动 GC；空间和单命名空间文件 256 MiB 上限见 S02 验证记录。
 
 ## 项目目标
 
@@ -106,9 +126,10 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [LightRAG代码转移实施步骤](docs/LightRAG代码转移实施步骤.md)：S00–S12 阶段依赖、交付物、各阶段测试和验收场景。
 - [实施状态](docs/IMPLEMENTATION_STATUS.md)：各阶段实际进度、验证证据和下一步。
 - [S01 验证记录](docs/S01_VALIDATION.md)：已执行命令、测试范围、工具版本和限制。
+- [S02 验证记录](docs/S02_VALIDATION.md)：快照格式、锁、故障恢复、测试证据和当前限制。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 S01。下一步是 **S02：文件持久化内存存储与快照**；S03 实现模型配置与调用。G01–G12 图谱算法仍全部待实现和验证。
+当前已完成源码分析、方案文档、S01 和 S02。下一步是 **S03：本地模型配置与 HTTP 调用**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
 
 获取当前仓库：
 
@@ -131,4 +152,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01 工程代码为新编写，尚未导入上游应用算法代码。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01/S02 工程与存储代码为新编写，尚未导入上游应用算法代码。

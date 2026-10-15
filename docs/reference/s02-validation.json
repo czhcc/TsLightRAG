@@ -1,0 +1,777 @@
+{
+  "stage": "S02",
+  "scope": "Linux local file-backed in-memory storage; no business ingestion/model calls/GraphRAG algorithms.",
+  "targetParent": "b3a64f0f11fd849c9e7bd5fed3e079fde85cc781",
+  "upstreamSha": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "tools": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "fs-ext": "2.1.1",
+    "nan": "2.29.0",
+    "types-fs-ext": "2.0.3"
+  },
+  "tests": {
+    "reported": 121,
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0,
+    "files": 13,
+    "suites": [
+      {
+        "path": "tests/integration/health.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "real executable server without inherited environment distinguishes a live process from a ready knowledge base",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves explicit empty, read-only model configuration",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /settings/models",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves hashed assets with JavaScript MIME",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /api/v1/missing",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /assets/missing.js",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /missing-page",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment does not pretend to save models or accept documents",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment rejects foreign Origin and hostile Host",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment accepts the exact same Origin and sets defensive response headers",
+            "status": "passed"
+          },
+          {
+            "name": "ignores business environment variable overrides",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/snapshot-crash.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "survives actual SIGKILL at after-namespace:kv.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:document-status.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-chunks.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-entities.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-relations.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:graph.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-manifest with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at before-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current-sync with one complete old/new generation",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/snapshot.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "publishes all namespaces, restores Unicode/float32/graph/statuses and captures stable old views",
+            "status": "passed"
+          },
+          {
+            "name": "serializes concurrent deltas from the latest state and isolates escaped drafts",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-namespace failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-manifest failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on before-current failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current failure",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current-sync failure",
+            "status": "passed"
+          },
+          {
+            "name": "does not acknowledge a real filesystem write error (including when tests run as root)",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt CURRENT, preserves it, and supports explicit validated recovery",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on checksum without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on manifest without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on version without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-current without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-file without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on current-symlink without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "checks mixed-space even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks dangling-edge even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-source even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-vector even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid contributions before writing and drains accepted commits before closing",
+            "status": "passed"
+          },
+          {
+            "name": "does not initialize a blank database over unrecognized pre-existing data",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/storage-lifecycle.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "boots the real server with storage, rejects a second process and retains data on restart",
+            "status": "passed"
+          },
+          {
+            "name": "CLI refuses damaged storage before listening and offers explicit inspect/recover commands",
+            "status": "passed"
+          },
+          {
+            "name": "returns 503 rather than healthy readiness when a published commit has fenced storage",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/test-infrastructure.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "isolates test directories and removes only owned files",
+            "status": "passed"
+          },
+          {
+            "name": "provides input-sensitive HTTP model fixtures with recorded protocol requests",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/writer-lock.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "rejects another writer in the same process and permits a different data directory",
+            "status": "passed"
+          },
+          {
+            "name": "does not steal an aged live lock or trust forged owner metadata, and releases on SIGKILL",
+            "status": "passed"
+          },
+          {
+            "name": "refuses a symlink data directory before creating workspace files outside it",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/server/src/cli.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "CLI configuration resolves defaults from repository root, independent of cwd",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration uses config then explicit CLI overrides and preserves existing config",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--unknown\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"positional\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration sanitizes malformed or missing config and disallows unknown fields",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration supports help without starting the application",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/web/src/App.test.tsx",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "shows startup is live while indexing and models remain unavailable",
+            "status": "passed"
+          },
+          {
+            "name": "renders three distinct model roles without a fake save action",
+            "status": "passed"
+          },
+          {
+            "name": "shows a network failure and retries the actual API boundary",
+            "status": "passed"
+          },
+          {
+            "name": "aborts owned outstanding requests on unmount",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "internal/contracts/src/contracts.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "query contracts uses mix and the upstream VECTOR/5 defaults",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts naive mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts local mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts global mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts hybrid mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts mix mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 0",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 1",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 2",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 3",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 4",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 5",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 6",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 7",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 8",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 9",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 10",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 11",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts accepts local HTTP profiles",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/v1?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/#x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects API keys in public configuration",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts requires dimensions and finite concurrency",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts validates profile uniqueness and role kinds",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts validates document timestamps, hashes and versions",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires a valid job attempt and explicit cancellation state",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires evidence and rejects non-finite graph weights",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires citation source chunks, without inventing a required page",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'meta', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'references', references: [] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'delta', text: 'Unicode 🧮' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'done', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'error', error: [Object] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'cancelled' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts rejects mixed terminal events and arbitrary error payloads",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/server/src/storage/graph.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "canonicalizes undirected edges without ambiguous pair keys",
+            "status": "passed"
+          },
+          {
+            "name": "isolates returned data, counts self loops as NetworkX does, and removes incident edges",
+            "status": "passed"
+          },
+          {
+            "name": "rebuilds adjacency on restore and rejects corrupt canonical IDs/duplicates",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/server/src/storage/kv.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "stores Unicode and isolates both incoming and outgoing values",
+            "status": "passed"
+          },
+          {
+            "name": "preserves map keys without prototype pollution or duplicate restores",
+            "status": "passed"
+          },
+          {
+            "name": "rejects non-JSON numbers and unsafe or oversized keys",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/server/src/storage/vectors.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "normalizes, returns exact cosine/top-k and uses stable ID ties",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[0,0]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "validates spaces, top-k and thresholds even for empty data",
+            "status": "passed"
+          },
+          {
+            "name": "JSON round-trips float32 without accumulating reload drift",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/web/src/api/client.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "rejects non-HTTP-success responses without exposing provider data",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed health payloads rather than declaring readiness",
+            "status": "passed"
+          },
+          {
+            "name": "forwards the cancellation signal to a same-origin model settings request",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "reported": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "actualProductionServer": true,
+    "storageInitializedShown": true
+  },
+  "storage": {
+    "schemaVersion": 1,
+    "namespaceFiles": 6,
+    "actualSigkillBoundaries": 10,
+    "osLock": "fs-ext flockSync exnb in application process",
+    "singleDefaultWorkspace": true,
+    "maxNamespaceBytes": 268435456,
+    "autoGc": false,
+    "crossStoreReferencesValidated": true,
+    "float32JsonNoReloadDrift": true,
+    "publishedFailureFencesStorage": true,
+    "unknownSchemaAndDamageFailClosed": true,
+    "recoveryOfflineAndExplicit": true,
+    "unrecognizedLegacyDataRefusesBlankInitialization": true
+  },
+  "checks": {
+    "nativeNpmCi": true,
+    "typecheck": true,
+    "lint": true,
+    "build": true,
+    "trueFileWriteFailure": "EEXIST with unchanged CURRENT",
+    "actualServerRestart": true,
+    "secondServerRejected": true,
+    "startupScriptHealthAndUi": true
+  },
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "sourceSha256": {
+    ".node-version": "7e8a2fa94951112b894a3dbe3d05efef5e9263741fa49125f0a70f40fedab4cc",
+    ".npmrc": "84636711bafeb36790782401b8dac466ee0344c91bbdd1967f62f2d3174304a5",
+    "apps/server/package.json": "336417b9597e7ad530faab56a50c3e1ef59be8752875731a95c2848cf70dd4d1",
+    "apps/server/src/app.ts": "4f984a8bf24a0ce79425f955ce01e313a83d90ed37ed10a52c95123f2f09d1b3",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "32e7e7d96277007ea8123ddcdeda12c73ecf4ec10772360186f7220e0807a0cd",
+    "apps/server/src/main.ts": "720e328907658fcf1b96cb55467c05e484a4f18a31e04d28c7321176ebeca067",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "1ea004254b04c3c8002845695ce91044a1b7af2c0c24bc6e1120060024532319",
+    "apps/server/src/storage/graph.ts": "637b25aa9df180524e1c7dc89861c8beab70ef429a07bb12dcef61934214b3c4",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "358d110d77544db24ffa9175dffbe5fd7662427661c58314dc975b0cd4612e09",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "af55804fcab8a27f9d2a5cf6a4ddc6f6dc6ff434781ff5c0d30edef4edd866f5",
+    "apps/server/src/storage/state.ts": "1943a6bb08fc3f6912e858eeb33097f931a3c1fc85b1265075045e620cbaf2d0",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/server/tsconfig.json": "b3b3dbb1eab652d19b7a7b43c997d80c7daae43d999ad819b78d0133b2b91f03",
+    "apps/web/index.html": "bcc098f00004298d0984bd98e10ac90a40d816ff8e72c2a369b909112b1a3baa",
+    "apps/web/package.json": "27ff56f3d1057afff762ba9ef7acbace3b74d15713ed2e050cc942125c1942db",
+    "apps/web/src/App.test.tsx": "d6194ee52040828d7dac56be67b648e3161ec947235305f088fa16460ce09930",
+    "apps/web/src/App.tsx": "ee1c09049cc7b9a17199cce33377f29d0ef4e07194311466911b53a64eee0fc3",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "4f02332bcf0957c2c739b5b615a9c71476bbde9bf9d008d264629f95c5a5c30c",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/style.css": "634b6af14a4b1c886af297ad8bae458e59132e15dac775010c5ee605b13f854e",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "apps/web/tsconfig.json": "ffff2f934cab3a0918157c1548c8365d8c3cc9d25917d52a107005ba91477d13",
+    "apps/web/vite.config.ts": "ed8d8fcc257c1e9180dc99d2527f8552b13e7972b504fd39ff73f4d1ecc62df0",
+    "eslint.config.js": "b753f6780e2549ae8068ebb4ed827a06cb07a28493c17fbbcd8970db59c1afb4",
+    "internal/contracts/package.json": "1a300e99e344bcfbd828e5c25c6f46600dede0179becf1505b72f07fcc051b33",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "41dd153daf499145cbc54238cbdd37bb43852891331c7bc77c1227efdbadf4b1",
+    "internal/contracts/tsconfig.json": "da4ada59566467075ab94a1fa1297cbc3be41523282bb3059116b006b2881eb2",
+    "package-lock.json": "dfc56fe558a343b9de7e062083dc7808dacc74ed614f8a0126abe39effa7bea3",
+    "package.json": "2383c60fe48e08ca3551be458630d25a0cd59d055c505beecf85bda2ad13a3e2",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "tests/e2e/bootstrap.spec.ts": "b4b604b57d02778ccbfb34922a335793fba99b9b8400c16df1a25729c13c943a",
+    "tests/fixtures/storage-process.mjs": "57666c030e3be14b7266a40b58d8f723197d24f31215b83504a53f7e084cc782",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/indexed-state.ts": "ac1a6422006aefe9500437c9a6c857cb3c28670f8f01fbd73c0292a8912c5e7e",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/storage-process.ts": "9cdff323375e56713126738cec1396554fde6d8c8d3e0d14ef8efb07b123eacb",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/health.integration.test.ts": "4e4ccb5e71125d63c48da1736400c7a420172734a67a5ab9fb012b715cd75566",
+    "tests/integration/snapshot-crash.integration.test.ts": "3ad14db42cd5ca655108ab011036421fa055074fe52bce40ed7c6e0af7483271",
+    "tests/integration/snapshot.integration.test.ts": "ec26e3c2edf545bd159ea2f58b37e1f5a3a2bcfc3a8ca491df69e55e47e341fc",
+    "tests/integration/storage-lifecycle.integration.test.ts": "f9d6af30cffde43b33a89bea165584e6f69bad2b41e1697da1aa212dfb6e8013",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tests/integration/writer-lock.integration.test.ts": "2611d32035444d905954fb699a5dd1b817409639a8004838560f6664f0c9f157",
+    "tsconfig.base.json": "5ce26322ac68850a1568472295f545e1772c0e8a2fa1b169d85a7d8e36e9e7f1",
+    "tsconfig.json": "201730d1d12ab561ce834b1ee1b4819c354376939ee8f399c241e29666deafb8",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "artifactSha256": {
+    "apps/server/dist/app.d.ts": "c765c9abe733954254df79d4293c49506a94ca76bfecadf647e7af112ec34259",
+    "apps/server/dist/app.js": "08797867f390f46995e60348655695c58d795fb57b684aab9990b070506c19ee",
+    "apps/server/dist/cli.d.ts": "1b3d0fd5515a8d80ac623c7ba79000b2328d5c72bb17738b9a289dc58be6beea",
+    "apps/server/dist/cli.js": "0964eb0d55c292ad565b3931b4389907f2b05e6c3f8aa295ddc863dfacccd61c",
+    "apps/server/dist/main.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/main.js": "b9371077396bfd2cc4a6b84e10b09505287cf34c9b71722a888c625752a8257d",
+    "apps/server/dist/paths.d.ts": "24ac60ebf4142be60b39763a192a1b471b4944e3b10c6a6fdf8026e090da908d",
+    "apps/server/dist/paths.js": "152a1eb0c8c4224f360d67b01bb464b7de890685cd691070a79f942acfed0ab6",
+    "apps/server/dist/storage/disk.d.ts": "61d87608e350b8c6ee5fcd796f66710fb3c4c93480e1ba5e9d8b43a632a8602b",
+    "apps/server/dist/storage/disk.js": "06c77d9f7bc772860696ad0e5d60045fe81eabde8a77666b53be5231d8eb3c00",
+    "apps/server/dist/storage/graph.d.ts": "396d65b296075098eca6439fc02dacc53f280afacfddddcbf375310d47939753",
+    "apps/server/dist/storage/graph.js": "34ac8c5b67be45558ca5582591ce29139ebf41729b4d28cfa25e878eaded943d",
+    "apps/server/dist/storage/io.d.ts": "8910036f9c08726a64772af328fccaf5b1da07a96a088bfec78c59357f88c708",
+    "apps/server/dist/storage/io.js": "14a1ecaba6ae496d1055a7160a91f13b29fdb41bdb4c817da978a9e9f3850330",
+    "apps/server/dist/storage/kv.d.ts": "f844dc94fa792bac890e2ed9ec5801faef3af685e007a331ecee7c40dbbece79",
+    "apps/server/dist/storage/kv.js": "4c3a3a7d8e3850552144e600e10bd11ca32fb5320026799bf1c725d233d79aac",
+    "apps/server/dist/storage/maintenance.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/storage/maintenance.js": "546005429eed0cd977334a69469c8b457813e1ec151a3f0bd8f4bad6cb5bb79c",
+    "apps/server/dist/storage/recovery.d.ts": "eafadb1b6611ccfebfd17e5b6d632f5d835a1cf27798407e784752b2ed0eb0b3",
+    "apps/server/dist/storage/recovery.js": "7982317bb3a332dd17c04cd281ab8073406a2bc5cae6d6456e3c5219e9346e8e",
+    "apps/server/dist/storage/snapshot.d.ts": "63d5328cbe941b562ce1e6d1ddd410efa28d14afc096e6477cf44b0fac6f6d1b",
+    "apps/server/dist/storage/snapshot.js": "0fe1de5bc8a91c646674e72c669b123f882d09c84523e78b0a42dc83f50b28bd",
+    "apps/server/dist/storage/state.d.ts": "e0549ab6e551eb0b4a2873c07384a316371e235ce0d2c61562d83e0d2146115c",
+    "apps/server/dist/storage/state.js": "f4c26c0528d946a18e853b6f3554a9d93c47ce43a498de2b4b7812a2bb3476e1",
+    "apps/server/dist/storage/vectors.d.ts": "d02f932b834da6b6fc8897d4a0d09dc5cc4f9b90ed6f3b0262043d5a514447a2",
+    "apps/server/dist/storage/vectors.js": "8ee3e7eac1a95cdf0a31e06da7e796adf4e0a50f5100692f474b4ebee6aa39f9",
+    "apps/server/dist/storage/writer-lock.d.ts": "15053f43d65f5029871ca6791a5ed987b4b5d37d43c098bedd2c9e1c447b7d8a",
+    "apps/server/dist/storage/writer-lock.js": "6df2ece73b331403caa50965d9695fd6e53eaece3c77cffc1cb7f1297e935714",
+    "apps/web/dist/assets/index-BR_6aqV2.css": "bec56c2be01b84bc59f10261a4fd653e1eb89c526001809f315637c769703336",
+    "apps/web/dist/assets/index-BTFhvJBm.js": "e81faf3c03eb0ecdf6909da4089e4ee9ef146726569f2709b2c040f94d010e50",
+    "apps/web/dist/index.html": "9b58ee08ffadb25df7ba01d7f3c248c285374954bd19d93747073c4e0727b4b9",
+    "internal/contracts/dist/index.d.ts": "4a7f0bd408e79eeaa76bca5c5529e35eef4944789f10665dc65bc34fa2c1e7d0",
+    "internal/contracts/dist/index.js": "3dc58a3ac56a1c9e1c71eec5fbe370dcf8eef01810b3c2b0576b23ad46d7b163"
+  },
+  "logSha256": {
+    "tslightrag-s02-build-reviewed.log": "3b298d011933ab708d83f8d03adeb013365b414f87454b6da071985dbaf3e328",
+    "tslightrag-s02-ci-build.log": "d977cc5370492312c6c837264ebad960780ed4a7b43c753088e326918223c95c",
+    "tslightrag-s02-ci-lint.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s02-ci-test.log": "81a7e4739d2ea599f7c57dd492eb3315b60b2a5fbad3064056d1ed770324ca63",
+    "tslightrag-s02-ci-typecheck.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s02-ci.log": "cbb05b7714acf2f5a87213b3d0e2e3993a5509bb81f2ca5c42e3647f717f30e2",
+    "tslightrag-s02-e2e.log": "4c4f1e7cbccd64aa8b0991f62702c0add2aaaf06134b8cf852a1a5b490895a68",
+    "tslightrag-s02-lint-2.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s02-lint-final.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s02-lint-last.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s02-lint-reviewed.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s02-lint.log": "6d2eee2719dd646a12eae399d26688248414b6415dcaf63b73fe2b26c88b69a2",
+    "tslightrag-s02-native-install-local-cache.log": "7c9422e647c1ffd46a5c59ff3dd7703afe8611ded8b7a9ef1d9179a2b02680a9",
+    "tslightrag-s02-native-install.log": "9db0474d1285516ab0c70d2281134349ac2732a2cb6932fbd1d0beeafe2f0175",
+    "tslightrag-s02-playwright-reviewed.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tslightrag-s02-playwright-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tslightrag-s02-start-script-final.log": "6458b0474dd9c754474a2cf86795b334bb4419e1ab04e11f30efd777b2abe3af",
+    "tslightrag-s02-start-script.log": "6458b0474dd9c754474a2cf86795b334bb4419e1ab04e11f30efd777b2abe3af",
+    "tslightrag-s02-test-final.log": "17edf5180d7bc9eb7217c18f5b272b63a2da4e9400e30ca361b37bdbdef0d018",
+    "tslightrag-s02-test-reviewed.log": "c260d6d4118771066684fd9b2383d16a4d015adbc050f365c2bf8ebd19e89cef",
+    "tslightrag-s02-test.log": "eb2435f571c119194a7097853fa8188a442ab081cc09b437fb298923adcc43c9",
+    "tslightrag-s02-typecheck-2.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s02-typecheck-final.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s02-typecheck-last.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s02-typecheck-reviewed.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s02-typecheck.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a"
+  },
+  "screenshots": {
+    "test-results/bootstrap-production-UI-ca-0350f-tings-with-no-configuration/s02-model-settings.png": "662b22332717073df5a182167a518dca48ecc73784fa9580306dd4f945346c77"
+  },
+  "initialFailures": [
+    "Native install attempted unwritable home node-gyp cache; workspace devdir install and cold npm ci passed.",
+    "Lint required preserved error cause; lock diagnostic corrected."
+  ],
+  "verificationNotes": [
+    "First complete run: 119 passed. Added fenced-health and unknown-legacy-data regressions; final current source: 121 passed.",
+    "Real I/O failure uses EEXIST and unchanged CURRENT; no root-dependent permission assumption.",
+    "S01 stage/storage health expectations updated for initialized S02 storage; other checks retained.",
+    "Full typecheck/lint/build/test and Chromium passed after the final code review."
+  ],
+  "unrun": [
+    "Physical power failure/device loss",
+    "NFS/shared volumes/multi-host writers",
+    "Windows/macOS",
+    "Production load",
+    "Models/parsers/ingestion/GraphRAG equivalence",
+    "Fresh-task snapshot restore"
+  ],
+  "cloudConfiguration": {
+    "installScriptAndStartSkill": "saved",
+    "requiresPublish": true,
+    "published": false,
+    "freshTaskRestoreVerified": false
+  }
+}

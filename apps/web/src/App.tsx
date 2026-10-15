@@ -29,10 +29,10 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
         <a href="/" aria-current={!modelsPage ? 'page' : undefined}>工作台</a>
         <a href="/settings/models" aria-current={modelsPage ? 'page' : undefined}>模型设置</a>
       </nav>
-      <p className="sidebar-note">S01 · 工程与测试基座<br />应用功能正在按阶段实现。</p>
+      <p className="sidebar-note">S02 · 本地存储基座<br />应用功能正在按阶段实现。</p>
     </aside>
     <main>
-      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S01</span></header>
+      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S02</span></header>
       <h1>{modelsPage ? '模型设置' : '让知识有据可循'}</h1>
       <p className="intro">{modelsPage ? '文本、向量与重排模型将通过界面独立配置。' : '从本地文档构建知识图谱，检索证据，再生成带来源的回答。'}</p>
       {status.kind === 'loading' && <p role="status">正在检查服务状态…</p>}
@@ -43,9 +43,9 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
       {status.kind === 'ready' && <>
         <section className="notice" aria-label="当前可用状态">
           <h2>服务已启动，知识库尚未就绪</h2>
-          <p>模型待配置；本地存储和索引尚未实现。当前仅提供工程基座，不能导入文档或执行问答。</p>
+          <p>本地存储已初始化，模型待配置；文档处理与检索尚未实现，目前不能导入文档或执行问答。</p>
           <dl><div><dt>模型配置</dt><dd>{status.health.models.configured ? '已配置' : '待配置'}</dd></div>
-            <div><dt>存储</dt><dd>{status.health.storage.initialized ? '已初始化' : '待实现（S02）'}</dd></div></dl>
+            <div><dt>存储</dt><dd>{status.health.storage.initialized ? '已初始化' : '未就绪'}</dd></div></dl>
         </section>
         {modelsPage ? <section aria-label="模型配置入口">
           <h2>模型角色</h2><p>模型地址、密钥保存及连接测试将在 S03 实现；当前没有预设模型，也不会发起模型请求。</p>
@@ -56,7 +56,7 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
           ].map(([name, description]) => <article key={name}><span className="card-label">待配置</span><h3>{name}</h3><p>{description}</p></article>)}</div>
           <p className="muted">已保存模型：{status.settings.profiles.length} · 当前配置版本：{status.settings.revision}</p>
         </section> : <section>
-          <h2>开始之前</h2><p>下一阶段先实现文件持久化存储，再接入模型配置和文档处理。</p>
+          <h2>开始之前</h2><p>本地存储基座已完成，下一阶段接入模型配置和调用，再实现文档处理。</p>
           <a className="action" href="/settings/models">查看模型设置</a>
         </section>}
       </>}

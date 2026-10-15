@@ -19,10 +19,11 @@ test('production UI calls real API and opens model settings with no configuratio
       await expect(page.getByRole('heading', { name })).toBeVisible();
     }
     await expect(page.getByText('已保存模型：0 · 当前配置版本：0')).toBeVisible();
+    await expect(page.getByText('已初始化', { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole('heading', { name: '模型角色' })).toBeVisible();
     expect(errors).toEqual([]);
     expect(unexpected).toEqual([]);
-    await page.screenshot({ path: test.info().outputPath('s01-model-settings.png'), fullPage: true });
+    await page.screenshot({ path: test.info().outputPath('s02-model-settings.png'), fullPage: true });
   } finally { expect(await service.stop()).toBe(0); }
 });

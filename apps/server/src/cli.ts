@@ -16,7 +16,7 @@ const fileSchema = z.strictObject({
 });
 export type StartupOptions = z.infer<typeof startupSchema>;
 
-export const help = `TsLightRAG (S01)\nUsage: npm start -- [options]\n\n--host <127.0.0.1|::1>  Loopback only (default 127.0.0.1)\n--port <0..65535>        Default 9621; 0 selects a free port\n--data-dir <path>       Default ./data\n--config <file.json>    Optional startup JSON (host, port, dataDir)\n--help                  Show help\n\nRelative paths resolve from the repository root. Models are not implemented yet.\n`;
+export const help = `TsLightRAG (S02)\nUsage: npm start -- [options]\n\n--host <127.0.0.1|::1>  Loopback only (default 127.0.0.1)\n--port <0..65535>        Default 9621; 0 selects a free port\n--data-dir <path>       Persistent local storage (default ./data)\n--config <file.json>    Optional startup JSON (host, port, dataDir)\n--help                  Show help\n\nRelative paths resolve from the repository root. Models are not implemented yet.\n`;
 
 export async function parseStartup(args: string[], root = repositoryRoot): Promise<StartupOptions | null> {
   const { values } = parseArgs({
