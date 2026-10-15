@@ -299,14 +299,18 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 
 保留实体名称规范化规则、关系端点校验和来源关联。NFKC、trim、空白合并等要明确且有测试，不盲目 lowercase 所有语言或把不同同名实体自动语义合并。固定名称去重不等于已实现实体消歧。
 
-每块抽取结果独立缓存；补充抽取只在配置轮数内执行并去重。实体描述按贡献块去重合并，超出阈值才摘要。关系权重按不同来源贡献计算，重试同一块不增加权重。缺端点实体的关系需按固定规则补充有效端点或判为无效，禁止悬空边。
+每块抽取结果独立缓存；补充抽取只在配置轮数内执行并去重。实体描述按贡献块去重合并，超出阈值才摘要。关系权重保留上游的来源去重与 strength 语义：只累加尚未计入图边的新来源权重，以不同真实证据来源数量为下限，而不是一律改成来源数或每次重试加一。缺端点实体的关系需按固定规则补充有效端点或判为无效，禁止悬空边。
 
 ### 8.2 向量与图检索
 
 - 三类向量 namespace 分开，查询前验证 active embeddingSpaceId。
 - 对合法非零向量归一化；cosine = 归一化点积，固定阈值和 top-k；相同分数按稳定 ID 排序。禁止 NaN 进入排序。
-- 图保留节点、无向边、邻接表、度数和有限深度邻居；实体与关系候选分别参照上游相似度、度数/权重规则，明确稳定决胜顺序。
-- `hybrid/mix` 的图谱候选合并与证据块融合首版采用固定交错轮询和去重，保留来源标签；不任意改为新的 RRF 并声称复刻上游所有排序细节。
+- 图保留节点、无向边、邻接表、度数和有限深度邻居。local 实体保留向量召回顺序；邻接关系按 `(degree(src) + degree(tgt), weight)` 降序。global 关系保留关系向量召回顺序，再取端点实体，不能给两条路径强行套用同一种排序。
+- 区分三种算法：local/global 的实体与关系合并采用 local 优先的 round-robin；图到证据块的选择支持默认 `VECTOR` 与 `WEIGHT`；最终文本块按直接向量块 → 实体来源块 → 关系来源块的顺序 round-robin 去重。它们不是同一个“轮询”。
+- `VECTOR` 只在已经被图谱关联的候选块内计算原问题 embedding 的 cosine，不搜索全库代替图谱。去重后有效组数为 n，`relatedChunkNumber=r`，r 或 n 非正时配额 0，否则配额 `max(1, floor(r*n/2))`。同分保留候选首次出现顺序；这是该阶段规则，不使用存储通用的 ID 决胜覆盖它。
+- `WEIGHT` 先统计块在候选实体/关系中的出现频次，首次出现的组持有该块，组内按频次降序；按组位置线性递减分配块数，默认最末组目标为 1，再分配空组剩余配额。保留 Python `round` 的 ties-to-even 语义，不能直接换成 JavaScript `Math.round`。
+- 关系来源块先排除已经选中的实体来源块，再计算有效组、频次和配额；实体/关系预算截断后的顺序必须传递到块选择阶段。VECTOR 缺少所需向量/无结果等回退场景依固定 SHA 源码分别对照，输出可见诊断；不能把缺数据当成完美召回。
+- 默认值采用上游 `DEFAULT_KG_CHUNK_PICK_METHOD="VECTOR"`、`DEFAULT_RELATED_CHUNK_NUMBER=5`，通过本地配置与查询设置暴露，不使用环境变量。不新增 RRF、PageRank 或其他排序冒充上游算法。
 - query/data 输出阶段候选、来源、分数、被过滤原因和截断计数，供测试证明每种模式走了正确路径；不回传 key、内部路径或完整请求头。
 
 ### 8.3 预算、引用、流与缓存
@@ -320,6 +324,37 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 对外使用 NDJSON：`meta → references → delta* → done`；失败为 `error` 终止，取消为 `cancelled` 终止。仅一个终态；`done` 才可写回答缓存。模型侧 SSE 是另一层协议，必须正确处理半包 UTF-8、跨包多行、空 delta、usage-only 帧与客户端断开。
 
 缓存至少区分抽取、关键词、embedding、回答；key 包含任务相关模型/模板版本及输入。回答 key 还包括 corpusRevision、激活向量空间、模式、预算、重排配置、问题、历史和用户提示。删除/重建后旧缓存不得命中。失败、取消和部分流不缓存；缓存大小有限并有清理策略。
+
+### 8.4 GraphRAG 核心算法保真清单与验收门
+
+这里的 GraphRAG 指 LightRAG 自身的图谱增强 RAG。固定版本的主要查询链路是实体/关系双层检索与来源块融合，不等于另一个项目 Microsoft GraphRAG 的 Leiden 社区检测、社区报告和全局 map-reduce。不能因名称含 global 就声称移植了社区算法，也不把它们强加进本次范围。
+
+下表均为**必须实现并验证，当前尚未实现**。仅画出图谱、创建图存储、提供 mode 选项，均不能证明这些算法已经移植。
+
+| 编号 | 必须保留的算法 | 固定 SHA 源码依据 | 最低对照断言 |
+|---|---|---|---|
+| G01 | 块级实体/关系抽取与有界 gleaning | `operate.py::extract_entities`、`prompt.py` JSON 模板 | 固定初次/补充模型结果，规范化后实体/关系、来源及补充次数正确；重试不重复贡献 |
+| G02 | 实体/关系合并、描述摘要、来源和权重 | `_merge_nodes_then_upsert`、`_merge_edges_then_upsert`、`_handle_entity_relation_summary` | 重复描述去重、摘要触发边界、新来源 strength 累加及证据数下限；删除后按存活贡献重建 |
+| G03 | 高/低层关键词驱动不同召回 | `get_keywords_from_query`、`extract_keywords_only`、`_perform_kg_search` | 高层进入关系库、低层进入实体库；空关键词的短 query 回退/长 query 无结果按上游 kg_query 分支覆盖 |
+| G04 | local 的实体召回与邻接边排序 | `_get_node_data`、`_find_most_related_edges_from_entities`、`NetworkXStorage.edge_degree` | 实体向量序保持；边 rank 为两端 degree 之和，再按 weight 降序 |
+| G05 | global 的关系召回及端点实体 | `_get_edge_data`、`_find_most_related_entities_from_relationships` | 关系向量序保持，端点去重，不能变成任意 BFS/全图扫描 |
+| G06 | hybrid/mix 的图候选融合 | `_perform_kg_search` | local 先、global 后逐轮去重；mix 额外召回块，hybrid 不做该全库块召回 |
+| G07 | 图候选到来源块的 VECTOR/WEIGHT 选择 | `_find_related_text_unit_from_entities`、`_find_related_text_unit_from_relations`、`_vector_chunk_quota`、`utils.py::pick_by_vector_similarity` / `pick_by_weighted_polling` | 候选来源集合、频次、组去重、关系排除实体块、默认 VECTOR、线性配额、0 开关、同分和回退分别对照 |
+| G08 | 多来源文本块 round-robin 融合 | `_merge_all_chunks` | 直接向量→实体→关系，每轮按序且全局去重；不可丢图来源块或只返回 naive 结果 |
+| G09 | 图谱预算到块预算的阶段顺序 | `_apply_token_truncation`、`_build_query_context`、`_build_context_str`、`utils.py::process_chunks_unified` | 截断后实体/边排序传递；实体、关系、块的保留结果与引用一致；重排和 token 截断顺序可核查 |
+| G10 | 三类 embedding 与图索引 | `lightrag.py` 的 `entities_vdb/relationships_vdb/chunks_vdb`、`kg/vector_space.py` | 三库内容构成与关联 ID 正确；相同模型空间、维度和归一化验证；语料 ID 可规范化映射 |
+| G11 | 图谱来源撤销和重建 | `operate.py::rebuild_knowledge_from_chunks`、`lightrag.py` 删除流程 | 删一篇共享文档后存活图、描述、weight、来源块、向量和查询结果均不混入已删贡献 |
+| G12 | 图上下文回答与证据引用 | `kg_query`、`naive_query`、`prompt.py` 回答模板 | 模型真正收到最终实体/关系/块上下文，引用来自该上下文；空上下文不伪造证据 |
+
+必生成并执行以下算法测试，不只比较最终自然语言答案：
+
+- `kg-chunk-selection.test.ts`：VECTOR/WEIGHT、半整数 ties-to-even、组耗尽与配额重分配、0/1 边界、重复来源、关系全被实体块覆盖。
+- `kg-ranking.test.ts`：local/global 排序差异、度数与边权、向量同分的首次顺序、三路合并顺序。
+- `graph-rag-reference.integration.test.ts`：对固定 SHA 的 Python 参考算法和 TS 实现输入同一组抽取结果、关键词、token 计数与向量，比较规范化节点/边/贡献、候选 ID 及顺序、块选择、预算和引用。模型网络返回使用可判别夹具，存储格式/ID 差异以显式映射归一化。
+
+参考执行在独立验证目录中进行，不进入目标应用依赖。每个 golden 结果记录 SHA、参数、生成命令和实际参考运行结果；不得把 TS 自己生成的结果再用作“上游一致”的期望值。若参考运行被依赖或环境阻塞，记录阻塞，相关 G 项不得标记“保真验收通过”。
+
+基础设施简化、本地文件格式、明确公布的通用存储同分决胜，以及包含历史/回答预留的额外预算保护是已声明差异；不以这些差异掩盖遗漏检索分支、错误配额或图来源丢失。无法一一对齐的规则必须列出差异、原因和回归用例。只有 G01–G12 的源码映射、TS 实现和测试证据齐全，才可声称“LightRAG 核心图谱算法已移植并通过限定范围的验证”；这仍不保证真实模型每次生成相同文本或相同质量。
 
 ## 9. 应用 API 与界面
 
@@ -362,7 +397,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 | API | multipart、分页、schema、密钥不返回、Origin、错误码、202 任务及唯一终态 NDJSON |
 | UI | 表单保存/保留或清除 key、测试候选地址、重排禁用、文档状态、图谱上限、流停止、引用安全渲染 |
 | 端到端 | Playwright 启动真实目标服务和假模型，界面配置→上传→查询→图谱→删除→重启持久化；真实进程强制退出后恢复 |
-| 上游行为对照 | 从范围内测试提取固定夹具；固定抽取结果、关键词和向量，比较规范化实体/边、候选来源、引用、删除结果；有条件再执行固定 SHA 的 Python 参考实现，结果单独记录 |
+| 上游行为对照 | 必须在独立验证环境执行固定 SHA 的相关 Python 参考算法，用共同夹具对照 G01–G12；比较中间候选及顺序、图来源块选择、权重、引用和删除结果；阻塞不得标记通过 |
 
 假模型必须根据请求的输入/模式返回不同的可判别结果，并校验请求，不是“任何输入返回同一句话”的假通过。离线夹具通过不证明真实供应商兼容或生成质量；可选实模验收从 UI 配置，另行记录模型、数据发送范围和结果，不以缺 key 跳过所有核心测试。
 
@@ -378,6 +413,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 8. 已提交数据经 SIGKILL/重启仍可恢复；提交中断只见旧或新完整代，不见半代；磁盘错误不标记成功。
 9. embedding 切换期间不混合空间，失败保留旧库；服务端生成流和客户端取消均正确终止。
 10. 无外部数据库、远程解析器、Python 运行依赖、对外 SDK；保留 MIT 来源与许可，Git 无密钥/原始数据/运行缓存。
+11. G01–G12 对应的 TS 算法实现和源码参考验收齐全，尤其默认 VECTOR 与 WEIGHT 块选择、local/global 排序和三路融合；不可用“有图”“支持五模式”替代核心算法保真门槛。
 
 开发启动目标为 `npm run dev`；生产目标为 `npm run build` 后 `npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data`。这些命令须由 S01/S11 真正实现并测试，现在不可作为已运行证据。
 
