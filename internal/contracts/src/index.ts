@@ -147,10 +147,12 @@ export const StreamEventSchema = z.discriminatedUnion('type', [
 export type StreamEvent = z.infer<typeof StreamEventSchema>;
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S03'), usable: z.literal(false),
+  status: z.literal('ok'), stage: z.literal('S04'), usable: z.literal(false),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),
   jobs: z.strictObject({ available: z.literal(false) }),
 });
 export type Health = z.infer<typeof HealthSchema>;
+
+export * from './parsing.js';

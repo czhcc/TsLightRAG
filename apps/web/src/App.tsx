@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PARSER_CAPABILITIES } from '@tslightrag/contracts';
 import type { Health, ModelSettings } from '@tslightrag/contracts';
 import { ModelSettingsEditor } from './ModelSettings.js';
 import { applicationApi } from './api/client.js';
@@ -30,10 +31,10 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
         <a href="/" aria-current={!modelsPage ? 'page' : undefined}>工作台</a>
         <a href="/settings/models" aria-current={modelsPage ? 'page' : undefined}>模型设置</a>
       </nav>
-      <p className="sidebar-note">S03 · 模型配置与协议<br />应用功能正在按阶段实现。</p>
+      <p className="sidebar-note">S04 · 本地解析与分块<br />应用功能正在按阶段实现。</p>
     </aside>
     <main>
-      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S03</span></header>
+      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S04</span></header>
       <h1>{modelsPage ? '模型设置' : '让知识有据可循'}</h1>
       <p className="intro">{modelsPage ? '独立配置文本、向量和重排接口，并测试候选连接。' : '从本地文档构建知识图谱，检索证据，再生成带来源的回答。'}</p>
       {status.kind === 'loading' && <p role="status">正在检查服务状态…</p>}
@@ -44,7 +45,7 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
       {status.kind === 'ready' && <>
         <section className="notice" aria-label="当前可用状态">
           <h2>服务已启动，知识库尚未就绪</h2>
-          <p>本地存储已初始化，模型可在设置页配置；文档处理与检索尚未实现，目前不能导入文档或执行问答。</p>
+          <p>本地存储已初始化，模型可在设置页配置；本地解析已实现；文档导入管线与检索尚未实现，目前不能导入文档或执行问答。</p>
           <dl><div><dt>模型配置</dt><dd>{status.health.models.configured ? '已配置' : '待配置'}</dd></div>
             <div><dt>存储</dt><dd>{status.health.storage.initialized ? '已初始化' : '未就绪'}</dd></div></dl>
         </section>
@@ -52,11 +53,19 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
           const missingRoles = (['query', 'embedding'] as const).filter((role) => !settings.bindings[role]);
           setStatus({ ...status, settings, health: { ...status.health, models: { configured: missingRoles.length === 0, missingRoles } } });
         }} /> : <section>
-          <h2>开始之前</h2><p>本地存储与模型配置已完成，下一阶段实现本地文档解析和分块。</p>
+          <h2>开始之前</h2><p>本地解析与分块已完成，下一阶段接入文档导入和持久化处理任务。</p>
           <a className="action" href="/settings/models">查看模型设置</a>
         </section>}
+        {!modelsPage && <section aria-label="本地解析能力">
+          <h2>本地解析能力</h2><p>以下解析器已实现；文件上传与任务管理将在下一阶段开放。</p>
+          <table><thead><tr><th>格式</th><th>当前能力与限制</th></tr></thead><tbody>
+            {PARSER_CAPABILITIES.formats.map((f) => <tr key={f.format}><td>{f.label}</td><td>{f.scope}</td></tr>)}
+          </tbody></table>
+          <p>单文件 {PARSER_CAPABILITIES.limits.inputBytes / 1024 / 1024} MiB；解压总量 {PARSER_CAPABILITIES.limits.zipBytes / 1024 / 1024} MiB；最多 {PARSER_CAPABILITIES.limits.zipEntries} 个 ZIP 项；文本 {PARSER_CAPABILITIES.limits.textChars} 字符；解析含分块限时 {PARSER_CAPABILITIES.limits.timeoutMs / 1000} 秒。</p>
+          <p>不支持：{PARSER_CAPABILITIES.exclusions.join('、')}。</p>
+        </section>}
       </>}
-      <footer>文档解析将在本机执行。使用外部模型时，相关文本将发送到你配置的接口。</footer>
+      <footer>文档解析在本机执行。使用外部模型时，相关文本将发送到你配置的接口。</footer>
     </main>
   </div>;
 }

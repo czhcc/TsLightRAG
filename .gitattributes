@@ -1,0 +1,8 @@
+# Preserve exact bytes of document fixtures (PDF xref records and BOM/CRLF cases).
+tests/fixtures/documents/*.pdf binary
+tests/fixtures/documents/*.docx binary
+tests/fixtures/documents/*.xlsx binary
+tests/fixtures/documents/*.pptx binary
+tests/fixtures/documents/*.csv -text whitespace=cr-at-eol
+tests/fixtures/documents/*.txt -text whitespace=cr-at-eol
+tests/fixtures/documents/invalid-utf8.txt binary

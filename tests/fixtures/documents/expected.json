@@ -1,0 +1,11 @@
+{
+  "txt": {"text":"中文知识\nemoji 🧮\n\n第二段","locations":[{"lineStart":1,"lineEnd":2},{"lineStart":4,"lineEnd":4}]},
+  "md": {"text":"知识图谱\n\n中文 证据 和 链接.\n\n数据\n\n第一项\n🧮 第二项\n\nconst n = 1;","locations":[{"lineStart":1,"lineEnd":1,"headingPath":["知识图谱"]},{"lineStart":3,"lineEnd":3,"headingPath":["知识图谱"]},{"lineStart":5,"lineEnd":5,"headingPath":["知识图谱","数据"]},{"lineStart":7,"lineEnd":8,"headingPath":["知识图谱","数据"]},{"lineStart":10,"lineEnd":12,"headingPath":["知识图谱","数据"]}]},
+  "html": {"text":"知识图谱\n\n中文 证据 🧮\n\n第一项\n\n名称\t值\n\n甲\t1","locations":[{"headingPath":["知识图谱"]},{"headingPath":["知识图谱"]},{"headingPath":["知识图谱"]},{"headingPath":["知识图谱"]},{"headingPath":["知识图谱"]}]},
+  "csv": {"text":"名称\t备注\n\n甲\t中文, 🧮\n\n乙\t多行\n文本","locations":[{"row":1,"lineEnd":1},{"row":2,"lineEnd":2},{"row":3,"lineEnd":4}]},
+  "json": {"text":"/a~1b/~0key: true\n\n/z/0: 1\n\n/z/1: 2\n\n/中文: \"知识 🧮\"","locations":[{"jsonPointer":"/a~1b/~0key"},{"jsonPointer":"/z/0"},{"jsonPointer":"/z/1"},{"jsonPointer":"/中文"}]},
+  "pdf": {"text":"Local graph evidence\n\n中文🧮","locations":[{"page":1},{"page":2}]},
+  "docx": {"text":"知识图谱\n\n表前中文 🧮\n\n名称\t值\n\n实体\t关系\n\n表后证据","locations":[{"paragraph":1,"headingPath":["知识图谱"]},{"paragraph":2,"headingPath":["知识图谱"]},{"headingPath":["知识图谱"],"table":1,"row":1},{"headingPath":["知识图谱"],"table":1,"row":2},{"paragraph":3,"headingPath":["知识图谱"]}]},
+  "xlsx": {"text":"A1=中文 🧮\tB1=2\n\nA2=5\tB2==SUM(1,2)\n\nA1=第二表证据\tB1=true","locations":[{"sheet":"知识","row":1},{"sheet":"知识","row":2},{"sheet":"第二表","row":1}]},
+  "pptx": {"text":"第二张 中文 🧮\n\n表格证据\n\n第十张","locations":[{"paragraph":1,"slide":2},{"table":1,"row":1,"slide":2},{"paragraph":1,"slide":10}]}
+}

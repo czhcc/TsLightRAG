@@ -43,3 +43,6 @@ input:not([type=checkbox]) { width: 260px; box-sizing: border-box; }
 input[type=checkbox] { align-self: start; }
 fieldset button { margin: 8px 12px 0 0; }
 button:disabled { opacity: .55; cursor: wait; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid #d1ded7; vertical-align: top; }
+th { color: #254e3f; }

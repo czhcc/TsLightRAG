@@ -4,7 +4,7 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S01–S03 已完成。** 已实现本地文件持久化的内存存储、模型设置页面、密钥遮蔽与文本/向量/重排 HTTP 适配。可保存模型并测试候选连接；文档处理、图谱索引和检索问答仍待实现。
+> **当前状态：S01–S04 已完成。** 已实现本地存储、模型配置与协议、九种文档格式的本地解析及 token 分块。工作台提供格式能力与限制说明；文档上传和持久化任务、图谱索引及检索问答仍待实现。
 
 ## 快速开始
 
@@ -48,7 +48,7 @@ npm run test:e2e
 
 `npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
 
-S03 验证结果：**197 项测试和 3 项浏览器 E2E 通过**，无失败或跳过；包含模型协议/配置、10 个快照和 2 个配置真实 SIGKILL 边界、单写者与恢复测试。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S03 验证记录](docs/S03_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+S04 验证结果：**263 项测试和 4 项浏览器 E2E 通过**，无失败或跳过；包含九格式真实夹具、本地解析/禁网/安全/分块、模型协议，以及 10 个快照和 2 个配置真实 SIGKILL 边界。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S04 验证记录](docs/S04_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
 
 ## 配置模型
 
@@ -59,6 +59,14 @@ S03 验证结果：**197 项测试和 3 项浏览器 E2E 通过**，无失败或
 “测试连接”使用未保存的候选设置发送示例文本，可能计费，不修改索引或保存配置。“保存配置”只保存；版本冲突时重新加载再编辑。密钥留空表示保留，勾选清除表示删除；修改地址后须重新输入或清除旧密钥。保存后密码框清空，GET 只返回 hasApiKey，浏览器不持久保存密钥。
 
 配置在本机以权限受限明文保存（目录 0700、文件 0600），不是加密保险库；不要提交 data/。允许显式配置 localhost/LAN 模型，拒绝 metadata/link-local 和自动重定向，保留 HTTPS 证书校验。当前已验证本地协议夹具，未验证外部真实提供商。
+
+## 本地解析与分块
+
+已实现 UTF-8 TXT、Markdown、HTML、CSV、JSON，带文本层 PDF，以及 DOCX、XLSX、PPTX 的本地内容提取。保留标题/行、页码、工作表/行、幻灯片等可用定位；空文档、坏文件、扫描 PDF、加密或不支持格式明确失败，不返回空成功。工作台与 `/api/v1/parsers/capabilities` 展示完整格式矩阵。
+
+默认单文件 20 MiB、ZIP 解压总量 100 MiB、10,000 项、正文 2,000,000 字符，单次排队/解析/分块限时 60 秒。解析在受限 Worker 中执行，不加载外部资源，不执行脚本、公式或宏。V8 堆预算不等于 OS 总内存沙箱。
+
+固定本地 `js-tiktoken@1.0.21`，支持 cl100k_base/o200k_base；默认窗口 1200 tokens、最大重叠 100，保留完整 Unicode 和正文来源映射。所有源码、预算与已知降级见 S04 记录。**当前仅交付应用内部解析能力；上传落盘与任务 UI 在 S05 接入。**
 
 ## 本地存储与恢复
 
@@ -128,7 +136,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 | 模型接口 | OpenAI-compatible 文本/embedding，标准 Cohere/Jina-compatible rerank |
 | 测试 | Vitest、Testing Library、Playwright、本地 HTTP 假模型和源码参考对照 |
 
-S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。模型 HTTP 适配器使用 Node 内置 HTTP(S)；图谱库、解析器将在对应阶段引入，当前未安装的规划依赖不视为已实现。
+S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。模型 HTTP 适配器使用 Node 内置 HTTP(S)；PDF.js、受限 OOXML/ZIP/XML、Markdown/HTML/CSV 解析与 js-tiktoken 已锁定；图谱界面库将在对应阶段引入。
 
 ## 文档与实施进度
 
@@ -138,9 +146,10 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [S01 验证记录](docs/S01_VALIDATION.md)：已执行命令、测试范围、工具版本和限制。
 - [S02 验证记录](docs/S02_VALIDATION.md)：快照格式、锁、故障恢复、测试证据和当前限制。
 - [S03 验证记录](docs/S03_VALIDATION.md)：配置持久化、模型协议、候选连接与浏览器测试。
+- [S04 验证记录](docs/S04_VALIDATION.md)：九格式解析矩阵、Worker/禁网/预算、token 分块与真实文件夹具。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 S01–S03。下一步是 **S04：本地文档解析与 token 分块**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
+当前已完成源码分析、方案文档和 S01–S04。下一步是 **S05：文档上传与持久化任务**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
 
 获取当前仓库：
 
@@ -163,4 +172,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01–S03 工程、存储与模型协议代码为新编写，尚未导入上游应用算法代码。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01–S04 工程、存储、模型与解析/分块代码为新编写，尚未导入上游应用算法代码。

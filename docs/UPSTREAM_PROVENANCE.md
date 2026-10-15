@@ -29,3 +29,20 @@
 ## S03 来源状态
 
 `apps/server/src/models/`、模型 API、`apps/web/src/ModelSettings.tsx` 和新增协议/配置/浏览器测试均为新编写代码，依据本仓库方案及 OpenAI-compatible、标准 Cohere/Jina-compatible HTTP 数据结构实现，没有复制上游 Python 适配器、提示词、UI 或测试结果。网络层使用 Node 内置 HTTP(S)/DNS/TLS，未新增依赖；G01–G12 仍待业务算法和源码参考验收。S01/S02 来源段落描述当时阶段，当前能力以 IMPLEMENTATION_STATUS 为准。
+
+## S04 来源状态
+
+`apps/server/src/parsers/`、`core/tokenizer.ts`/`chunker.ts`、解析契约、能力矩阵和全部文件夹具/生成器/测试均为本仓库新编写；未复制上游 parser/chunker 源码、提示词或样例文件。固定窗口及来源跨度依据方案设计，Unicode 边界行为见 S04 验证记录，不宣称全部上游解析输出相同。图谱业务算法和 G01–G12 参考结果仍未迁入。
+
+| 新依赖 | 固定版本 | 包许可与用途 |
+|---|---|---|
+| pdfjs-dist | 6.4.299 | Apache-2.0；本地 PDF 文本层，使用安装包内 cmap/font/wasm |
+| yauzl | 3.4.0 | MIT；受限 ZIP 读取，不提取到文件系统 |
+| saxes | 6.0.0 | ISC；XML 结构与预算 |
+| remark-parse / unified | 11.0.0 / 11.0.5 | MIT；本地 Markdown AST |
+| parse5 | 8.0.1 | MIT；静态 HTML AST |
+| csv-parse | 7.0.3 | MIT；本地 CSV |
+| js-tiktoken | 1.0.21 | MIT；固定本地编码及词表 |
+| fflate / @types/yauzl | 0.8.3 / 3.4.0 | MIT；开发夹具生成/安全变体与类型 |
+
+依赖经 npm/lockfile 获取，未把其源码、原生预编译模块或字体资产 vendoring 到 Git。PDF.js 包内资产/原生可选依赖可能另有附带声明，实际分发 npm 依赖时须同时保留相关 LICENSE/NOTICE/版权，不能只保留本表。根项目与 LightRAG 的许可交付仍在 S12 完整审查；本表不更改 LightRAG 的 MIT 版权约定。

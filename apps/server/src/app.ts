@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import Fastify from 'fastify';
 import staticFiles from '@fastify/static';
 import multipart from '@fastify/multipart';
-import { ApiErrorSchema, HealthSchema, TestModelResultSchema } from '@tslightrag/contracts';
+import { ApiErrorSchema, HealthSchema, TestModelResultSchema, PARSER_CAPABILITIES } from '@tslightrag/contracts';
 import { ModelConfigStore, boundProfile } from './models/config.js';
 import { ModelClient } from './models/client.js';
 import { ModelError } from './models/errors.js';
@@ -45,12 +45,13 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const captured = config.capture();
     const missingRoles = (['query', 'embedding'] as const).filter((role) => !boundProfile(captured, role));
     return HealthSchema.parse({
-      status: 'ok', stage: 'S03', usable: false,
+      status: 'ok', stage: 'S04', usable: false,
       models: { configured: missingRoles.length === 0, missingRoles },
       storage: { initialized: true, status: 'ready', generation: snapshot.generation,
         revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: false },
     });
   });
+  app.get('/api/v1/parsers/capabilities', async () => PARSER_CAPABILITIES);
   app.get('/api/v1/settings/models', async () => config.public());
   app.put('/api/v1/settings/models', async (request) => config.save(request.body));
   app.post('/api/v1/settings/models/test', async (request, reply) => {
