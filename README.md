@@ -4,7 +4,49 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：方案设计阶段。** 仓库已完成上游源码分析、实现方案和实施步骤文档，尚未实现应用、算法代码或自动化测试。目前没有可运行的服务、安装包或 SDK；以下能力均为计划范围。
+> **当前状态：S01 工程与测试基座已完成。** 服务端和 WebUI 可以构建、启动，提供健康检查及只读模型设置入口。存储、模型保存与调用、文档处理和图谱检索尚未实现；下方业务能力仍为后续计划，不代表完整知识库已可使用。
+
+## 快速开始
+
+使用 Node.js **24.19.0** 与 npm **11.9.0**（版本约束见 `.node-version` 和 `package.json`），在仓库根目录执行：
+
+```bash
+npm ci
+npm run build
+npm start
+```
+
+生产入口使用 loopback 端口 `9621`，同时提供静态 WebUI 和 `/api/v1` API。模型设置路径为 `/settings/models`。启动不要求模型 key 或业务环境变量；当前页面会显示“服务已启动，知识库尚未就绪”。
+
+启动参数示例：
+
+```bash
+npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
+npm start -- --config ./startup.json
+```
+
+可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是 S01 启动配置，不是尚未实现的模型配置文件。S01 只解析并报告 dataDir，不创建数据库，也不读写已有知识库数据。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
+
+开发模式：
+
+```bash
+npm run dev
+```
+
+开发命令先构建共享契约，再启动服务端文件监听及 Vite。服务端端口为 `9621`，Vite 端口为 `5174`，通过同源代理访问后端。端口被占用时明确失败；停止命令会关闭其子进程。npm 缓存在仓库的 `.cache/npm`，无需向用户 home 写入缓存。
+
+## 测试与检查
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run test:e2e
+```
+
+`npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
+
+S01 验证结果：**71 项测试和 1 项浏览器 E2E 通过**，无失败或跳过；已验证 `npm ci` 后重复构建和测试，以及开发代理。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 与 [S01 验证记录](docs/S01_VALIDATION.md)。
 
 ## 项目目标
 
@@ -56,14 +98,17 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 | 模型接口 | OpenAI-compatible 文本/embedding，标准 Cohere/Jina-compatible rerank |
 | 测试 | Vitest、Testing Library、Playwright、本地 HTTP 假模型和源码参考对照 |
 
-具体依赖版本、lockfile、构建命令和启动方式将在工程初始化阶段落实。目前不应执行尚不存在的 `npm install`、构建或启动脚本。
+S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。图谱库、解析器和模型适配器将在对应阶段引入，当前未安装的规划依赖不视为已实现。
 
 ## 文档与实施进度
 
 - [LightRAG代码转移实现方案](docs/LightRAG代码转移实现方案.md)：上游源码映射、功能边界、目标架构、数据一致性、模型配置、算法与测试门槛。
 - [LightRAG代码转移实施步骤](docs/LightRAG代码转移实施步骤.md)：S00–S12 阶段依赖、交付物、各阶段测试和验收场景。
+- [实施状态](docs/IMPLEMENTATION_STATUS.md)：各阶段实际进度、验证证据和下一步。
+- [S01 验证记录](docs/S01_VALIDATION.md)：已执行命令、测试范围、工具版本和限制。
+- [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析和方案文档。下一步是 **S01：TypeScript 工程、契约与测试基座**；算法及应用功能将在后续阶段实现，实际进度以实施文档为准。
+当前已完成源码分析、方案文档和 S01。下一步是 **S02：文件持久化内存存储与快照**；S03 实现模型配置与调用。G01–G12 图谱算法仍全部待实现和验证。
 
 获取当前仓库：
 
@@ -86,4 +131,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前仓库仅含文档，尚未导入上游应用代码。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01 工程代码为新编写，尚未导入上游应用算法代码。

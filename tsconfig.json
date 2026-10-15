@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "internal/contracts"
+    },
+    {
+      "path": "apps/server"
+    },
+    {
+      "path": "apps/web"
+    }
+  ]
+}

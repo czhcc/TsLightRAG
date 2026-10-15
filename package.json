@@ -1,0 +1,45 @@
+{
+  "name": "tslightrag",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "packageManager": "npm@11.9.0",
+  "workspaces": [
+    "apps/server",
+    "apps/web",
+    "internal/contracts"
+  ],
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "typecheck": "tsc -b && tsc -p tsconfig.tests.json",
+    "lint": "eslint .",
+    "build": "npm run clean && tsc -b && npm run build --workspace @tslightrag/web",
+    "dev": "npm run build && concurrently --kill-others-on-fail \"tsx watch apps/server/src/main.ts\" \"npm run dev --workspace @tslightrag/web\"",
+    "start": "node apps/server/dist/main.js",
+    "test": "npm run build && vitest run",
+    "test:unit": "npm run build && vitest run internal/contracts apps/server/src apps/web/src",
+    "test:integration": "npm run build && vitest run tests/integration",
+    "test:e2e": "npm run build && playwright test"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "concurrently": "^9.2.0",
+    "eslint": "10.12.0",
+    "globals": "^17.0.0",
+    "jsdom": "30.1.2",
+    "tsx": "^4.20.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.4"
+  }
+}

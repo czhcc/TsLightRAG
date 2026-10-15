@@ -1,0 +1,460 @@
+{
+  "stage": "S01",
+  "scope": "Engineering foundation only; no storage, model adapters, parsers, ingestion or G01–G12 algorithms implemented.",
+  "targetParent": "7f4a52442e8e91016b3f467ea729a613c2f73b76",
+  "upstreamSha": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "tools": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "typescript": "6.0.3",
+    "fastify": "5.12.7",
+    "react": "19.3.1",
+    "vite": "8.3.4",
+    "zod": "4.6.7",
+    "vitest": "5.0.4",
+    "playwright": "1.64.1",
+    "chromium": "151.0.7922.173"
+  },
+  "tests": {
+    "reported": 71,
+    "passed": 71,
+    "failed": 0,
+    "skipped": 0,
+    "files": 6,
+    "suites": [
+      {
+        "path": "tests/integration/health.integration.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "real executable server without inherited environment distinguishes a live process from a ready knowledge base",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves explicit empty, read-only model configuration",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /settings/models",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves hashed assets with JavaScript MIME",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /api/v1/missing",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /assets/missing.js",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /missing-page",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment does not pretend to save models or accept documents",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment rejects foreign Origin and hostile Host",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment accepts the exact same Origin and sets defensive response headers",
+            "status": "passed"
+          },
+          {
+            "name": "ignores business environment variable overrides",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration/test-infrastructure.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "isolates test directories and removes only owned files",
+            "status": "passed"
+          },
+          {
+            "name": "provides input-sensitive HTTP model fixtures with recorded protocol requests",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/server/src/cli.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "CLI configuration resolves defaults from repository root, independent of cwd",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration uses config then explicit CLI overrides and preserves existing config",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--unknown\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"positional\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration sanitizes malformed or missing config and disallows unknown fields",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration supports help without starting the application",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/web/src/App.test.tsx",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "shows startup is live while indexing and models remain unavailable",
+            "status": "passed"
+          },
+          {
+            "name": "renders three distinct model roles without a fake save action",
+            "status": "passed"
+          },
+          {
+            "name": "shows a network failure and retries the actual API boundary",
+            "status": "passed"
+          },
+          {
+            "name": "aborts owned outstanding requests on unmount",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "internal/contracts/src/contracts.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "query contracts uses mix and the upstream VECTOR/5 defaults",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts naive mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts local mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts global mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts hybrid mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts mix mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 0",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 1",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 2",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 3",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 4",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 5",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 6",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 7",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 8",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 9",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 10",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 11",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts accepts local HTTP profiles",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/v1?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/#x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects API keys in public configuration",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts requires dimensions and finite concurrency",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts validates profile uniqueness and role kinds",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts validates document timestamps, hashes and versions",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires a valid job attempt and explicit cancellation state",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires evidence and rejects non-finite graph weights",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires citation source chunks, without inventing a required page",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'meta', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'references', references: [] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'delta', text: 'Unicode 🧮' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'done', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'error', error: [Object] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'cancelled' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts rejects mixed terminal events and arbitrary error payloads",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "path": "apps/web/src/api/client.test.ts",
+        "status": "passed",
+        "cases": [
+          {
+            "name": "rejects non-HTTP-success responses without exposing provider data",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed health payloads rather than declaring readiness",
+            "status": "passed"
+          },
+          {
+            "name": "forwards the cancellation signal to a same-origin model settings request",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "reported": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "productionRealServer": true,
+    "noPageErrorsOrExternalRequests": true
+  },
+  "repeatability": {
+    "npmCiThenTypecheckLintBuildAndTestsPassed": true,
+    "npmStartActualCliPassed": true,
+    "devProxyOriginAndTsxAndChromiumPassed": true,
+    "startupScriptActualHealthAndStaticPassed": true
+  },
+  "runtime": {
+    "inheritedEnvironmentEmptyInOwnedServerTests": true,
+    "healthUsable": false,
+    "modelConfigurationEditable": false,
+    "productionPort": 9621,
+    "developmentUiPort": 5174
+  },
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "sourceSha256": {
+    ".node-version": "7e8a2fa94951112b894a3dbe3d05efef5e9263741fa49125f0a70f40fedab4cc",
+    ".npmrc": "84636711bafeb36790782401b8dac466ee0344c91bbdd1967f62f2d3174304a5",
+    "apps/server/package.json": "8bdb6886214e7c4527fee143048b446b30532fd7b7ab59bfb0842cc39886ebe0",
+    "apps/server/src/app.ts": "11c0fb732e72d67ff4418103f7ea79feb4814a7d7adad41066195ba08368ebfc",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "4eaec28a4866cec29c7ec72da96a1a1af5f728a2ca4ea4425a4def3d5a0c1a91",
+    "apps/server/src/main.ts": "7bf33c8e80554f9a1b1407c3e9bdaac323e70bd37679543d3718221c3eab2010",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/tsconfig.json": "b3b3dbb1eab652d19b7a7b43c997d80c7daae43d999ad819b78d0133b2b91f03",
+    "apps/web/index.html": "bcc098f00004298d0984bd98e10ac90a40d816ff8e72c2a369b909112b1a3baa",
+    "apps/web/package.json": "27ff56f3d1057afff762ba9ef7acbace3b74d15713ed2e050cc942125c1942db",
+    "apps/web/src/App.test.tsx": "4e7676cf2b4aee8c277403526c54cb607c020df8a3629ab49b3f5c75c545a579",
+    "apps/web/src/App.tsx": "ae588c8335430c43b5bbeef357a126173014cefb25e287837f6a909ee451d0eb",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "4f02332bcf0957c2c739b5b615a9c71476bbde9bf9d008d264629f95c5a5c30c",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/style.css": "634b6af14a4b1c886af297ad8bae458e59132e15dac775010c5ee605b13f854e",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "apps/web/tsconfig.json": "ffff2f934cab3a0918157c1548c8365d8c3cc9d25917d52a107005ba91477d13",
+    "apps/web/vite.config.ts": "ed8d8fcc257c1e9180dc99d2527f8552b13e7972b504fd39ff73f4d1ecc62df0",
+    "eslint.config.js": "b753f6780e2549ae8068ebb4ed827a06cb07a28493c17fbbcd8970db59c1afb4",
+    "internal/contracts/package.json": "1a300e99e344bcfbd828e5c25c6f46600dede0179becf1505b72f07fcc051b33",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "1724574cafafa5187cac064499a10a3ca101130cd969d64e882417157633360d",
+    "internal/contracts/tsconfig.json": "da4ada59566467075ab94a1fa1297cbc3be41523282bb3059116b006b2881eb2",
+    "package-lock.json": "81d7e974f920bb4aea281282ffa0fd523c9c6661c42168cc3b385ae43955fcff",
+    "package.json": "10880b771afc7620eba6871d8b8e2d45e4c06cad02dcd2bbaec4d3000c16e6d6",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "tests/e2e/bootstrap.spec.ts": "8f0ab73071ee278c9bb994f4c9cf97a8dd919b686dd59f1bb668d4fa424f63c1",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/health.integration.test.ts": "c5ca3cd8cff70b68f84d4986a9fc242c03309b24b74a33abcdebb9680c98e74d",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tsconfig.base.json": "5ce26322ac68850a1568472295f545e1772c0e8a2fa1b169d85a7d8e36e9e7f1",
+    "tsconfig.json": "201730d1d12ab561ce834b1ee1b4819c354376939ee8f399c241e29666deafb8",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "logSha256": {
+    "tslightrag-s01-ci-lint.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s01-ci-test.log": "65713ab8cb1e09b6a97027125e429380c8d74493f77469304e5b6783d42a5b6f",
+    "tslightrag-s01-ci-typecheck.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s01-ci.log": "4c5ba732bcfab5b72f21aa2903932cb3c725cbf5c90a320c933bedbdfb228f48",
+    "tslightrag-s01-dependencies.log": "5e7123de1335f7a36e9b794bad613d19d7e24b3e246223a92465c7b318048cfa",
+    "tslightrag-s01-dev-server.log": "d55e2771fa168e86758f04018564f00ce67702ea50a19c3ce1750511232fee9a",
+    "tslightrag-s01-dev-validation-final.log": "d2d4732bf868f9fa5471cfdd44d01feb7b35ee20b9966680645ccd54feaf000b",
+    "tslightrag-s01-dev-validation.log": "5cec291a5a299def54a62fab593041ff7577891a6cfc2794d023274077a27950",
+    "tslightrag-s01-e2e.log": "0c524ecc8fb64956aa3eda459d23e62543afe9627cd0807555a8d5ee346d4c4e",
+    "tslightrag-s01-install-update.log": "65c731cd02e19c79f6f5a3e84a4dd64a49acd6c47d2ee551d7cc9da191e8c96c",
+    "tslightrag-s01-install.log": "64ccf767cd612c49c7680754bd8009af8e78d601876afbc1a7d840b504979062",
+    "tslightrag-s01-lint-final.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s01-lint-last.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    "tslightrag-s01-lint.log": "2a3bdf0cbd3bef0c3409a1983add88efbe9029e57a6956443dddb1b9fa3fcd2e",
+    "tslightrag-s01-npm-start.log": "7e56ad4a4f0e1fe1b018ed229191fcbae1b135c80a62dc4e23ef4e6bc29ede3e",
+    "tslightrag-s01-start-script.log": "6dd358ae0b20c5c7da9991c6666f050c3e6904aa195e7d6663fc7c07a7ba00da",
+    "tslightrag-s01-test-2.log": "0b0d4c8ad5286820ffb26ab629a0da065f16f1242b31ac4e24c280cdbceb2438",
+    "tslightrag-s01-test-final.log": "f35b5d742d53f7e077c641d313cb0ac36991d2eec6899d5d2226ab0b2a68ea30",
+    "tslightrag-s01-test-recorded.log": "dbb0a37def449ddf1e014d66c04d4cc0c8b740139d02e61b94d2a1c0524283f0",
+    "tslightrag-s01-test.log": "9ade4bfb8960c2e387c9747c0194139c6beb786fe42f41a0002dfa1aa512d5b1",
+    "tslightrag-s01-typecheck-2.log": "a0fd1e65f1e1f8880309f686d4daa19a8bc6ac381dee1487fe4b586559b62a7f",
+    "tslightrag-s01-typecheck-3.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s01-typecheck-final.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s01-typecheck-last.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    "tslightrag-s01-typecheck.log": "62853397d3bf35a3f511a7b7f4c198058fc122f87c886925433b17536c4d1da6"
+  },
+  "screenshots": {
+    "test-results/bootstrap-production-UI-ca-0350f-tings-with-no-configuration/s01-model-settings.png": "284f85a63e5d106c3a810f03c3a938a1f904c0250cbe18bab501cadeeb4c90c6"
+  },
+  "initialFailures": [
+    "Default npm cache was not writable; changed to workspace cache.",
+    "Type checking: unknown Fastify error value and CSS import declarations fixed.",
+    "Lint: unnecessary regex escape fixed.",
+    "Initial 68 tests: 67 passed, Host test failed because Fetch did not transmit override; node:http preserves 403 assertion.",
+    "Initial dev preflight: existing port 5173 occupied; project uses 5174 without altering other service."
+  ],
+  "cloudConfiguration": {
+    "installScriptAndStartSkill": "saved",
+    "requiresPublish": true,
+    "published": false,
+    "freshTaskRestoreVerified": false
+  }
+}
