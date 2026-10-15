@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const fixture = fileURLToPath(new URL('../fixtures/storage-process.mjs', import.meta.url));
-export function storageProcess(dataDir: string, mode: 'hold' | 'crash', checkpoint = '') {
+export function storageProcess(dataDir: string, mode: 'hold' | 'crash' | 'config', checkpoint = '') {
   const child = spawn(process.execPath, [fixture, dataDir, mode, checkpoint], { env: {}, stdio: ['ignore', 'pipe', 'pipe'] });
   let output = ''; let errors = '';
   child.stdout.on('data', (value: Buffer) => { output += value.toString(); });

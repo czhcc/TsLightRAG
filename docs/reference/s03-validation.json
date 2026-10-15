@@ -1,0 +1,1120 @@
+{
+  "stage": "S03",
+  "recordedAt": "2026-10-15T08:44:39.156172+00:00",
+  "targetParent": "e2e1e327eca507fcd48310a13003d7230f00196a",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux local filesystem"
+  },
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --reporter=json --outputFile=.tools/s03-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:e2e -- --reporter=json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json > .tools/s03-playwright.json",
+      "exitCode": 0
+    },
+    {
+      "command": "bash .tools/start-server.sh",
+      "exitCode": 0
+    }
+  ],
+  "vitest": {
+    "files": 20,
+    "total": 197,
+    "passed": 197,
+    "failed": 0,
+    "pending": 0,
+    "reportSha256": "a844adee379c3e6ccb140b8f4a3a94b82e33627c54e6dd531c256244749b0b53",
+    "suites": [
+      {
+        "file": "tests/integration/config-crash.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "config survives real SIGKILL at before-rename with one complete revision",
+            "status": "passed"
+          },
+          {
+            "name": "config survives real SIGKILL at after-rename with one complete revision",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/health.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "real executable server without inherited environment distinguishes a live process from a ready knowledge base",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves explicit empty, editable model configuration",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves the built application at /settings/models",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment serves hashed assets with JavaScript MIME",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /api/v1/missing",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /assets/missing.js",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment returns JSON 404 instead of SPA HTML for /missing-page",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment does not pretend to save models or accept documents",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment rejects foreign Origin and hostile Host",
+            "status": "passed"
+          },
+          {
+            "name": "real executable server without inherited environment accepts the exact same Origin and sets defensive response headers",
+            "status": "passed"
+          },
+          {
+            "name": "ignores business environment variable overrides",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/models-api.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "tests three distinct unsaved candidate endpoints with no indexing/save side effects",
+            "status": "passed"
+          },
+          {
+            "name": "saves without sending requests; survives service restart with masked keys and default role reuse",
+            "status": "passed"
+          },
+          {
+            "name": "returns 409 on stale revisions and keeps all saved fields",
+            "status": "passed"
+          },
+          {
+            "name": "rejects foreign-origin writes/tests and non-JSON form writes without model requests",
+            "status": "passed"
+          },
+          {
+            "name": "key omit/clear/replace is real on the wire and endpoint edits cannot forward an old key",
+            "status": "passed"
+          },
+          {
+            "name": "keeps synthetic keys out of GET, errors and server output, even if upstream echoes them",
+            "status": "passed"
+          },
+          {
+            "name": "browser disconnect cancels the upstream candidate request and leaves config unchanged",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/snapshot-crash.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "survives actual SIGKILL at after-namespace:kv.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:document-status.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-chunks.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-entities.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:vectors-relations.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-namespace:graph.json with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-manifest with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at before-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current with one complete old/new generation",
+            "status": "passed"
+          },
+          {
+            "name": "survives actual SIGKILL at after-current-sync with one complete old/new generation",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/snapshot.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "publishes all namespaces, restores Unicode/float32/graph/statuses and captures stable old views",
+            "status": "passed"
+          },
+          {
+            "name": "serializes concurrent deltas from the latest state and isolates escaped drafts",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-namespace failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on after-manifest failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "pre-publication errors keeps the old snapshot on before-current failure and permits retry",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current failure",
+            "status": "passed"
+          },
+          {
+            "name": "reports publication and fences writes on after-current-sync failure",
+            "status": "passed"
+          },
+          {
+            "name": "does not acknowledge a real filesystem write error (including when tests run as root)",
+            "status": "passed"
+          },
+          {
+            "name": "rejects corrupt CURRENT, preserves it, and supports explicit validated recovery",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on checksum without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on manifest without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on version without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-current without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on missing-file without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "fails closed on current-symlink without resetting storage",
+            "status": "passed"
+          },
+          {
+            "name": "checks mixed-space even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks dangling-edge even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-source even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "checks missing-vector even with recomputed valid file checksums",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid contributions before writing and drains accepted commits before closing",
+            "status": "passed"
+          },
+          {
+            "name": "does not initialize a blank database over unrecognized pre-existing data",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/storage-lifecycle.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "boots the real server with storage, rejects a second process and retains data on restart",
+            "status": "passed"
+          },
+          {
+            "name": "CLI refuses damaged storage before listening and offers explicit inspect/recover commands",
+            "status": "passed"
+          },
+          {
+            "name": "returns 503 rather than healthy readiness when a published commit has fenced storage",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/test-infrastructure.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "isolates test directories and removes only owned files",
+            "status": "passed"
+          },
+          {
+            "name": "provides input-sensitive HTTP model fixtures with recorded protocol requests",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "tests/integration/writer-lock.integration.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "rejects another writer in the same process and permits a different data directory",
+            "status": "passed"
+          },
+          {
+            "name": "does not steal an aged live lock or trust forged owner metadata, and releases on SIGKILL",
+            "status": "passed"
+          },
+          {
+            "name": "refuses a symlink data directory before creating workspace files outside it",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/cli.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "CLI configuration resolves defaults from repository root, independent of cwd",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration uses config then explicit CLI overrides and preserves existing config",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--host\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--port\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"--unknown\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration rejects invalid arguments \"positional\"",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration sanitizes malformed or missing config and disallows unknown fields",
+            "status": "passed"
+          },
+          {
+            "name": "CLI configuration supports help without starting the application",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/web/src/App.test.tsx",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "shows startup is live while indexing and models remain unavailable",
+            "status": "passed"
+          },
+          {
+            "name": "renders three model roles and real configuration actions",
+            "status": "passed"
+          },
+          {
+            "name": "shows a network failure and retries the actual API boundary",
+            "status": "passed"
+          },
+          {
+            "name": "aborts owned outstanding requests on unmount",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "internal/contracts/src/contracts.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "query contracts uses mix and the upstream VECTOR/5 defaults",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts naive mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts local mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts global mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts hybrid mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts accepts mix mode",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 0",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 1",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 2",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 3",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 4",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 5",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 6",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 7",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 8",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 9",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 10",
+            "status": "passed"
+          },
+          {
+            "name": "query contracts rejects malformed or oversized query 11",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts accepts local HTTP profiles",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/v1?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects unsafe URL https://host/#x",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts rejects API keys in public configuration",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts requires dimensions and finite concurrency",
+            "status": "passed"
+          },
+          {
+            "name": "model contracts validates profile uniqueness and role kinds",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts validates document timestamps, hashes and versions",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires a valid job attempt and explicit cancellation state",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires evidence and rejects non-finite graph weights",
+            "status": "passed"
+          },
+          {
+            "name": "document and graph contracts requires citation source chunks, without inventing a required page",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'meta', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'references', references: [] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'delta', text: 'Unicode 🧮' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'done', …(2) } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'error', error: [Object] } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts accepts the { type: 'cancelled' } event",
+            "status": "passed"
+          },
+          {
+            "name": "stream contracts rejects mixed terminal events and arbitrary error payloads",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/chat.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "sends actual OpenAI request fields/auth and returns text/usage",
+            "status": "passed"
+          },
+          {
+            "name": "decodes split UTF-8/CRLF/multiline SSE, empty and usage-only frames",
+            "status": "passed"
+          },
+          {
+            "name": "converts nonstream JSON when stream was requested",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 3",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed/empty/tool replies without replay 4",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 401 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 403 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "never retries permanent HTTP 400 or leaks provider body",
+            "status": "passed"
+          },
+          {
+            "name": "retries 429 with bounded Retry-After and selected 5xx with a finite attempt count",
+            "status": "passed"
+          },
+          {
+            "name": "bounds response bytes before parsing, even for chunked bodies",
+            "status": "passed"
+          },
+          {
+            "name": "rejects redirects without contacting the redirected host or sending its key",
+            "status": "passed"
+          },
+          {
+            "name": "enforces total timeout and caller cancellation during active requests",
+            "status": "passed"
+          },
+          {
+            "name": "never retries after a delivered SSE delta; missing DONE is not success",
+            "status": "passed"
+          },
+          {
+            "name": "limits concurrency, bounds waiting queue and removes cancelled waiters",
+            "status": "passed"
+          },
+          {
+            "name": "does not replay a network failure after a streamed delta has reached the caller",
+            "status": "passed"
+          },
+          {
+            "name": "cancels a queued request without leaking a semaphore slot or contacting the provider",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/config.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "starts unconfigured, persists versioned private config and restores masked profiles",
+            "status": "passed"
+          },
+          {
+            "name": "implements omit/null/string keys without returning secrets and detaches captures",
+            "status": "passed"
+          },
+          {
+            "name": "serializes competing revisions with one winner and validates references",
+            "status": "passed"
+          },
+          {
+            "name": "rejects masked placeholders, unsafe URLs and malformed input without secret-bearing errors",
+            "status": "passed"
+          },
+          {
+            "name": "keeps old revision/file on pre-publication failure and permits an explicit retry",
+            "status": "passed"
+          },
+          {
+            "name": "fences after publication uncertainty; restart reads the published revision",
+            "status": "passed"
+          },
+          {
+            "name": "refuses corrupted config, insecure permissions and symlinks without overwriting them",
+            "status": "passed"
+          },
+          {
+            "name": "candidate testing preserves save revision and requires explicit key handling for a changed target",
+            "status": "passed"
+          },
+          {
+            "name": "embedding identity includes endpoint/model/dimensions/operator revision, excludes keys and canonicalizes slashes",
+            "status": "passed"
+          },
+          {
+            "name": "blocks nonempty embedding space changes until rebuild exists",
+            "status": "passed"
+          },
+          {
+            "name": "actual filesystem rename failure cannot report success and can be retried after repair",
+            "status": "passed"
+          },
+          {
+            "name": "close drains an accepted save and rejects later writes",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/embedding.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "splits batches and reorders actual input-sensitive embeddings by index",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 3",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 4",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/missing/range/dimension/zero/nonfinite records 5",
+            "status": "passed"
+          },
+          {
+            "name": "rejects nonfinite numeric JSON and cancels without dispatching the next batch",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/model-url.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "preserves base prefix https://host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "preserves base prefix https://host/proxy/api/v1/",
+            "status": "passed"
+          },
+          {
+            "name": "preserves base prefix https://host",
+            "status": "passed"
+          },
+          {
+            "name": "appends embeddings only and preserves the complete rerank endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint file:///tmp/key",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint ftp://host",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://user:secret@host/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://host?key=x",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint https://host/#fragment",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://169.254.169.254/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://2852039166",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://0xa9fea9fe",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://[fe80::1]/",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://[::ffff:169.254.169.254]",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://metadata.google.internal/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://metadata/v1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects unsafe endpoint http://0.0.0.0",
+            "status": "passed"
+          },
+          {
+            "name": "supports explicit loopback/LAN and rejects forbidden DNS answers",
+            "status": "passed"
+          },
+          {
+            "name": "bounds numeric/date Retry-After and handles malformed values",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/models/rerank.protocol.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "sends standard cohere-compatible rerank at a complete endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "sends standard jina-compatible rerank at a complete endpoint",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 0",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 1",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 2",
+            "status": "passed"
+          },
+          {
+            "name": "rejects duplicate/out-of-range/nonfinite/incomplete results 3",
+            "status": "passed"
+          },
+          {
+            "name": "disabled rerank makes no network call; fallback returns an explicit warning",
+            "status": "passed"
+          },
+          {
+            "name": "explicit fallback never swallows cancellation",
+            "status": "passed"
+          },
+          {
+            "name": "enabled rerank without a bound model reports a configuration error",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/graph.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "canonicalizes undirected edges without ambiguous pair keys",
+            "status": "passed"
+          },
+          {
+            "name": "isolates returned data, counts self loops as NetworkX does, and removes incident edges",
+            "status": "passed"
+          },
+          {
+            "name": "rebuilds adjacency on restore and rejects corrupt canonical IDs/duplicates",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/kv.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "stores Unicode and isolates both incoming and outgoing values",
+            "status": "passed"
+          },
+          {
+            "name": "preserves map keys without prototype pollution or duplicate restores",
+            "status": "passed"
+          },
+          {
+            "name": "rejects non-JSON numbers and unsafe or oversized keys",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/server/src/storage/vectors.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "normalizes, returns exact cosine/top-k and uses stable ID ties",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[0,0]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "rejects invalid vector {\"values\":[null,1]}",
+            "status": "passed"
+          },
+          {
+            "name": "validates spaces, top-k and thresholds even for empty data",
+            "status": "passed"
+          },
+          {
+            "name": "JSON round-trips float32 without accumulating reload drift",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "apps/web/src/api/client.test.ts",
+        "status": "passed",
+        "tests": [
+          {
+            "name": "rejects non-HTTP-success responses without exposing provider data",
+            "status": "passed"
+          },
+          {
+            "name": "rejects malformed health payloads rather than declaring readiness",
+            "status": "passed"
+          },
+          {
+            "name": "forwards the cancellation signal to a same-origin model settings request",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "playwright": {
+    "stats": {
+      "startTime": "2026-10-15T08:42:06.684Z",
+      "duration": 8823.243,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "reportSha256": "0f9ed7ec10a0da4e08cc0b75f5dc1adeef36d6ef12a1a7ca8df0ad5dad882575",
+    "screenshots": {
+      "test-results/bootstrap-production-UI-ca-0350f-tings-with-no-configuration/s02-model-settings.png": "3d3ee8f7bef794a99ec5f4f3cc9c60fcdaa33f777c531aea617162b02cabf8b8",
+      "test-results/models-browser-configures--95c67-ed-roles-keys-after-restart/s03-model-settings.png": "bbcc61af69ec71499c6021995a501ababcf6e843f35d47a6e8c8fd20b9ae25b5"
+    }
+  },
+  "currentInstance": {
+    "stage": "S03",
+    "usable": false,
+    "storageInitialized": true,
+    "corpusRevision": 0,
+    "modelConfigRevision": 0,
+    "modelCount": 0,
+    "editingAvailable": true,
+    "existingStoragePreserved": true
+  },
+  "configDraft": {
+    "fieldUpdated": "start_skill",
+    "requiresPublish": true,
+    "installScriptChanged": false,
+    "freshTaskRestoreVerified": false
+  },
+  "sourceSha256": {
+    "apps/server/package.json": "336417b9597e7ad530faab56a50c3e1ef59be8752875731a95c2848cf70dd4d1",
+    "apps/server/src/app.ts": "b6ff783f1db1455db9f436df05517ac488dd8478a90bb19461f8468320c680b6",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "7ac295cdc30a09fd8504fe3d8649abe4d4c71e82fc09308ef59834646687d2ee",
+    "apps/server/src/main.ts": "36b5c0152111f8bc1a7016a6fd7c0e00364c2bdbbdf63424a38fb0c1a861b8df",
+    "apps/server/src/models/chat.protocol.test.ts": "3c0a2b674f65e3ade292fb7e437a4467b13adbf1f616ad57b50b9fd2b7cf8f82",
+    "apps/server/src/models/client.ts": "61f4d7fff76269fe772e8d5721d31cb9bd2fa3234288055632e16a92e16cce05",
+    "apps/server/src/models/config.test.ts": "812559274dfc1e5e42dd7a049e9552b82789105a221733c5ddb9a8263619136b",
+    "apps/server/src/models/config.ts": "e563d08996f7aea80ccbf518cb88b56bdb1b625f90d227154e0d98aa114d562f",
+    "apps/server/src/models/embedding.protocol.test.ts": "9e30bf849f2f45b9292320c61967a3eddfb8b208ad3e3405dfe2842393930ee0",
+    "apps/server/src/models/errors.ts": "e4da2b34f17bd066de1ac587a53a9c73fad5e8acbb814135f4c9798b42ca8bd6",
+    "apps/server/src/models/http.ts": "5d1a0a56402bdfdf3dfb0755c9e0d008a3c5f600709fa70010777e8d0b41ea2a",
+    "apps/server/src/models/model-url.test.ts": "dd691153c73b934cba1c92217fee5dd70a7c2925648465f10e7b0b90263430c5",
+    "apps/server/src/models/rerank.protocol.test.ts": "48a1254f1fa5e4359eed2ab3a4ba9ffd0cc42ad1a0d25d9339790ab85b939e06",
+    "apps/server/src/models/url.ts": "c9ec575a70017e1be2a8ad35a5fdedbc4773c1fdea6e40669122c61673cec294",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "1ea004254b04c3c8002845695ce91044a1b7af2c0c24bc6e1120060024532319",
+    "apps/server/src/storage/graph.ts": "637b25aa9df180524e1c7dc89861c8beab70ef429a07bb12dcef61934214b3c4",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "358d110d77544db24ffa9175dffbe5fd7662427661c58314dc975b0cd4612e09",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "e437c7789f4d897b33fc1b04017f1c54c2c844e17203e6449ec978faefb4017d",
+    "apps/server/src/storage/state.ts": "1943a6bb08fc3f6912e858eeb33097f931a3c1fc85b1265075045e620cbaf2d0",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/server/tsconfig.json": "b3b3dbb1eab652d19b7a7b43c997d80c7daae43d999ad819b78d0133b2b91f03",
+    "apps/web/package.json": "27ff56f3d1057afff762ba9ef7acbace3b74d15713ed2e050cc942125c1942db",
+    "apps/web/src/App.test.tsx": "5fad27a45afe5172f5c3e952a036f81f5190c2ed57da9e9b637f88e0211615f3",
+    "apps/web/src/App.tsx": "31a121bdda2213d2eb73580e05d7fbe38de1058746fc9b31f0afc120b655fe14",
+    "apps/web/src/ModelSettings.tsx": "061080a1f1f16cb0ac11e085273f14031b320246e374410da1d3f8304ef17ffb",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "89058c28b3b3909103152777876e3edc789b4ffaf84de3517d02e9ecee112b78",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/style.css": "7aa502f27ec1baba6772ec51f0709a6f6b6ba68b6ac26a262f389f2d88960094",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "apps/web/tsconfig.json": "ffff2f934cab3a0918157c1548c8365d8c3cc9d25917d52a107005ba91477d13",
+    "apps/web/vite.config.ts": "ed8d8fcc257c1e9180dc99d2527f8552b13e7972b504fd39ff73f4d1ecc62df0",
+    "eslint.config.js": "b753f6780e2549ae8068ebb4ed827a06cb07a28493c17fbbcd8970db59c1afb4",
+    "internal/contracts/package.json": "1a300e99e344bcfbd828e5c25c6f46600dede0179becf1505b72f07fcc051b33",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "f048475155154f44d89127a060ba440fec9a6a432a9e1077e6fc48e203c9b2c4",
+    "internal/contracts/tsconfig.json": "da4ada59566467075ab94a1fa1297cbc3be41523282bb3059116b006b2881eb2",
+    "package-lock.json": "dfc56fe558a343b9de7e062083dc7808dacc74ed614f8a0126abe39effa7bea3",
+    "package.json": "2383c60fe48e08ca3551be458630d25a0cd59d055c505beecf85bda2ad13a3e2",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "tests/e2e/bootstrap.spec.ts": "b4b604b57d02778ccbfb34922a335793fba99b9b8400c16df1a25729c13c943a",
+    "tests/e2e/models.spec.ts": "0c8f7caf443d199ce42d85b2888711fcdd2a7fac97654db292f51fa44f915204",
+    "tests/fixtures/storage-process.mjs": "730dc13403b2bfc4fd7d50a6cc93d9445b804bacca824ef09aee3b2fe5a874cf",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/indexed-state.ts": "ac1a6422006aefe9500437c9a6c857cb3c28670f8f01fbd73c0292a8912c5e7e",
+    "tests/helpers/model-profiles.ts": "700d71940940f8091df1a9b32bc7b06462e309c59525ebe44d444d4aff69abe0",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/storage-process.ts": "7f42a924548a6d887f614aea2ae07c1f3a2ab8e627424fdaf209a3f4bc5121c1",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/config-crash.integration.test.ts": "56a9ce24171254efcf7693d63623cf6aa7a3ec41ac7349aa3b85e326702c388b",
+    "tests/integration/health.integration.test.ts": "0cffd54f942c51733d167eb4be32b842bf2af8f08aa5660a9daf48acf6b0fd6b",
+    "tests/integration/models-api.integration.test.ts": "1deed6fc9297dc7183a81abd2e95d0ff79b603b4975aa6455da37ee1867d7405",
+    "tests/integration/snapshot-crash.integration.test.ts": "3ad14db42cd5ca655108ab011036421fa055074fe52bce40ed7c6e0af7483271",
+    "tests/integration/snapshot.integration.test.ts": "ec26e3c2edf545bd159ea2f58b37e1f5a3a2bcfc3a8ca491df69e55e47e341fc",
+    "tests/integration/storage-lifecycle.integration.test.ts": "f7eb3bb3d3fb980441af76801fe218184068e7024ec979dfd37dcb1fcecbe91e",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tests/integration/writer-lock.integration.test.ts": "2611d32035444d905954fb699a5dd1b817409639a8004838560f6664f0c9f157",
+    "tsconfig.base.json": "5ce26322ac68850a1568472295f545e1772c0e8a2fa1b169d85a7d8e36e9e7f1",
+    "tsconfig.json": "201730d1d12ab561ce834b1ee1b4819c354376939ee8f399c241e29666deafb8",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "compiledSha256": {
+    "apps/server/dist/app.d.ts": "c765c9abe733954254df79d4293c49506a94ca76bfecadf647e7af112ec34259",
+    "apps/server/dist/app.js": "195c42f164fc32ce3136499f9cad035e36078c25ee5ebbade5b9ee31b229ffa7",
+    "apps/server/dist/cli.d.ts": "da3c17053d142047840676a7b8e7fd67a2ea7d11c95d9e2945765e09b46c811b",
+    "apps/server/dist/cli.js": "b26b1eb0d219444ea99e4df25bb96bbf25592141cf165ede2199c1d0198caeda",
+    "apps/server/dist/main.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/main.js": "d4f4690386029e6576ff5d4faf637ce12a4fe27f3d4de505cebb558d9e633854",
+    "apps/server/dist/models/client.d.ts": "2ab2bb693576ac34284d5425151cbd117c5e74a8da3da7448fa51f440d7ec216",
+    "apps/server/dist/models/client.js": "38c3c5a6832e80d9bae88b9d5d42536f59debff74f023c8cb7c319847d95f1e1",
+    "apps/server/dist/models/config.d.ts": "4810a0f8fbeb2e4ee4c6d186a4ceaa5be5e8e6bffaff7404b6cf85765585c5dc",
+    "apps/server/dist/models/config.js": "6d6fcf671748e4d9fb910f9f94b41f91d683b16b8912db018b3a4fe51b8c13ee",
+    "apps/server/dist/models/errors.d.ts": "6119260baef2185d133808a4db74bbb9fc2654c2309b5d829211c8b1275ded3f",
+    "apps/server/dist/models/errors.js": "99b73146782c3aa2610f98a95c8d5bed55eb865f64fe2f63b0c6ce3f23d80e34",
+    "apps/server/dist/models/http.d.ts": "49eff650dc568e74614d329e75b202bd4d9b7d589c41441378f49f8293aa0cb2",
+    "apps/server/dist/models/http.js": "8df24ae843fcefd5ce4f854fa26ca94afb6da360a08e369eb5c982e327e01a21",
+    "apps/server/dist/models/url.d.ts": "121815c7ba140d0d140fb0aa52cfc1cab743b083ee755c507c91e34ab55e11a9",
+    "apps/server/dist/models/url.js": "3749c9fc5659876a1b6930a38ad79240d043e2a4ba0aa46f70dd6380d2b62b58",
+    "apps/server/dist/paths.d.ts": "24ac60ebf4142be60b39763a192a1b471b4944e3b10c6a6fdf8026e090da908d",
+    "apps/server/dist/paths.js": "152a1eb0c8c4224f360d67b01bb464b7de890685cd691070a79f942acfed0ab6",
+    "apps/server/dist/storage/disk.d.ts": "61d87608e350b8c6ee5fcd796f66710fb3c4c93480e1ba5e9d8b43a632a8602b",
+    "apps/server/dist/storage/disk.js": "06c77d9f7bc772860696ad0e5d60045fe81eabde8a77666b53be5231d8eb3c00",
+    "apps/server/dist/storage/graph.d.ts": "396d65b296075098eca6439fc02dacc53f280afacfddddcbf375310d47939753",
+    "apps/server/dist/storage/graph.js": "34ac8c5b67be45558ca5582591ce29139ebf41729b4d28cfa25e878eaded943d",
+    "apps/server/dist/storage/io.d.ts": "8910036f9c08726a64772af328fccaf5b1da07a96a088bfec78c59357f88c708",
+    "apps/server/dist/storage/io.js": "14a1ecaba6ae496d1055a7160a91f13b29fdb41bdb4c817da978a9e9f3850330",
+    "apps/server/dist/storage/kv.d.ts": "f844dc94fa792bac890e2ed9ec5801faef3af685e007a331ecee7c40dbbece79",
+    "apps/server/dist/storage/kv.js": "4c3a3a7d8e3850552144e600e10bd11ca32fb5320026799bf1c725d233d79aac",
+    "apps/server/dist/storage/maintenance.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/storage/maintenance.js": "546005429eed0cd977334a69469c8b457813e1ec151a3f0bd8f4bad6cb5bb79c",
+    "apps/server/dist/storage/recovery.d.ts": "eafadb1b6611ccfebfd17e5b6d632f5d835a1cf27798407e784752b2ed0eb0b3",
+    "apps/server/dist/storage/recovery.js": "7982317bb3a332dd17c04cd281ab8073406a2bc5cae6d6456e3c5219e9346e8e",
+    "apps/server/dist/storage/snapshot.d.ts": "5fcffee37307bd5c7aa833695c8970274a803bcf35804bb1dc53bd24897d8aa4",
+    "apps/server/dist/storage/snapshot.js": "5a13e15bf92ad452cc70e5f206ccb66d13db90de1c57cd1657f690e6140a7a29",
+    "apps/server/dist/storage/state.d.ts": "e0549ab6e551eb0b4a2873c07384a316371e235ce0d2c61562d83e0d2146115c",
+    "apps/server/dist/storage/state.js": "f4c26c0528d946a18e853b6f3554a9d93c47ce43a498de2b4b7812a2bb3476e1",
+    "apps/server/dist/storage/vectors.d.ts": "d02f932b834da6b6fc8897d4a0d09dc5cc4f9b90ed6f3b0262043d5a514447a2",
+    "apps/server/dist/storage/vectors.js": "8ee3e7eac1a95cdf0a31e06da7e796adf4e0a50f5100692f474b4ebee6aa39f9",
+    "apps/server/dist/storage/writer-lock.d.ts": "15053f43d65f5029871ca6791a5ed987b4b5d37d43c098bedd2c9e1c447b7d8a",
+    "apps/server/dist/storage/writer-lock.js": "6df2ece73b331403caa50965d9695fd6e53eaece3c77cffc1cb7f1297e935714",
+    "apps/server/dist/tsconfig.tsbuildinfo": "fcff1ee2dd8f69ef340247bbb3beba7c39ab7499ccb4e3244194c32bebe9f281",
+    "apps/web/dist/assets/index-C-3BM2cq.css": "6d9cc5065b17da2aaef576c6462d9a9fc10f09b22dec3f2c3ad8776662cacb11",
+    "apps/web/dist/assets/index-CmxQb5IY.js": "16550ce77509ed5180e76fd8101897754cea462810c89348bd06c0c60e327faf",
+    "apps/web/dist/index.html": "8e8ff6b26d8367ffe2f3dced06da173c6809ea641b431b946ef2879d735a2b44",
+    "internal/contracts/dist/index.d.ts": "e525aaf0b39b4f4235b53e1eee08d2986d0ede879dd77c767a5a9cf363f411e9",
+    "internal/contracts/dist/index.js": "8622b051f6303d4a17957eeb31ca85f34f64e5a0acc9656dd3cf21e1eee9a5ee",
+    "internal/contracts/dist/tsconfig.tsbuildinfo": "bfaa05d044d0b09ec0d18bc9f4f2925a4186e038df5664bd243986f46fbd721c"
+  },
+  "diagnosedIssues": [
+    "Initial test fixture tuple parametrization produced TypeScript errors; grouped fixture rows correctly and typecheck passed.",
+    "Initial lint unused destructuring binding corrected without suppressing rules.",
+    "An overlapping npm build cleaned dist during tests: 2 config crash failures and 1 UI import failure. Kept the failed report locally and reran sequentially: all 197 tests and 3 browser cases passed.",
+    "Owned old S02 server became a zombie after SIGTERM: kill(pid,0) polling falsely reported it alive. Verified state Z and successful port/lease release, then started S03 with preserved data."
+  ],
+  "limits": [
+    "No real external provider/quality/cost validation; three independent local protocol endpoints only.",
+    "S04-S12 and G01-G12 reference algorithm acceptance remain pending.",
+    "Selected embeddingSpaceId is not an activated rebuilt index; nonempty space/profile changes rejected until S07.",
+    "Restricted plaintext model configuration, not encrypted storage.",
+    "No new dependencies; S02 cold-install evidence retained; no new S03 npm ci claim.",
+    "No NFS/multi-host/other-OS/physical-power-loss claims."
+  ]
+}

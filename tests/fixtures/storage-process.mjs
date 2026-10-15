@@ -29,3 +29,18 @@ if (mode === 'crash') {
   process.stdout.write('unexpected-completion\n');
   await store.close(); clearInterval(keepAlive);
 }
+
+if (mode === 'config') {
+  const { ModelConfigStore } = await import('../../apps/server/dist/models/config.js');
+  const config = await ModelConfigStore.open(dataDir, store, { hook: async (point) => {
+    if (point === checkpoint) {
+      process.stdout.write(`${JSON.stringify({ event: 'checkpoint', point })}\n`);
+      await new Promise(() => {});
+    }
+  } });
+  const previous = config.capture();
+  await config.save({ expectedRevision: previous.revision, bindings: previous.bindings,
+    profiles: previous.profiles.map((profile) => ({ ...profile, model: 'new-model', apiKey: 'new-synthetic-key' })) });
+  process.stdout.write('unexpected-completion\n');
+  await config.close(); await store.close(); clearInterval(keepAlive);
+}

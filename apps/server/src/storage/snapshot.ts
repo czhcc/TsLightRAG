@@ -68,6 +68,7 @@ export class SnapshotStore {
       throw error;
     }
   }
+  get dataDir() { return this.paths.root; }
   get healthy() { return !this.fenced && !this.closed && this.lock.held; }
   capture() { this.assertAvailable(); if (!this.current) throw new Error('Storage not initialized'); return new SnapshotView(this.current); }
   private assertAvailable() { if (!this.healthy) throw new Error('Storage closed or fenced; restart required'); }

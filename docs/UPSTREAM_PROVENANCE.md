@@ -25,3 +25,7 @@
 `apps/server/src/storage/` 及新增存储测试均为新编写代码，依据方案的默认文件存储功能和单写者/故障恢复原则实现；未翻译 NetworkX/nano-vectordb 的 Python 源码，也未引入上游业务算法。
 
 `fs-ext@2.1.1` 是运行时原生文件锁绑定，锁属于当前 Node 进程，不是外部数据库或 daemon；其安装包提供 `LICENSE.txt` 的 MIT 授权文本（package.json 未声明统一 license 字段）。`nan@2.29.0` 为该原生扩展的 MIT 构建依赖，`@types/fs-ext@2.0.3` 仅开发类型。均通过 npm 及 lockfile 获取，未把第三方源文件或编译产物 vendoring 到本仓库。未来打包分发依赖时仍需保留其许可。
+
+## S03 来源状态
+
+`apps/server/src/models/`、模型 API、`apps/web/src/ModelSettings.tsx` 和新增协议/配置/浏览器测试均为新编写代码，依据本仓库方案及 OpenAI-compatible、标准 Cohere/Jina-compatible HTTP 数据结构实现，没有复制上游 Python 适配器、提示词、UI 或测试结果。网络层使用 Node 内置 HTTP(S)/DNS/TLS，未新增依赖；G01–G12 仍待业务算法和源码参考验收。S01/S02 来源段落描述当时阶段，当前能力以 IMPLEMENTATION_STATUS 为准。

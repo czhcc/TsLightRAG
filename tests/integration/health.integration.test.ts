@@ -11,14 +11,14 @@ describe('real executable server without inherited environment', () => {
     const response = await fetch(`${service.address}/api/v1/health`);
     expect(response.status).toBe(200);
     const health = HealthSchema.parse(await response.json());
-    expect(health).toMatchObject({ status: 'ok', usable: false, stage: 'S02', storage: { initialized: true } });
+    expect(health).toMatchObject({ status: 'ok', usable: false, stage: 'S03', storage: { initialized: true } });
     expect(health.models.missingRoles).toEqual(['query', 'embedding']);
   });
-  it('serves explicit empty, read-only model configuration', async () => {
+  it('serves explicit empty, editable model configuration', async () => {
     const response = await fetch(`${service.address}/api/v1/settings/models`);
     const settings = ModelSettingsSchema.parse(await response.json());
     expect(settings.profiles).toEqual([]);
-    expect(settings.editingAvailable).toBe(false);
+    expect(settings.editingAvailable).toBe(true);
     expect(JSON.stringify(settings)).not.toContain('apiKey');
   });
   it.each(['/', '/settings/models'])('serves the built application at %s', async (path) => {

@@ -4,13 +4,13 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S02 本地存储基座已完成。** 服务启动会初始化或校验文件持久化的内存 KV、向量、图与状态存储。模型保存与调用、文档处理和图谱检索尚未实现；当前页面仍是只读入口，不代表完整知识库已可使用。
+> **当前状态：S01–S03 已完成。** 已实现本地文件持久化的内存存储、模型设置页面、密钥遮蔽与文本/向量/重排 HTTP 适配。可保存模型并测试候选连接；文档处理、图谱索引和检索问答仍待实现。
 
 ## 快速开始
 
 使用 Node.js **24.19.0** 与 npm **11.9.0**（版本约束见 `.node-version` 和 `package.json`），在仓库根目录执行：
 
-S02 当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 只用于安装时编译，不参与应用运行、文档解析或模型调用。
+当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 只用于安装时编译，不参与应用运行、文档解析或模型调用。
 
 ```bash
 npm ci
@@ -27,7 +27,7 @@ npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
 npm start -- --config ./startup.json
 ```
 
-可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置，不是尚未实现的模型配置文件。S02 会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
+可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置；模型配置通过界面保存在 `<dataDir>/config/app.json`。S02 会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
 
 开发模式：
 
@@ -48,11 +48,21 @@ npm run test:e2e
 
 `npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
 
-S02 验证结果：**121 项测试和 1 项浏览器 E2E 通过**，无失败或跳过；包含 10 个真实 SIGKILL 提交边界、单写者与恢复测试。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S02 验证记录](docs/S02_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+S03 验证结果：**197 项测试和 3 项浏览器 E2E 通过**，无失败或跳过；包含模型协议/配置、10 个快照和 2 个配置真实 SIGKILL 边界、单写者与恢复测试。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S03 验证记录](docs/S03_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+
+## 配置模型
+
+打开模型设置，分别添加文本、向量及可选重排 profile，填写地址和模型名称，并选择 query/extract/keyword/embedding/rerank 角色。extract/keyword 默认复用 query。
+
+文本与向量填写 base URL（例如 `https://provider.example/v1`），服务端追加 `/chat/completions` 或 `/embeddings`；重排填写完整 endpoint。向量须填写实际维度；同名模型更换权重时增加 operatorRevision。非空索引的空间切换需要 S07 重建流程，目前会明确拒绝。
+
+“测试连接”使用未保存的候选设置发送示例文本，可能计费，不修改索引或保存配置。“保存配置”只保存；版本冲突时重新加载再编辑。密钥留空表示保留，勾选清除表示删除；修改地址后须重新输入或清除旧密钥。保存后密码框清空，GET 只返回 hasApiKey，浏览器不持久保存密钥。
+
+配置在本机以权限受限明文保存（目录 0700、文件 0600），不是加密保险库；不要提交 data/。允许显式配置 localhost/LAN 模型，拒绝 metadata/link-local 和自动重定向，保留 HTTPS 证书校验。当前已验证本地协议夹具，未验证外部真实提供商。
 
 ## 本地存储与恢复
 
-已实现内存 KV、归一化 Float32 向量的 cosine/top-k、无向图及状态/贡献表容器。它们是存储基础，不包含实体抽取、模型 embedding 或 GraphRAG 多模式检索。
+已实现内存 KV、归一化 Float32 向量的 cosine/top-k、无向图及状态/贡献表容器。它们是存储基础；模型适配器可生成 embedding，但文档索引、实体抽取和 GraphRAG 多模式检索仍未实现。
 
 数据位于 `data/workspace/default/`，以完整 generation 文件和 `CURRENT` 指针发布。查询持有一个稳定版本；同一 dataDir 只允许一个服务或维护进程持有内核文件锁。锁文件内容和年龄不是判断依据，进程退出后锁由内核释放，不能通过删除 lease 文件解锁。
 
@@ -118,7 +128,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 | 模型接口 | OpenAI-compatible 文本/embedding，标准 Cohere/Jina-compatible rerank |
 | 测试 | Vitest、Testing Library、Playwright、本地 HTTP 假模型和源码参考对照 |
 
-S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。图谱库、解析器和模型适配器将在对应阶段引入，当前未安装的规划依赖不视为已实现。
+S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。模型 HTTP 适配器使用 Node 内置 HTTP(S)；图谱库、解析器将在对应阶段引入，当前未安装的规划依赖不视为已实现。
 
 ## 文档与实施进度
 
@@ -127,9 +137,10 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [实施状态](docs/IMPLEMENTATION_STATUS.md)：各阶段实际进度、验证证据和下一步。
 - [S01 验证记录](docs/S01_VALIDATION.md)：已执行命令、测试范围、工具版本和限制。
 - [S02 验证记录](docs/S02_VALIDATION.md)：快照格式、锁、故障恢复、测试证据和当前限制。
+- [S03 验证记录](docs/S03_VALIDATION.md)：配置持久化、模型协议、候选连接与浏览器测试。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档、S01 和 S02。下一步是 **S03：本地模型配置与 HTTP 调用**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
+当前已完成源码分析、方案文档和 S01–S03。下一步是 **S04：本地文档解析与 token 分块**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
 
 获取当前仓库：
 
@@ -152,4 +163,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01/S02 工程与存储代码为新编写，尚未导入上游应用算法代码。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。后续复用源码、提示词、界面或测试夹具时，必须保留适用的 MIT 许可和版权声明，并记录来源路径及修改。当前 S01–S03 工程、存储与模型协议代码为新编写，尚未导入上游应用算法代码。
