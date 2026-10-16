@@ -7,7 +7,7 @@
 - 上游：<https://github.com/HKUDS/LightRAG>，固定提交 `aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 目标：<https://github.com/czhcc/TsLightRAG>。
 - 状态日期：2026-10-16。
-- **当前 S00–S06 已完成；S06 最终 322 项测试和 6 项 Chromium E2E 通过。已接入抽取、合并和索引；删除重建、检索生成及完整 G01–G12 验收尚待后续。** 以 [实施状态](IMPLEMENTATION_STATUS.md)、[S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md) 、[S05](S05_VALIDATION.md) 与 [S06 验证记录](S06_VALIDATION.md) 区分已完成与计划能力。
+- **当前 S00–S07 已完成；S07 最终 348 项测试和 7 项 Chromium E2E 通过。已接入索引、删除/重新索引和空间切换；检索生成及完整 G01–G12 验收尚待后续。** 以 [实施状态](IMPLEMENTATION_STATUS.md)、[S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 与 [S07 验证记录](S07_VALIDATION.md) 区分已完成与计划能力。
 - 不创建额外 Git worktree。开发前检查目标仓库 instructions 和 Git 状态，保留用户改动。
 - 不要求模型/数据库/端口环境变量；不引入远程解析器、Python 服务或外部数据库。
 - 每个功能批次都包含实现、自动化测试和实际结果记录；不得先完成所有业务代码，再统一补测试。
@@ -24,7 +24,7 @@
 | S04 | 本地文档解析与 token 分块 | S01、S02 | 已完成；263 测试 + 4 浏览器，九格式真实夹具、禁网 Worker 与分块 |
 | S05 | 持久化任务和文档管理 | S02、S03、S04 | 已完成；288 测试 + 5 浏览器，导入/持久化/取消重试/重启 |
 | S06 | 抽取、合并和三类索引 | S02、S03、S04、S05 | 已完成；322 测试 + 6 浏览器，原始贡献/三类向量/原子发布和故障恢复 |
-| S07 | 删除、重试、重建及向量空间切换 | S05、S06 | 未开始 |
+| S07 | 删除、重试、重建及向量空间切换 | S05、S06 | 已完成；348 测试 + 7 浏览器，共享贡献/版本替换/原子切换/故障恢复 |
 | S08 | 五模式检索、重排、上下文和引用 | S03、S06、S07 | 未开始 |
 | S09 | 回答生成、NDJSON 流、取消和缓存 | S05、S08 | 未开始 |
 | S10 | WebUI 和真实应用联调 | S03–S09 | 未开始 |

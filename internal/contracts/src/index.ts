@@ -68,6 +68,7 @@ export const ModelSettingsSchema = z.strictObject({
   revision: z.number().int().nonnegative(), profiles: z.array(ModelProfileSchema).max(100),
   bindings: ModelBindingsSchema, editingAvailable: z.boolean(),
   embeddingSpaceId: z.string().nullable().optional(),
+  activeIndex: z.strictObject({ spaceId: z.string(), configRevision: z.number().int().nonnegative(), profile: ModelProfileSchema }).nullable().optional(),
 }).superRefine(validateBindings);
 export type ModelSettings = z.infer<typeof ModelSettingsSchema>;
 export const SaveModelsSchema = z.strictObject({
@@ -101,6 +102,10 @@ export const JobSchema = z.strictObject({
   configRevision: z.number().int().nonnegative(), cancelRequested: z.boolean(),
   error: z.string().max(2000).nullable(), updatedAt: timestamp,
   phase: z.enum(['queued', 'parsing', 'chunking', 'persisting_parse', 'extracting', 'embedding', 'committing', 'awaiting_configuration', 'awaiting_indexing', 'failed', 'cancelled', 'interrupted', 'processed']).optional(),
+  maintenance: z.strictObject({ expectedCorpusRevision: z.number().int().nonnegative(), sourceVersion: z.number().int().positive().optional(),
+    targetProfileId: IdSchema.optional(), all: z.boolean().optional(),
+    replacement: z.strictObject({ name: z.string().min(1).max(255), contentHash: z.string().regex(/^[a-f0-9]{64}$/), bytes: z.number().int().positive().max(20*1024*1024) }).optional() }).optional(),
+  artifactDocument: z.strictObject({ id: IdSchema, version: z.number().int().positive(), contentHash: z.string().regex(/^[a-f0-9]{64}$/) }).optional(),
   previousJobId: IdSchema.optional(), createdAt: timestamp.optional(), errorCode: z.string().max(100).optional(),
   preparation: z.strictObject({ encoding: z.enum(['cl100k_base', 'o200k_base']),
     missingRoles: z.array(ModelRoleSchema), configIdentity: z.string().regex(/^[a-f0-9]{64}$/) }).optional(),
@@ -117,6 +122,14 @@ export const DocumentListSchema = z.strictObject({ items: z.array(DocumentSchema
   offset: z.number().int().nonnegative(), limit: z.number().int().positive() });
 export const DocumentDetailSchema = z.strictObject({ document: DocumentSchema, job: JobSchema.nullable() });
 export const RetryDocumentSchema = z.strictObject({ expectedJobId: IdSchema });
+export const IndexBindingSchema = z.strictObject({ profileId: IdSchema, configRevision: z.number().int().nonnegative(), spaceId: z.string().regex(/^[a-f0-9]{64}$/) });
+export const CleanupTaskSchema = z.strictObject({ id: IdSchema, sourceKeys: z.array(z.string().regex(/^[a-f0-9]{64}\.blob$/)), artifactIds: z.array(z.string().regex(/^j-[a-f0-9-]{36}$/)),
+  status: z.enum(['pending','retained','done','failed']), attempts: z.number().int().nonnegative(), error: z.string().max(2000).nullable() });
+export const MaintenanceStateSchema = z.strictObject({ corpusRevision: z.number().int().nonnegative(), jobs: z.array(JobSchema).max(5000),
+  cleanupTasks: z.array(CleanupTaskSchema).max(5000), activeIndex: ModelSettingsSchema.shape.activeIndex });
+export const MaintenanceRequestSchema = z.strictObject({ expectedCorpusRevision: z.number().int().nonnegative(), expectedConfigRevision: z.number().int().nonnegative(),
+  expectedDocumentVersion: z.number().int().positive().optional(), targetProfileId: IdSchema.optional(),
+  replacement: ImportTextSchema.optional() });
 export const EntitySchema = z.strictObject({
   id: IdSchema, name: z.string().trim().min(1).max(500), type: z.string().min(1).max(100),
   description: text, sourceChunkIds: z.array(IdSchema).min(1).max(10_000),
@@ -165,7 +178,7 @@ export const StreamEventSchema = z.discriminatedUnion('type', [
 export type StreamEvent = z.infer<typeof StreamEventSchema>;
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S06'), usable: z.literal(false),
+  status: z.literal('ok'), stage: z.literal('S07'), usable: z.literal(false),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),

@@ -1,19 +1,19 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { constants } from 'node:fs';
-import { chmod, lstat, open, rename, rm } from 'node:fs/promises';
+import { chmod, lstat, open, rename, rm, link } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { ModelSettingsSchema, SaveModelsSchema, TestModelSchema } from '@tslightrag/contracts';
 import type { ModelProfileInput, ModelSettings } from '@tslightrag/contracts';
-import { directory, syncDirectory, writeNew } from '../storage/io.js';
-import type { SnapshotStore } from '../storage/snapshot.js';
+import { directory, syncDirectory, writeNew, readRegular } from '../storage/io.js';
+import type { SnapshotStore, SnapshotView } from '../storage/snapshot.js';
 import { modelUrl } from './url.js';
 import { ModelError } from './errors.js';
 
 const ConfigSchema = z.strictObject({ schemaVersion: z.literal(1), revision: z.number().int().nonnegative(),
   ...SaveModelsSchema.shape,
 }).omit({ expectedRevision: true });
-export type ModelConfig = z.infer<typeof ConfigSchema>;
+export type ModelConfig = z.infer<typeof ConfigSchema> & { effectiveEmbeddingBinding?: {profileId:string;configRevision:number;spaceId:string} };
 export type PrivateProfile = ModelProfileInput;
 const empty: ModelConfig = { schemaVersion: 1, revision: 0, profiles: [],
   bindings: { query: null, extract: null, keyword: null, embedding: null, rerank: null } };
@@ -38,6 +38,7 @@ function validate(config: ModelConfig) {
 
 /** Owns the config serial queue; the caller must retain SnapshotStore's writer lease. */
 export class ModelConfigStore {
+  private versions = new Map<number, ModelConfig>();
   private tail: Promise<void> = Promise.resolve();
   private fenced = false;
   private closing = false;
@@ -60,12 +61,76 @@ export class ModelConfigStore {
     } catch (error) {
       if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw new ModelError('CONFIG_CORRUPT', '本地模型配置损坏或权限不安全；未覆盖配置', 503);
     }
-    return new ModelConfigStore(dir, config, storage, options.hook);
+    const store = new ModelConfigStore(dir, config, storage, options.hook);
+    store.versions.set(config.revision, structuredClone(config));
+    await directory(join(dir, 'versions')); await chmod(join(dir, 'versions'), 0o700);
+    const refs = new Set([storage.capture().indexBinding?.configRevision, ...storage.capture().jobs().filter((j) => ['queued','parsing','chunking','extracting','embedding','committing'].includes(j.status)).map((j) => j.configRevision)]);
+    for (const revision of refs) if (revision !== undefined && revision !== config.revision) {
+      try {
+        const path = join(dir, 'versions', `${String(revision)}.json`);
+        const stat = await lstat(path); if (stat.isSymbolicLink() || (stat.mode & 0o077)) throw new Error();
+        const old = ConfigSchema.parse(JSON.parse(await readRegular(path)));
+        if (old.revision !== revision) throw new Error(); store.versions.set(revision, old);
+      } catch { throw new ModelError('CONFIG_REFERENCE_INVALID', '活动索引或任务引用的配置版本缺失或损坏', 503); }
+    }
+    const binding = storage.capture().indexBinding;
+    if (binding) store.activeEmbedding();
+    else {
+      const space = (storage.capture().export()['vectors-chunks.json'] as {space:{id:string}|null;rows:unknown[]});
+      const profile = boundProfile(config, 'embedding');
+      if (space.rows.length && profile && embeddingSpaceId(profile) === space.space?.id) {
+        await store.archive(); await storage.transact((draft) => { draft.indexBinding = {profileId:profile.id, configRevision:config.revision, spaceId:space.space!.id}; });
+      }
+    }
+    return store;
   }
   get healthy() { return !this.fenced && !this.closed && this.storage.healthy; }
   private available() { if (!this.healthy) throw new ModelError('CONFIG_UNAVAILABLE', '配置不可用，请检查并重启', 503); }
   capture() { this.available(); return structuredClone(this.current); }
-  public() { return publicConfig(this.capture()); }
+  revision(revision: number) {
+    const value = this.versions.get(revision); if (!value) throw new ModelError('CONFIG_REFERENCE_INVALID', '配置版本不可用', 503); return structuredClone(value);
+  }
+  embeddingForSnapshot(view:SnapshotView) {
+    const binding=view.indexBinding;
+    if(!binding){const profile=boundProfile(this.capture(),'embedding');const vectors=view.export()['vectors-chunks.json'] as {space:{id:string}|null;rows:unknown[]};if(vectors.rows.length&&embeddingSpaceId(profile)!==vectors.space?.id)throw new ModelError('CONFIG_REFERENCE_INVALID','旧快照缺少匹配模型',503);return profile;}
+    const profile=this.revision(binding.configRevision).profiles.find((p)=>p.id===binding.profileId);
+    if(embeddingSpaceId(profile)!==binding.spaceId)throw new ModelError('CONFIG_REFERENCE_INVALID','活动模型与索引空间不匹配',503);
+    return profile;
+  }
+  captureIndex(){const view=this.storage.capture();return {view,profile:this.embeddingForSnapshot(view)};}
+  activeEmbedding(){return this.captureIndex().profile;}
+  captureForIndex(): ModelConfig {
+    const config = this.capture(); const binding = this.storage.capture().indexBinding;
+    if (!binding) return config;
+    const profile = this.activeEmbedding()!;
+    config.effectiveEmbeddingBinding = binding;
+    config.profiles = [...config.profiles.filter((p) => p.id !== profile.id), profile]; config.bindings.embedding = profile.id;
+    return config;
+  }
+  bindingForIndex(config: ModelConfig) {
+    const active = this.storage.capture().indexBinding; const profile = boundProfile(config, 'embedding'); const spaceId = embeddingSpaceId(profile);
+    if (!profile || !spaceId) throw new ModelError('MODEL_NOT_CONFIGURED', '缺少向量模型', 409);
+    return config.effectiveEmbeddingBinding?.spaceId === spaceId ? config.effectiveEmbeddingBinding : active?.spaceId === spaceId ? active : {profileId:profile.id,configRevision:config.revision,spaceId};
+  }
+  public() {
+    const value = publicConfig(this.capture()); const binding = this.storage.capture().indexBinding;
+    if (binding) { const profile = this.activeEmbedding()!; const {apiKey, ...fields} = profile;
+      value.activeIndex = {spaceId:binding.spaceId,configRevision:binding.configRevision,profile:{...fields,hasApiKey:Boolean(apiKey)}};
+    } else value.activeIndex = null;
+    return value;
+  }
+  private async archive() {
+    await directory(this.dir); const dir=join(this.dir,'versions'); await directory(dir);
+    const path=join(dir,`${String(this.current.revision)}.json`);const text=JSON.stringify(this.current);const temporary=join(dir,`.version-${randomUUID()}.tmp`);
+    try {
+      await writeNew(temporary,text);
+      try {await link(temporary,path);}catch(error){
+        if(!(error instanceof Error&&'code' in error&&error.code==='EEXIST')||await readRegular(path)!==text)throw new ModelError('CONFIG_ARCHIVE_FAILED','配置版本保存失败，未更改配置',500);
+      }
+      await syncDirectory(dir);
+    } catch {throw new ModelError('CONFIG_ARCHIVE_FAILED','配置版本保存失败，未更改配置',500);}
+    finally {await rm(temporary,{force:true}).catch(()=>{});}
+  }
   candidate(input: unknown) {
     this.available();
     const parsed = TestModelSchema.safeParse(input);
@@ -103,14 +168,17 @@ export class ModelConfigStore {
       if (parsed.data.expectedRevision !== this.current.revision) throw new ModelError('REVISION_CONFLICT', '配置已更新，请重新加载', 409);
       const next = validate({ schemaVersion: 1, revision: this.current.revision + 1,
         profiles: parsed.data.profiles.map((p) => this.mergeKey(p)), bindings: parsed.data.bindings });
-      const view = this.storage.capture().export();
-      const indexed = view['vectors-chunks.json'] as { rows: unknown[] };
-      if (indexed.rows.length) {
-        const active = (view['vectors-chunks.json'] as { space: { id: string } }).space.id;
-        if (embeddingSpaceId(boundProfile(next, 'embedding')) !== active) throw new ModelError('REBUILD_REQUIRED', '非空索引的向量空间切换需要 S07 重建流程', 409);
-        // S07 will replace this conservative guard with generation/task references.
-        if (JSON.stringify(this.current.profiles) !== JSON.stringify(next.profiles)) throw new ModelError('REBUILD_REQUIRED', '非空索引暂不允许修改或删除模型凭据，需重建流程', 409);
+      const active = this.storage.capture().indexBinding;
+      const protectedIds = new Set(active ? [active.profileId] : []);
+      for (const job of this.storage.capture().jobs()) if (['queued','parsing','chunking','extracting','embedding','committing'].includes(job.status)) {
+        const captured = this.revision(job.configRevision); for (const id of Object.values(captured.bindings)) if (id) protectedIds.add(id);
+        if (job.maintenance?.targetProfileId) protectedIds.add(job.maintenance.targetProfileId);
       }
+      for (const id of protectedIds) if (!next.profiles.some((p) => p.id === id)) throw new ModelError('PROFILE_IN_USE', '活动索引或任务仍在引用该模型，请先切换或结束任务', 409);
+      if(active&&next.profiles.find((p)=>p.id===active.profileId)?.kind!=='embedding')throw new ModelError('PROFILE_IN_USE','活动向量模型不能改成其他类型',409);
+      const legacy = this.storage.capture().export()['vectors-chunks.json'] as {rows:unknown[]};
+      if (legacy.rows.length && !active) throw new ModelError('REBUILD_REQUIRED', '旧索引缺少有效模型绑定，需先恢复模型配置', 409);
+      await this.archive();
       const serialized = JSON.stringify(next);
       if (Buffer.byteLength(serialized) > 1024 * 1024) throw new ModelError('INVALID_CONFIG', '模型配置超过文件大小限制', 413);
       const temporary = join(this.dir, `.app-${randomUUID()}.tmp`); let published = false;
@@ -121,9 +189,9 @@ export class ModelConfigStore {
         try { if ((await lstat(target)).isSymbolicLink()) throw new Error('Symlink'); } catch (error) {
           if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw error;
         }
-        await rename(temporary, target); published = true; this.current = next;
+        await rename(temporary, target); published = true; this.current = next; this.versions.set(next.revision, structuredClone(next));
         await this.hook?.('after-rename'); await syncDirectory(this.dir);
-        return publicConfig(next);
+        return this.public();
       } catch {
         if (published) { this.fenced = true; throw new ModelError('CONFIG_PUBLISHED_UNCERTAIN', '配置已发布，但同步未确认；请检查并重启，勿盲目重试', 503); }
         throw new ModelError('CONFIG_WRITE_FAILED', '模型配置保存失败，原配置未更改', 500);

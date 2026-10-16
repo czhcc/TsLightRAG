@@ -1,6 +1,6 @@
 import { LedgerSchema, entityId, hash } from '../indexing/extraction.js';
 import { edgeId } from './graph.js';
-import { DocumentSchema, JobSchema, IdSchema } from '@tslightrag/contracts';
+import { DocumentSchema, JobSchema, IdSchema, IndexBindingSchema, CleanupTaskSchema } from '@tslightrag/contracts';
 import { z } from 'zod';
 import { MemoryKV, JsonSchema } from './kv.js';
 import { MemoryVectors } from './vectors.js';
@@ -26,6 +26,7 @@ export const ChunkSchema = z.strictObject({
 });
 const StatusFileSchema = z.strictObject({
   documents: z.array(z.tuple([IdSchema, DocumentSchema])), jobs: z.array(z.tuple([IdSchema, JobSchema])),
+  indexBinding: IndexBindingSchema.optional(), cleanupTasks: z.array(CleanupTaskSchema).optional(),
 });
 type Document = z.infer<typeof DocumentSchema>;
 type Job = z.infer<typeof JobSchema>;
@@ -45,6 +46,8 @@ function checkIndex(kv: MemoryKV, expected: Map<string, Set<string>>, name: stri
 
 /** A candidate is mutable; only SnapshotStore can publish it. */
 export class WorkspaceDraft {
+  indexBinding: z.infer<typeof IndexBindingSchema> | undefined;
+  cleanupTasks: z.infer<typeof CleanupTaskSchema>[] = [];
   kv = Object.fromEntries(KV_NAMES.map((name) => [name, new MemoryKV()])) as Record<KVName, MemoryKV>;
   documents = new MemoryKV<Document>((value) => DocumentSchema.parse(value));
   jobs = new MemoryKV<Job>((value) => JobSchema.parse(value));
@@ -57,7 +60,7 @@ export class WorkspaceDraft {
   serialize(): Files {
     return {
       'kv.json': Object.fromEntries(KV_NAMES.map((name) => [name, this.kv[name].entries()])),
-      'document-status.json': { documents: this.documents.entries(), jobs: this.jobs.entries() },
+      'document-status.json': { documents: this.documents.entries(), jobs: this.jobs.entries(), ...(this.indexBinding ? {indexBinding: this.indexBinding} : {}), ...(this.cleanupTasks.length ? {cleanupTasks: this.cleanupTasks} : {}) },
       'vectors-chunks.json': this.vectors.chunks.serialize(), 'vectors-entities.json': this.vectors.entities.serialize(),
       'vectors-relations.json': this.vectors.relations.serialize(), 'graph.json': this.graph.serialize(),
     };
@@ -67,6 +70,7 @@ export class WorkspaceDraft {
     const kv = KvFileSchema.parse(files['kv.json']);
     for (const name of KV_NAMES) draft.kv[name] = MemoryKV.restore(kv[name], (value) => JsonSchema.parse(value));
     const statuses = StatusFileSchema.parse(files['document-status.json']);
+    draft.indexBinding = statuses.indexBinding; draft.cleanupTasks = statuses.cleanupTasks ?? [];
     draft.documents = MemoryKV.restore(statuses.documents, (value) => DocumentSchema.parse(value));
     draft.jobs = MemoryKV.restore(statuses.jobs, (value) => JobSchema.parse(value));
     for (const name of VECTOR_NAMES) draft.vectors[name] = MemoryVectors.restore(files[`vectors-${name}.json`]);
@@ -146,5 +150,6 @@ export class WorkspaceDraft {
     sameKeys(this.vectors.relations.serialize().rows.map((row) => row.id), graph.edges.map((edge) => edge.id), 'relation vectors');
     const spaces = VECTOR_NAMES.map((name) => JSON.stringify(this.vectors[name].space));
     if (new Set(spaces).size !== 1) throw new Error('Mixed embedding spaces');
+    if (this.indexBinding && this.vectors.chunks.space?.id !== this.indexBinding.spaceId) throw new Error('Active index binding mismatch');
   }
 }

@@ -19,6 +19,7 @@ export class MemoryKV<T = JsonValue> {
     IdSchema.parse(id);
     this.rows.set(id, structuredClone(this.validate(value)));
   }
+  clear() { this.rows.clear(); }
   delete(id: string) { return this.rows.delete(id); }
   entries(): Row<T>[] { return [...this.rows].map(([id, value]) => [id, structuredClone(value)]); }
   static restore<T>(rows: Row<T>[], validate: (value: unknown) => T) {

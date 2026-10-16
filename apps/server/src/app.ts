@@ -17,9 +17,9 @@ import { PublishedCommitError } from './storage/snapshot.js';
 import type { SnapshotStore } from './storage/snapshot.js';
 
 export async function buildApp(options: { storage: SnapshotStore; staticDir?: string; documentOptions?: DocumentServiceOptions }) {
-  const config = await ModelConfigStore.open(options.storage.dataDir, options.storage);
-  const documents = await DocumentService.open(options.storage, config, options.documentOptions);
   const models = new ModelClient();
+  const config = await ModelConfigStore.open(options.storage.dataDir, options.storage);
+  const documents = await DocumentService.open(options.storage, config, {...options.documentOptions,client:models});
   const shutdown = new AbortController();
   const app = Fastify({ logger: false, bodyLimit: 1024 * 1024, requestTimeout: 30_000, connectionTimeout: 30_000, forceCloseConnections: true });
   app.addHook('preClose', async () => { shutdown.abort(); await documents.close(); });
@@ -66,7 +66,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const captured = config.capture();
     const missingRoles = (['query', 'embedding'] as const).filter((role) => !boundProfile(captured, role));
     return HealthSchema.parse({
-      status: 'ok', stage: 'S06', usable: false,
+      status: 'ok', stage: 'S07', usable: false,
       models: { configured: missingRoles.length === 0, missingRoles },
       storage: { initialized: true, status: 'ready', generation: snapshot.generation,
         revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: true },
@@ -120,6 +120,14 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const result = await documents.retry(request.params.id, parsed.data.expectedJobId);
     return reply.code(result.deduplicated ? 200 : 202).send(result);
   });
+
+  app.get('/api/v1/maintenance',async()=>documents.maintenanceState());
+  app.post('/api/v1/maintenance/cleanup',async()=>documents.retryCleanup());
+  app.post('/api/v1/maintenance/rebuild',async(request,reply)=>reply.code(202).send(await documents.requestMaintenance('rebuild',null,request.body)));
+  app.delete('/api/v1/documents',async(request,reply)=>reply.code(202).send(await documents.requestMaintenance('delete',null,request.body)));
+  app.delete<{Params:{id:string}}>('/api/v1/documents/:id',async(request,reply)=>reply.code(202).send(await documents.requestMaintenance('delete',request.params.id,request.body)));
+  app.post<{Params:{id:string}}>('/api/v1/documents/:id/reindex',{bodyLimit:8*1024*1024},async(request,reply)=>reply.code(202).send(await documents.requestMaintenance('reindex',request.params.id,request.body)));
+  app.post<{Params:{id:string}}>('/api/v1/jobs/:id/retry',async(request,reply)=>reply.code(202).send(await documents.retryMaintenance(request.params.id,request.body)));
 
   const root = options.staticDir ?? webDist;
   try { await access(join(root, 'index.html')); }

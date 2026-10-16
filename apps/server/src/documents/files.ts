@@ -58,7 +58,7 @@ export class DocumentFiles {
     return { artifactKey: `${jobId}/prepared.json`, sha256: digest(bytes), bytes: bytes.length,
       chunks: artifact.chunks.length, blocks: artifact.document.blocks.length, parserVersion: 's04-v1' };
   }
-  async artifact(job: JobRecord, doc: DocumentRecord) {
+  async artifact(job: JobRecord, doc: Pick<DocumentRecord, 'id' | 'version' | 'contentHash'>) {
     try {
       const result = job.result;
       if (!result || result.artifactKey !== `${job.id}/prepared.json` || !/^j-[a-f0-9-]{36}$/.test(job.id)) throw new Error();

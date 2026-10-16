@@ -18,7 +18,7 @@ function corpusIdentity(state: WorkspaceDraft) {
       return [id, { name: doc.name, contentHash: doc.contentHash, version: doc.version, content: doc.content ?? null }];
     });
   return sha(JSON.stringify({ docs, chunks: state.kv.textChunks.entries(),
-    graph: files['graph.json'], vectors: [files['vectors-chunks.json'], files['vectors-entities.json'], files['vectors-relations.json']] }));
+    graph: files['graph.json'], binding: state.indexBinding ?? null, vectors: [files['vectors-chunks.json'], files['vectors-entities.json'], files['vectors-relations.json']] }));
 }
 export class PublishedCommitError extends Error {
   readonly published = true;
@@ -29,6 +29,8 @@ export class PublishedCommitError extends Error {
 
 export class SnapshotView {
   constructor(private readonly current: Current) {}
+  get indexBinding() { return structuredClone(this.current.state.indexBinding); }
+  get cleanupTasks() { return structuredClone(this.current.state.cleanupTasks); }
   get generation() { return this.current.manifest.generation; }
   get revision() { return this.current.manifest.revision; }
   get corpusRevision() { return this.current.manifest.corpusRevision; }

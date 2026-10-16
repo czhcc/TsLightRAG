@@ -13,8 +13,10 @@ import { summarizeDescriptions } from './summary.js';
 
 export class Indexer {
   private tail: Promise<void> = Promise.resolve();
-  private readonly client = new ModelClient();
-  constructor(private readonly storage: SnapshotStore, private readonly configStore: ModelConfigStore) {}
+  constructor(private readonly storage: SnapshotStore, private readonly configStore: ModelConfigStore, readonly client = new ModelClient()) {}
+  exclusive<T>(work: () => Promise<T>) {
+    const result = this.tail.then(work); this.tail = result.then(() => {}, () => {}); return result;
+  }
   async prepare(chunks: TextChunk[], config: ModelConfig, signal: AbortSignal) {
     const profile = boundProfile(config, 'extract');
     if (profile?.kind !== 'text') throw new ModelError('MODEL_NOT_CONFIGURED', '未配置抽取文本模型', 409);
@@ -38,11 +40,12 @@ export class Indexer {
     }
     return contributions;
   }
-  /** Domain queue spans model calls, never SnapshotStore's write queue. Other job metadata remains writable. */
-  publish(chunks: TextChunk[], doc: DocumentRecord, content: string, contributions: Awaited<ReturnType<Indexer['prepare']>>, config: ModelConfig,
+  /** Expensive model work is optimistic; the shared gate protects only final publication. */
+  async publish(chunks: TextChunk[], doc: DocumentRecord, content: string, contributions: Awaited<ReturnType<Indexer['prepare']>>, config: ModelConfig,
     signal: AbortSignal, phase: (phase: 'embedding' | 'committing') => Promise<void>, finish: (draft: WorkspaceDraft) => void,
     guard: () => void) {
-    const work = this.tail.then(async () => {
+    for(let attempt=0;attempt<3;attempt++) {
+      try {
       signal.throwIfAborted(); guard();
       const base = this.storage.capture();
       const graph = base.export()['graph.json'] as ReturnType<WorkspaceDraft['graph']['serialize']>;
@@ -59,9 +62,10 @@ export class Indexer {
       ];
       const vectors = await this.client.embed(embedding, inputs.map((i) => i.content), signal);
       await phase('committing'); signal.throwIfAborted(); guard();
-      await this.configStore.withRevision(config.revision, () => this.storage.transact((draft) => {
+      await this.exclusive(()=>this.configStore.withRevision(config.revision, () => this.storage.transact((draft) => {
         signal.throwIfAborted(); guard();
         if (this.storage.capture().corpusRevision !== base.corpusRevision) throw new ModelError('INDEX_CONFLICT', '索引已改变，请重试文档', 409);
+        draft.indexBinding = this.configStore.bindingForIndex(config);
         finish(draft); // Status and all indexes are validated and published together.
         const spaceId = embeddingSpaceId(embedding)!;
         if (!draft.vectors.chunks.space || draft.vectors.chunks.space.id !== spaceId) draft.setEmbeddingSpace({ id: spaceId, dimensions: embedding.dimensions, normalization: 'l2' });
@@ -77,8 +81,9 @@ export class Indexer {
           draft.kv.fullRelations.set(id, merged.edges.filter((e) => e.sourceChunkIds.some((c) => owned.has(c))).map((e) => e.id).sort());
         }
         for (const [i, input] of inputs.entries()) draft.vectors[input.namespace].set({ id: input.id, values: vectors[i]!, contentHash: hash(input.content), metadata: { content: input.content } }, spaceId);
-      }));
-    });
-    this.tail = work.then(() => {}, () => {}); return work;
+      })));
+      return;
+      }catch(error){if(error instanceof ModelError&&error.code==='INDEX_CONFLICT'&&attempt<2)continue;throw error;}
+    }
   }
 }

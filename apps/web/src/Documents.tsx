@@ -1,3 +1,4 @@
+import { MaintenancePanel } from './Maintenance.js';
 import { useEffect, useRef, useState } from 'react';
 import { ApiErrorSchema, DocumentDetailSchema, DocumentListSchema, ImportResultSchema } from '@tslightrag/contracts';
 import type { z } from 'zod';
@@ -80,5 +81,6 @@ export function Documents() {
       }); }}>查看解析正文</button></>}
       {preview && <pre aria-label="解析正文">{preview}</pre>}
     </section>}
+    <MaintenancePanel document={detail?.document??null} onChanged={()=>{setRefresh((v)=>v+1);}} onDeleted={()=>{setDetail(null);setRefresh((v)=>v+1);}} />
   </section>;
 }

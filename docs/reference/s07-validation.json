@@ -1,0 +1,485 @@
+{
+  "stage": "S07",
+  "recordedAt": "2026-10-16T03:20:08.764955+00:00",
+  "targetParent": "0d58ceb288bf60413be610d21be7b9611d4a513d",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux local filesystem"
+  },
+  "commands": [
+    {
+      "command": "python3 scripts/reference/s07.py /tmp/LightRAG-reference",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --reporter=json --outputFile=.tools/s07-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json > .tools/s07-playwright.json",
+      "exitCode": 0
+    },
+    {
+      "command": "bash .tools/start-server.sh",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "dependenciesChanged": false,
+  "coldInstall": "S04 existing evidence; no new S07 npm ci claim",
+  "vitest": {
+    "files": 45,
+    "total": 348,
+    "passed": 348,
+    "failed": 0,
+    "pending": 0
+  },
+  "playwright": {
+    "startTime": "2026-10-16T03:12:42.297Z",
+    "duration": 31990.383,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "productionHealth": {
+    "status": "ok",
+    "stage": "S07",
+    "usable": false,
+    "models": {
+      "configured": false,
+      "missingRoles": [
+        "query",
+        "embedding"
+      ]
+    },
+    "storage": {
+      "initialized": true,
+      "status": "ready",
+      "generation": "g-ad0efc62-8eb1-475e-9834-1371237199c8",
+      "revision": 0,
+      "corpusRevision": 0
+    },
+    "jobs": {
+      "available": true
+    }
+  },
+  "existingDataPreserved": true,
+  "environmentDraft": {
+    "draftId": "42f02ddc-1642-4888-b6e2-c5f740a29bf4~cecfgdraft_6ac757d74ea48199b539e4192672509e",
+    "status": "saved",
+    "requiresPublish": true,
+    "changedFields": [
+      "start_skill"
+    ],
+    "published": false,
+    "freshTaskRestoreTested": false
+  },
+  "reference": {
+    "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+    "sourceHash": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326",
+    "scope": "G02 non-degraded rebuild weight from surviving evidence, not full G02 acceptance",
+    "cases": [
+      {
+        "weights": [
+          3
+        ],
+        "sources": [
+          "B"
+        ],
+        "expectedWeight": 3.0
+      },
+      {
+        "weights": [
+          0.2
+        ],
+        "sources": [
+          "B"
+        ],
+        "expectedWeight": 1.0
+      },
+      {
+        "weights": [
+          0.2,
+          3
+        ],
+        "sources": [
+          "B",
+          "C"
+        ],
+        "expectedWeight": 3.2
+      },
+      {
+        "weights": [
+          2,
+          3
+        ],
+        "sources": [
+          "B",
+          "C"
+        ],
+        "expectedWeight": 5.0
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "delete last document removes every graph/vector/anchor/cache and releases active binding atomically",
+      "status": "passed"
+    },
+    {
+      "name": "clear last document removes every graph/vector/anchor/cache and releases active binding atomically",
+      "status": "passed"
+    },
+    {
+      "name": "recovers SIGKILL at before-maintenance-final with one whole index and durable file-release records",
+      "status": "passed"
+    },
+    {
+      "name": "recovers SIGKILL at after-maintenance-final with one whole index and durable file-release records",
+      "status": "passed"
+    },
+    {
+      "name": "retries file release after retained generations retire, and refuses symlink directories",
+      "status": "passed"
+    },
+    {
+      "name": "maintains whole deletion state on before-current write failure",
+      "status": "passed"
+    },
+    {
+      "name": "maintains whole deletion state on after-current write failure",
+      "status": "passed"
+    },
+    {
+      "name": "deletes first contribution and reconstructs shared graph/descriptions/vectors solely from survivors",
+      "status": "passed"
+    },
+    {
+      "name": "deletes second contribution and reconstructs shared graph/descriptions/vectors solely from survivors",
+      "status": "passed"
+    },
+    {
+      "name": "rejects stale maintenance admissions and duplicate content replacement",
+      "status": "passed"
+    },
+    {
+      "name": "restarts a killed vector switch at before-maintenance-final with a single matching model binding",
+      "status": "passed"
+    },
+    {
+      "name": "restarts a killed vector switch at after-maintenance-final with a single matching model binding",
+      "status": "passed"
+    },
+    {
+      "name": "stages other-model/3/undefined and atomically switches all namespaces with archived credentials",
+      "status": "passed"
+    },
+    {
+      "name": "stages other-model/2/undefined and atomically switches all namespaces with archived credentials",
+      "status": "passed"
+    },
+    {
+      "name": "stages undefined/2/1 and atomically switches all namespaces with archived credentials",
+      "status": "passed"
+    },
+    {
+      "name": "preserves old model/key and graph during failed staged batches; subsequent imports still use the old space",
+      "status": "passed"
+    },
+    {
+      "name": "candidate same-id credential changes do not replace the active version before activation, including restart",
+      "status": "passed"
+    },
+    {
+      "name": "pairs a captured index reader with its exact immutable embedding profile even after activation and removal from candidate settings",
+      "status": "passed"
+    },
+    {
+      "name": "fails closed on a missing active credential version without dropping the indexed corpus",
+      "status": "passed"
+    },
+    {
+      "name": "replaces a document version and raw source without adding weights; old artifacts survive restart validation",
+      "status": "passed"
+    },
+    {
+      "name": "failed/cancelled reindex keeps the complete old version visible and supports idempotent manual retry",
+      "status": "passed"
+    },
+    {
+      "name": "cancel or competing corpus update before the maintenance commit preserves the published document",
+      "status": "passed"
+    },
+    {
+      "name": "allows another document to commit during maintenance computation, rejects the stale candidate, then retries on the newer corpus",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a stale computed candidate after a corpus change without overwriting the newer state",
+      "status": "passed"
+    },
+    {
+      "name": "surfaces a replacement parser failure without changing the published version",
+      "status": "passed"
+    },
+    {
+      "name": "re-derives surviving source strengths with the exact pinned Python rebuild weight floor, discarding old boosts",
+      "status": "passed"
+    }
+  ],
+  "sourceHashes": {
+    "README.md": "9a45e6b3c09196267c67c43ebe187024c7373b2969d5359f41a843ca94591c09",
+    "apps/server/src/app.ts": "41ea1e1373aac947089998c6154657c0db1432ec0e3ae37a27969e86471be121",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "93f4dbc350a130f87b32b7a7502f292db62a7cae5ac1d5c020325f04921c5c31",
+    "apps/server/src/core/chunker.test.ts": "150cacabe065de2c5a75b7fda92c90d7563fdf152b6112a2a1cb5fb740d908d0",
+    "apps/server/src/core/chunker.ts": "0ce18756756175779f52dea1e4023ca17546332b8a8adef983f80cf061ea41e2",
+    "apps/server/src/core/tokenizer.ts": "44aa800106f251a6384e857d87c884f3f719305a3e85ad80a422a082b063ba88",
+    "apps/server/src/documents/cleanup.ts": "23e32ce0866eb4eacd543c3920fdd8bee1cfbf1f55ed9886785dc614b9e450aa",
+    "apps/server/src/documents/files.ts": "3d405f4a9a5efd86208e7b33da7077501d37d271ce589f9a7b5427d97c53ce04",
+    "apps/server/src/documents/service.ts": "08f5c478e3c9a457fed79b8b0a48617bcabffb3d273c1ac0d5f2c2b7c136cae1",
+    "apps/server/src/indexing/contributions.test.ts": "c0b537e24b469e1d2515497cde4561d8f3b4a5840c800dbaeba913b1464d6aa5",
+    "apps/server/src/indexing/extraction.test.ts": "6dbabf8a79fba8708ce4379ce368fc82f6bf4de385c2634406060393dd5271d6",
+    "apps/server/src/indexing/extraction.ts": "0e4729f9d577ad2b4e499a73504bb0c3750d537e7a61de7ab6c51445bc209499",
+    "apps/server/src/indexing/indexer.ts": "894d260869464ec85883fcafbcb824a7d21439862a70b5caf62ed2018e2abc4c",
+    "apps/server/src/indexing/maintenance-reference.test.ts": "bb254f9929f2de54358f7ecef6d82c0955542bb4d2251bd53bc680380abd0e6f",
+    "apps/server/src/indexing/maintenance.ts": "fce947e57d1cbb169fa75eaf0cc2d18602e65fb886247f710f42f70a243d1233",
+    "apps/server/src/indexing/merge.test.ts": "fefeae94b72bca95ae5b95706b3bb2ecd3a81661fd31559b740dfac3830969e0",
+    "apps/server/src/indexing/merge.ts": "5e736b7ccfb52febcaa72a9f76a0d70cd7e8eb298564981e26305c8acfb3fd00",
+    "apps/server/src/indexing/prompts.ts": "f51a446234366fd107f949e82e39eeb23a48e8f9c6fd1ba7eb30c7eece21f29e",
+    "apps/server/src/indexing/reference.test.ts": "ca3219a7de92fcc27ff21723d507f94439026986da6c25847e4d0e6fb05c2c5b",
+    "apps/server/src/indexing/summary.test.ts": "921c30c06df91337fe2d68927401ad5c6af4203659ab46f94a380ff891ac777f",
+    "apps/server/src/indexing/summary.ts": "f03bf3b18a1b9ff01a97b0e51f9e484a731b15a1e71a5a64bc73ead452d97429",
+    "apps/server/src/main.ts": "3a0e9049ff5049e7ddc5478f2648de93a7fad8ea0671aa6d3b53c4068bb81d62",
+    "apps/server/src/models/chat.protocol.test.ts": "3c0a2b674f65e3ade292fb7e437a4467b13adbf1f616ad57b50b9fd2b7cf8f82",
+    "apps/server/src/models/client.ts": "61f4d7fff76269fe772e8d5721d31cb9bd2fa3234288055632e16a92e16cce05",
+    "apps/server/src/models/config.test.ts": "812559274dfc1e5e42dd7a049e9552b82789105a221733c5ddb9a8263619136b",
+    "apps/server/src/models/config.ts": "e888d72adcb65903aa33641c4a95f1852a1483f5006387a60f3da5f9ec6ad624",
+    "apps/server/src/models/embedding.protocol.test.ts": "9e30bf849f2f45b9292320c61967a3eddfb8b208ad3e3405dfe2842393930ee0",
+    "apps/server/src/models/errors.ts": "e4da2b34f17bd066de1ac587a53a9c73fad5e8acbb814135f4c9798b42ca8bd6",
+    "apps/server/src/models/http.ts": "5d1a0a56402bdfdf3dfb0755c9e0d008a3c5f600709fa70010777e8d0b41ea2a",
+    "apps/server/src/models/model-url.test.ts": "dd691153c73b934cba1c92217fee5dd70a7c2925648465f10e7b0b90263430c5",
+    "apps/server/src/models/rerank.protocol.test.ts": "48a1254f1fa5e4359eed2ab3a4ba9ffd0cc42ad1a0d25d9339790ab85b939e06",
+    "apps/server/src/models/url.ts": "c9ec575a70017e1be2a8ad35a5fdedbc4773c1fdea6e40669122c61673cec294",
+    "apps/server/src/parsers/archive.ts": "8ae037fe44f98329577c824eea423e97249c29a4d1ca7a2f3cbb1bbac48108fa",
+    "apps/server/src/parsers/common.ts": "7a93cea4d35ccfc1739a5f9f5540ae663dd5ad0f8160cce2a18610ec2e08a8f2",
+    "apps/server/src/parsers/formats.test.ts": "50e0ba48d0f95a10b14e8d2eeccdc9a5e54fd67a60b75c1dba301a1a420a7639",
+    "apps/server/src/parsers/index.ts": "ff76cb622835bfb5c5248757a94f87ecd2a4974d5c3931e75f283577c07586e1",
+    "apps/server/src/parsers/network.ts": "a1754c3e8af3434c215a6bf0ff76675d0f7e817a336274790809cfb37c2ebaab",
+    "apps/server/src/parsers/office.ts": "ac695345fbcd8248ba57c528a96ba5632295f30e6471cfa6f8f9cc58b4cd0d64",
+    "apps/server/src/parsers/parser-no-network.test.ts": "ad84dd56107776837e8fbd46df8735ec205cf238d1acff0e7b4b4e196257b4e6",
+    "apps/server/src/parsers/parser-security.test.ts": "0413f34c0bc834d83d58b59aebbd744d578af9e34b8823f9fb9bb4256c51611d",
+    "apps/server/src/parsers/pdf.ts": "46cd1b279fabc45771b977c1437730164012062c3f835fc2916815615d8fa3e5",
+    "apps/server/src/parsers/text.ts": "2de66ff1a3fa13f5bf5f3372e7571e995eabf17f1973b1e73eb200cd513a17c6",
+    "apps/server/src/parsers/worker.ts": "f18aaedda8793df26165b79b93833f7f7dcc99908ba63258d77ac468e8291f84",
+    "apps/server/src/parsers/xml.ts": "99529e6777658de042dc70b8557889bb978b8d434e52e26eea92aeed05216103",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "1ea004254b04c3c8002845695ce91044a1b7af2c0c24bc6e1120060024532319",
+    "apps/server/src/storage/graph.ts": "637b25aa9df180524e1c7dc89861c8beab70ef429a07bb12dcef61934214b3c4",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "d39f5d7f6d3063ebcc0806cf5b793e967c98df75d02208346608799466da9982",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "e6c767448eaed458372c99abedba70acb0276dc20987e22c80ed3114b8bbd40d",
+    "apps/server/src/storage/state.ts": "1ee32f44b9ad48e8cc773c86f092c9bc5fa0144ca769868cbcc7281e58dd4d43",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/web/src/App.test.tsx": "80993059e2186e32e9b446cb19ddd94b0f34e552b03662178debb6962f596053",
+    "apps/web/src/App.tsx": "6e45554f9580b235d9efdb9431961e1f9eea5bca5c0913104cdb5a059949d747",
+    "apps/web/src/Documents.tsx": "51649b198b4b5162c85af1a31c3465d39d93a4af52d63ae20815a0abcf9e2168",
+    "apps/web/src/Maintenance.tsx": "9198d11938b91e07f4f5b27739f5e0ba7478d864a2692a39e92b2403c3f5cab9",
+    "apps/web/src/ModelSettings.tsx": "7cf98eafbcd7439be37961a30eda9ae471cef67e046f9bfb8be8e89cc47db6b6",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "89058c28b3b3909103152777876e3edc789b4ffaf84de3517d02e9ecee112b78",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "docs/IMPLEMENTATION_STATUS.md": "4eff2f95c4fc6cc53317818e2d2e49bc8e88e849a1d12bc021af30ffbc1f69a7",
+    "docs/LightRAG代码转移实施步骤.md": "27095ed15016276fea62de8c95adedc00b9da66eedc04f31e867d0912020c5b6",
+    "docs/LightRAG代码转移实现方案.md": "b3cda3b4f875c8c19e40615ed9c830eec1d35be9e38fbb53d60bdfee116d1ba7",
+    "docs/S07_VALIDATION.md": "c31a32c23bd15343e683f2e7bbe46b62469a1178210a165563c18b92264c0f41",
+    "docs/UPSTREAM_PROVENANCE.md": "8b0f65c2813ebd893c4800bb77b5d51771844653a58422180a597750937cc7d7",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "ec698dabe5bf270ae83b6c97dbc3a902cb059daddc104d9679948709e9aa9cf7",
+    "internal/contracts/src/parsing.ts": "95ad8c17fe8336d8c01374ac0ba6ca17a1fd13b16128473c79781f48d72fd19d",
+    "package-lock.json": "b914e1c0dad6634321922c168df89a443719cd83b5241ee95ae28ff46e035504",
+    "package.json": "3d4483f3b0c13bda885c745b5cb4dad11c5be73d01cae2837a0d23915b32d1a1",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "scripts/reference/s06.py": "515fb7fa75a8b5d2a48d0e8dce2cd21823349d264b2d88d50dbcfffca3e17cd6",
+    "scripts/reference/s07.py": "928f1bff4ba68c72338a447c4b84a6501cb8d412c3d7aa3e1d9a3cea6712ce8e",
+    "tests/e2e/bootstrap.spec.ts": "b4b604b57d02778ccbfb34922a335793fba99b9b8400c16df1a25729c13c943a",
+    "tests/e2e/documents.spec.ts": "04e1ea4013253692b0e75a1469cf319d35fab7d5193bcf707bd29d93a9fdcef5",
+    "tests/e2e/indexing.spec.ts": "575735d4404654c853823f3c25d545dd0985368f252128dc612b4b00a3355699",
+    "tests/e2e/maintenance.spec.ts": "4b3c5529440ff813a5307246e68d32bdac04e3e2769199aaa6c7a84ebd49c725",
+    "tests/e2e/models.spec.ts": "0c8f7caf443d199ce42d85b2888711fcdd2a7fac97654db292f51fa44f915204",
+    "tests/e2e/parsers.spec.ts": "03e868e4f93a964dcf5f3da8a95dfc9b050d73ad7629dea0b9086215476bab55",
+    "tests/fixtures/build-documents.mjs": "48679e68b0480f6be181638e936c85156e74f0c57941c065af4049e7d6a489b2",
+    "tests/fixtures/documents/README.md": "41d7f2be9982da8ea87f686916a7d9ca860760d65bf5e1f852576e86ca881647",
+    "tests/fixtures/documents/expected.json": "bb405004ebead14009a8dd9bf8fe0116f395870be655f1dcc7f0798103e4ecd0",
+    "tests/fixtures/documents/sample.json": "7b9d8951a15249de918df41c6d8d7fc59d8911a7628884a5dcc93ffada262dfb",
+    "tests/fixtures/documents/sample.md": "d9ea8078665bf2820d2725960664b2bd0482b59e494a742bc2781a6ebc5797ba",
+    "tests/fixtures/documents-process.mjs": "0ce0be0c265aebd32c47a97d93b994365f45d86c0f3dd6b294d12525761d7764",
+    "tests/fixtures/graph/s06-input.json": "06c4bd8e6d5badf88980250109cf148db54c7e5e0942365f51bf1e8dcbc7bf79",
+    "tests/fixtures/graph/s06-python-reference.json": "4a20c4e2f1c11da3d3941e6f7591151016c7d240c90d8d3a8ac5af3e5cebf488",
+    "tests/fixtures/graph/s07-python-reference.json": "7e8f866ffe51310ba2e46a514ee4bee3354f3e890e20968ccf7baabdfd3e522b",
+    "tests/fixtures/parser-network-probe.mjs": "2c084d325d7619360d3b8d0e63f10c25437e37f63056c169273e9dd4b7f7385e",
+    "tests/fixtures/parser-resource-probe.mjs": "6b1707ae31e9cb7d4ba68b5f13008130f9c3fe26ec7a2a8fd54fab7a2927e16f",
+    "tests/fixtures/storage-process.mjs": "730dc13403b2bfc4fd7d50a6cc93d9445b804bacca824ef09aee3b2fe5a874cf",
+    "tests/helpers/controlled-documents.ts": "1af203955429b3e3cd2be1b82dc3b5e9430671875e4779ca0009b5e4a9170742",
+    "tests/helpers/document-fixtures.ts": "8951dff80b7e9acd51666250202418b8b7aa36d83321a5cb68b9cb00d3a13784",
+    "tests/helpers/document-service.ts": "db767904828d82d1a7f9128aaac78a4001fedfb2d85aa8f2083fe81945ac03a8",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/indexed-state.ts": "ac1a6422006aefe9500437c9a6c857cb3c28670f8f01fbd73c0292a8912c5e7e",
+    "tests/helpers/indexing.ts": "25135cffc305716e35c0fb9ee3b94ba0d087eaa034e021996c230ee9bf4f7700",
+    "tests/helpers/maintenance.ts": "00c1b4169b689d9897a04e0841a491af1625c1c18899f70c1567b2ac4513b093",
+    "tests/helpers/model-profiles.ts": "700d71940940f8091df1a9b32bc7b06462e309c59525ebe44d444d4aff69abe0",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/storage-process.ts": "7f42a924548a6d887f614aea2ae07c1f3a2ab8e627424fdaf209a3f4bc5121c1",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/cancellation.integration.test.ts": "b2569ab1872badeb847b41b03e637e8f68d21ec6067741189cbea0f7cbd67d41",
+    "tests/integration/config-crash.integration.test.ts": "56a9ce24171254efcf7693d63623cf6aa7a3ec41ac7349aa3b85e326702c388b",
+    "tests/integration/delete-all.integration.test.ts": "10ada56d805b9eb2b3ce3817588ac96c224c6506289041ca65c8fd286cdfd274",
+    "tests/integration/delete-crash.integration.test.ts": "79b6bb18087c68677a796a9afa5975efe88cb0265c248820a7ebc5bbd5124afb",
+    "tests/integration/delete-shared-entity.integration.test.ts": "31363f28cc01056543198e88dec264ba156104128413bfa9cb29aff74eae54df",
+    "tests/integration/documents-api.integration.test.ts": "10b16f21bcf0b74b964568eef0a47519cfa7b71324dced5da90424ae05f77a3e",
+    "tests/integration/embedding-switch-crash.integration.test.ts": "896e7b3bfb575bd937bdd942981b02729ed5441d1d58937b1ba98d890b0ef7a0",
+    "tests/integration/embedding-switch.integration.test.ts": "f5c2ea54fffa69e1c1981714176cd62b0e05e691ee66355d249101f373ab4a16",
+    "tests/integration/health.integration.test.ts": "33f15749c55760a6da92d596727b3a9d34c2a44868238bd3b64e9aed3057cdf8",
+    "tests/integration/index-binding.integration.test.ts": "9dc7acbe6ef06a4ffe3e24d015ccad180c48397dfbedf5504539e114d1cb6811",
+    "tests/integration/index-restart.integration.test.ts": "24d31708455ebb4a84bfcf6e164c0c9134c2620bf7c1c953c1f4c08d4853ea8b",
+    "tests/integration/index-retry.integration.test.ts": "141b9987a8a44147d66fb33f83b1755000648a0c6c0483cbef8841894064a3ec",
+    "tests/integration/indexing.integration.test.ts": "ffef96325f429c08ddaaa569ce60cdb47fbaf4059864fbb74e9fa27f004c2922",
+    "tests/integration/ingestion-commit.integration.test.ts": "61371c9db727adb1c3f3f95450c90b4376c030f7a49e73b3818d2d43b47a3bbc",
+    "tests/integration/jobs-restart.integration.test.ts": "198ef6e7e1a8bff10b4ba2bfb0c220452a9e10979e5c2fe3792195b540b0bcf9",
+    "tests/integration/jobs.integration.test.ts": "abedfcb0d1c6bcd69321588717ce0375f0cbda81ebbf0e072b50af6d347d6481",
+    "tests/integration/models-api.integration.test.ts": "1deed6fc9297dc7183a81abd2e95d0ff79b603b4975aa6455da37ee1867d7405",
+    "tests/integration/reindex.integration.test.ts": "7b50292d0593a93e58bd4d07b3bb7e1e07405b40861d7eba6158e9c54dcd3c8b",
+    "tests/integration/snapshot-crash.integration.test.ts": "3ad14db42cd5ca655108ab011036421fa055074fe52bce40ed7c6e0af7483271",
+    "tests/integration/snapshot.integration.test.ts": "ec26e3c2edf545bd159ea2f58b37e1f5a3a2bcfc3a8ca491df69e55e47e341fc",
+    "tests/integration/storage-lifecycle.integration.test.ts": "530963470c56dcf5714fe356d3d258fc813221aefe82f67cd85c1c70763250de",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tests/integration/writer-lock.integration.test.ts": "2611d32035444d905954fb699a5dd1b817409639a8004838560f6664f0c9f157",
+    "third_party/LightRAG/LICENSE": "0c16924564059e493c86854574660a47ed1dcc2a476ba7b5f949d3f2f73a1984",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "compiledHashes": {
+    "apps/server/dist/app.d.ts": "281956832543abb467eddc767d1e6bf11f59811b5f64c55e3684611da4e8daf9",
+    "apps/server/dist/app.js": "de2cdb510399ddfd6416691d6c758cee4c3d5947d6a785572222851b5699349f",
+    "apps/server/dist/cli.d.ts": "5a71a516ce16caedc8fca6bf5f58be385cd49b873a14570ee196ad88a38e2de9",
+    "apps/server/dist/cli.js": "dd5be4fff9a768af8c89b42d20113e09d1dc9900f4af8d665a77c746251a1de9",
+    "apps/server/dist/core/chunker.d.ts": "9f397f8fb0f6e341fcedbff0c86a1a09eb8ebf5fef86c0a7768d5fe7721c9dca",
+    "apps/server/dist/core/chunker.js": "141127f4c948efe80c87b672bbdd5b8785e9fc0db43e88b99f5c2ba0d5bb4c47",
+    "apps/server/dist/core/tokenizer.d.ts": "f6bd149f941ed9a00bb2791d0573de46ea24c82baa84f54521dce6bb17f308f1",
+    "apps/server/dist/core/tokenizer.js": "4d3ec106deb8cf79cdc10a500c0c56dba642183a2a69c76d48d90a2c23612435",
+    "apps/server/dist/documents/cleanup.d.ts": "903d9ac9ea77f5e738396a54e207034be1c12fc9aecc3532d3ef1a6382bf836b",
+    "apps/server/dist/documents/cleanup.js": "ae0ff72f2b88162c13d27bc5b2b97a9b58bc410a02c801a9ed05cd0edea3cc80",
+    "apps/server/dist/documents/files.d.ts": "ff7926f1ecafe1042acd165a0c98e18da2729a1a7d1dcb6d797660876f8d7db8",
+    "apps/server/dist/documents/files.js": "34cbd4b0091952ca0ef6b6ff218de3ec3ee3ba8cf22573a89386a7bfae697787",
+    "apps/server/dist/documents/service.d.ts": "9f0ca7c050fc859dfe016bbc6e58310cbf69a8452cc194efac9f206b9edabfbe",
+    "apps/server/dist/documents/service.js": "15d69a64ccf7c78b9c3df9bb008bdc40c247d486756da3033f48c196c8fb2048",
+    "apps/server/dist/indexing/extraction.d.ts": "8bfc2bfaf110b21ff15739f9f2164be2409da7d939218a9500ff3f7f36b20409",
+    "apps/server/dist/indexing/extraction.js": "e781a047b6e73708d520a21b596d28793e369a677ddf761567f17125af727326",
+    "apps/server/dist/indexing/indexer.d.ts": "220cae7f96570336dc975fe12604c6f7466c2c1e49d12112ab413acdc3a6c79b",
+    "apps/server/dist/indexing/indexer.js": "4afa7db6de88ae8e16fa316fc4743854fa045ad9f7a71c5be0a0259122ed132c",
+    "apps/server/dist/indexing/maintenance.d.ts": "8eafdb46d40f7ff5d11b4f6e6dd9048fb379042393e7132da64099b61e72e87b",
+    "apps/server/dist/indexing/maintenance.js": "4e826e40b6fa5b9928932e7034e5e038ff127357b34320a3593959bf3b9071fa",
+    "apps/server/dist/indexing/merge.d.ts": "dc25bf1a2a8453bd45c5a2e52e92495733ca1814e9e89375e542ab68ea15fde1",
+    "apps/server/dist/indexing/merge.js": "09d9041ad74ffa6f6f176ae3e66c714b8c595a2a46e055e13038310218b3ac08",
+    "apps/server/dist/indexing/prompts.d.ts": "461d468d8f2bc4154079376788ba42b6b14f40fa78420bc608dec907f074a992",
+    "apps/server/dist/indexing/prompts.js": "581fbcc5144f953c07263eb12dfe8da711a04f4f9099c38bb5a5402ce4e49c5f",
+    "apps/server/dist/indexing/summary.d.ts": "68c65080e57ff0cf84ecdc9a09a90783be7e16d37c0e2ff9d56ec8e30d7171b9",
+    "apps/server/dist/indexing/summary.js": "972ba6cbe2ee9707361a1e1b9aa0e6ad58b9e13bce9d5deac2f17f879e157aa8",
+    "apps/server/dist/main.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/main.js": "f0e4f531210d623dac19c4a1724e21692c08b226085c06872f025113e8136740",
+    "apps/server/dist/models/client.d.ts": "2ab2bb693576ac34284d5425151cbd117c5e74a8da3da7448fa51f440d7ec216",
+    "apps/server/dist/models/client.js": "38c3c5a6832e80d9bae88b9d5d42536f59debff74f023c8cb7c319847d95f1e1",
+    "apps/server/dist/models/config.d.ts": "e9f1b28fa10640043572a72f5ad752a38026da6521dfdee8b6c109e04aaff421",
+    "apps/server/dist/models/config.js": "6a428c7f43f28111a86dcd9b7237ca89971603c5d5d82bedca455acdb3a3331c",
+    "apps/server/dist/models/errors.d.ts": "6119260baef2185d133808a4db74bbb9fc2654c2309b5d829211c8b1275ded3f",
+    "apps/server/dist/models/errors.js": "99b73146782c3aa2610f98a95c8d5bed55eb865f64fe2f63b0c6ce3f23d80e34",
+    "apps/server/dist/models/http.d.ts": "49eff650dc568e74614d329e75b202bd4d9b7d589c41441378f49f8293aa0cb2",
+    "apps/server/dist/models/http.js": "8df24ae843fcefd5ce4f854fa26ca94afb6da360a08e369eb5c982e327e01a21",
+    "apps/server/dist/models/url.d.ts": "121815c7ba140d0d140fb0aa52cfc1cab743b083ee755c507c91e34ab55e11a9",
+    "apps/server/dist/models/url.js": "3749c9fc5659876a1b6930a38ad79240d043e2a4ba0aa46f70dd6380d2b62b58",
+    "apps/server/dist/parsers/archive.d.ts": "7a39315e7069adc24939d50bca9042bb659f0a3b647cb0442f5476a022ed8e5e",
+    "apps/server/dist/parsers/archive.js": "10e49b9f31202dca5c66e297d1b8c2d3bb9ed94d7aa0e7b6440037209b1ae84c",
+    "apps/server/dist/parsers/common.d.ts": "f9d902b5a6cceb4959170f31e1548f8014f05e08e555638bf6e7c3ddbf92af23",
+    "apps/server/dist/parsers/common.js": "e7d6c60808b29e3b413bafa18d5b589172a3cc4eaa659ad406534272eb494680",
+    "apps/server/dist/parsers/index.d.ts": "87faeab6c91991c208f53078f04f7f4adc62d955d2b36d6ade7343d46437981e",
+    "apps/server/dist/parsers/index.js": "c8a24129508b11470c1fd775ccbbfb5869b534d20b4f97245a13e150414b4409",
+    "apps/server/dist/parsers/network.d.ts": "7708a098f0a46ab6a915fc7aed2223dd3a20c05dbfa96ad1e002c5cdf4f46966",
+    "apps/server/dist/parsers/network.js": "7096afedb1e9a9b6be3dcaae56b6673636165966cec59d0de579bb7e34f7c4b3",
+    "apps/server/dist/parsers/office.d.ts": "c70a41778217d4e6291d084f8a088623ba3b0713cf43be3ce162a64843ebf8c0",
+    "apps/server/dist/parsers/office.js": "54c33dd260f1d9978150cb0916ccce647205ef08831bb1c6b59a3cf1b42af6a4",
+    "apps/server/dist/parsers/pdf.d.ts": "0050563b2581bd2c1b3e8f407309457dc67eee3fb12a2e6c1f26e9d56a5430f7",
+    "apps/server/dist/parsers/pdf.js": "02ae9953bbed61a72ae34987dada4c891e8167497a499704ac198413b7bf5a39",
+    "apps/server/dist/parsers/text.d.ts": "0956e73a25b9a917824168a113a4e23be445fe160334842f4269cbf33948a0aa",
+    "apps/server/dist/parsers/text.js": "dc44ce053d39fd625ac119c17ad243e1b81264090ea96bcd940ddc3c3090bb2e",
+    "apps/server/dist/parsers/worker.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/parsers/worker.js": "d0ad7f1ed8a028cbe87abf3dae4c6fdf1794b3bdf19d99fc47155962afcaa48f",
+    "apps/server/dist/parsers/xml.d.ts": "ed7f8f51bffe447fee72df763d73edaf7617d74e9c015eb713ab378f77bbddf3",
+    "apps/server/dist/parsers/xml.js": "c822270283012cab233bad492c75bfc6447dbfc90f80709f3c690df95820c989",
+    "apps/server/dist/paths.d.ts": "24ac60ebf4142be60b39763a192a1b471b4944e3b10c6a6fdf8026e090da908d",
+    "apps/server/dist/paths.js": "152a1eb0c8c4224f360d67b01bb464b7de890685cd691070a79f942acfed0ab6",
+    "apps/server/dist/storage/disk.d.ts": "61d87608e350b8c6ee5fcd796f66710fb3c4c93480e1ba5e9d8b43a632a8602b",
+    "apps/server/dist/storage/disk.js": "06c77d9f7bc772860696ad0e5d60045fe81eabde8a77666b53be5231d8eb3c00",
+    "apps/server/dist/storage/graph.d.ts": "396d65b296075098eca6439fc02dacc53f280afacfddddcbf375310d47939753",
+    "apps/server/dist/storage/graph.js": "34ac8c5b67be45558ca5582591ce29139ebf41729b4d28cfa25e878eaded943d",
+    "apps/server/dist/storage/io.d.ts": "8910036f9c08726a64772af328fccaf5b1da07a96a088bfec78c59357f88c708",
+    "apps/server/dist/storage/io.js": "14a1ecaba6ae496d1055a7160a91f13b29fdb41bdb4c817da978a9e9f3850330",
+    "apps/server/dist/storage/kv.d.ts": "c68e699d423e0e174fc9e4e0fb8505958102194fea98365f095e686729017d86",
+    "apps/server/dist/storage/kv.js": "c59a1098bc93a07f6e9897c165e7b8d65594c07af73a5cf557f0e7a7a22f4679",
+    "apps/server/dist/storage/maintenance.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/storage/maintenance.js": "546005429eed0cd977334a69469c8b457813e1ec151a3f0bd8f4bad6cb5bb79c",
+    "apps/server/dist/storage/recovery.d.ts": "eafadb1b6611ccfebfd17e5b6d632f5d835a1cf27798407e784752b2ed0eb0b3",
+    "apps/server/dist/storage/recovery.js": "7982317bb3a332dd17c04cd281ab8073406a2bc5cae6d6456e3c5219e9346e8e",
+    "apps/server/dist/storage/snapshot.d.ts": "49f27e7787e0883786be4c07571394a8525c26f85df943484c7ac50e9f477abc",
+    "apps/server/dist/storage/snapshot.js": "38c9435dfe3b06bac2e9becfdeb2cf13797140c27be37e111551d9f9da90eba4",
+    "apps/server/dist/storage/state.d.ts": "0f2abbf020f673e7a93d09abf9d05d705dc6b454f21b504652b2eece0c4e5e15",
+    "apps/server/dist/storage/state.js": "471f2d124894214349e82a3c5535751f33e25d999680eef127ee35c0db99a383",
+    "apps/server/dist/storage/vectors.d.ts": "dc8ea5856a46d5e696d2b64ea98ae419da0b932aaee3152e1cef97f99f434bd0",
+    "apps/server/dist/storage/vectors.js": "8ee3e7eac1a95cdf0a31e06da7e796adf4e0a50f5100692f474b4ebee6aa39f9",
+    "apps/server/dist/storage/writer-lock.d.ts": "15053f43d65f5029871ca6791a5ed987b4b5d37d43c098bedd2c9e1c447b7d8a",
+    "apps/server/dist/storage/writer-lock.js": "6df2ece73b331403caa50965d9695fd6e53eaece3c77cffc1cb7f1297e935714",
+    "apps/web/dist/assets/index-BmsT99RN.css": "8ef9356d80ba082dfff4ed1baf1fb0e5cc6597968df65859cfe0003f55172a33",
+    "apps/web/dist/assets/index-klvcLzo7.js": "c21c3f7dd5453bb3e754ec1e47903e51cd08b89776a80f1efaa4ecdc1d6bbb21",
+    "apps/web/dist/index.html": "5682d8a9de39d4305a3e9b18388aad827d6673551ece3cfe394c68ca59599dce",
+    "internal/contracts/dist/index.d.ts": "002a3c9b69032103cd2f21a9ae55304dcb3fd60f8cdde5dd32d1ae1a95ac91c4",
+    "internal/contracts/dist/index.js": "1839bdfec97a7007be460b2ea00242a98de94b8e9812aad8dbccf47ed4133ab3",
+    "internal/contracts/dist/parsing.d.ts": "4256a67c1bd1b9e819b59256206330bbee7fa9c4e47ac9bd49c6f330a216527e",
+    "internal/contracts/dist/parsing.js": "9efdb0f416e042d878da2e87173bdd03a6ffc1be2e754c84d67b7d46e16a3ca6"
+  },
+  "artifactHashes": {
+    ".tools/s07-health.json": "80b8a80ab5b947c1f04bc514f34b0d1f0d0d4b479669367a202cd798d7b9555e",
+    ".tools/s07-playwright.json": "c4b33dc6bb24530d0359008e8238a94bd61d6de655923d4a91b27f3740dd34ad",
+    ".tools/s07-vitest.json": "1b2234ab711d86ef27fd370a702f07c6af70f429ba80071db1965e9ffc731936",
+    ".tools/start-server.sh": "c7bb1c551abf7cd0f8b062e65d290775f49faa555b43bfd351f6cec5dd8d727e"
+  },
+  "limits": [
+    "No full G01-G12 algorithm reference acceptance; S07 Python compares the two non-degraded relationship rebuild-weight AST statements on four cases.",
+    "Retrieval/rerank/context/citations await S08; answering/streaming await S09.",
+    "Active reader must retain its captured profile+snapshot pair; operatorRevision declares identity but cannot inspect remote model weights.",
+    "No automatic historical generation/config credential version GC or physical erasure; referenced file release remains retained and retryable.",
+    "No external actual provider or RAG quality validation; protocol tests use synthetic local HTTP fixtures.",
+    "Schema v1 optional metadata extensions read old data in new code; older executables fail closed on new fields.",
+    "Linux local filesystem, single writer; no physical-power-loss/multi-host guarantee."
+  ]
+}

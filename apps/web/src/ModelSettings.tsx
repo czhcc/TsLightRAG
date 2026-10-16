@@ -41,6 +41,7 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
   }
   return <section aria-label="模型配置入口">
     <h2>模型角色</h2>
+    <p>此页编辑候选配置。活动索引的模型版本与凭据独立保留，清除候选密钥不会删除仍被索引或任务引用的旧版本。</p>
     <p>配置保存在本机。连接测试会将示例文本发送到候选地址，可能产生费用；不会保存设置或修改索引。</p>
     <p>密钥输入留空表示保留；切换地址后需重新输入或清除密钥。此处不在浏览器持久保存密钥。</p>
     <div className="cards">{Object.entries(labels).map(([kind, label]) => <article key={kind}>
@@ -70,7 +71,7 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
           <label>维度<input type="number" min="1" max="65536" value={p.dimensions} onChange={(e) => { update(i, { dimensions: Number(e.target.value) }); }} /></label>
           <label>批大小<input type="number" min="1" max="256" value={p.batchSize} onChange={(e) => { update(i, { batchSize: Number(e.target.value) }); }} /></label>
           <label>operatorRevision<input type="number" min="0" value={p.operatorRevision} onChange={(e) => { update(i, { operatorRevision: Number(e.target.value) }); }} /></label>
-          <p>同名模型更换权重时增加 operatorRevision。非空索引的空间切换需要重建，目前暂不开放。</p>
+          <p>同名模型更换权重时增加 operatorRevision。非空索引继续使用活动版本；保存后请到文档页重建三类向量并切换。</p>
         </>}
         {p.kind === 'rerank' && <>
           <label>协议<select value={p.protocol} onChange={(e) => { update(i, { protocol: e.target.value }); }}><option>cohere-compatible</option><option>jina-compatible</option></select></label>

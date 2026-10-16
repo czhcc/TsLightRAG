@@ -1,0 +1,47 @@
+{
+  "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "sourceHash": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326",
+  "scope": "G02 non-degraded rebuild weight from surviving evidence, not full G02 acceptance",
+  "cases": [
+    {
+      "weights": [
+        3
+      ],
+      "sources": [
+        "B"
+      ],
+      "expectedWeight": 3.0
+    },
+    {
+      "weights": [
+        0.2
+      ],
+      "sources": [
+        "B"
+      ],
+      "expectedWeight": 1.0
+    },
+    {
+      "weights": [
+        0.2,
+        3
+      ],
+      "sources": [
+        "B",
+        "C"
+      ],
+      "expectedWeight": 3.2
+    },
+    {
+      "weights": [
+        2,
+        3
+      ],
+      "sources": [
+        "B",
+        "C"
+      ],
+      "expectedWeight": 5.0
+    }
+  ]
+}

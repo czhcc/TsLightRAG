@@ -66,3 +66,13 @@
 差异与限制：目标端以 NFKC/trim/空白折叠规范化名称，保留大小写及语言，不复现上游全部 CJK 标点/引号/短数字过滤及容错 JSON 修复；同名实体不作语义消歧。非法/悬空/自关系整体失败，避免上游跳过坏行造成空成功。标准上游 JSON 关系默认强度为 1，目标端额外允许显式非负 `strength`（≤1000）；不要求模型输出此扩展。描述以确定的块顺序合并，类型同票采用确定规则，不承诺上游 timestamp/同长度顺序完全相同。摘要使用固定中文、500 tokens/8 描述阈值/最多 8192 输入 tokens，并进一步受所配置文本模型上下文约束；不做静默裁剪。
 
 Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权重分支，完整抽取/摘要路径及删除重建的 G01/G02 参考门槛仍待 S07/S11；G03–G12 尚未实施，不据此宣称所有 GraphRAG 算法已完成。S06 未新增 npm 依赖，Python 仅为参考验证工具，不进入应用业务运行路径。
+
+## S07 来源状态
+
+`indexing/maintenance.ts`、文档维护任务/API、`documents/cleanup.ts`、配置版本与活动绑定、WebUI 维护控制及新增测试为依据本仓库方案新编写的 TypeScript 实现，无新增 npm 依赖。上游关联符号为 `operate.py::rebuild_knowledge_from_chunks`、`_rebuild_single_relationship` 及实体/关系合并、描述摘要；目标端直接使用 S06 的块级有效原始贡献，不依赖未验证的旧聚合描述推测来源。
+
+删除与重新索引仅对受影响实体/边从存活贡献重新计票、去重描述/关键词并摘要/向量化；关系权重重新计算 `max(sum(surviving strengths), distinct surviving chunks)`，不保留已删除来源或旧人为 boost。无原始贡献的旧共享图明确失败；不会降级为保留可能含已删事实的描述。完整删除不需模型调用。S06 提示词及上游 MIT 许可继续适用。
+
+`scripts/reference/s07.py` 在固定 SHA 校验后，执行上游 `operate.py` 第 2182/2201 行两条原始 AST 赋值语句（非退化 rebuild 权重分支）；人工存活来源夹具与生成结果保存到 `tests/fixtures/graph/s07-python-reference.json`，TS `maintenance-reference.test.ts` 独立对照。它补充 G02 删除后的权重参考，未宣称执行完整 Python 删除/摘要/所有 G01–G12 路径。脚本/源码派生部分适用 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)。
+
+目标端额外提供单快照发布、版本冲突拒绝、配置私密版本归档和快照活动绑定；保留历史快照仍视为原文/产物引用，因此文件释放任务可持久显示 retained，待历史真正退出引用后重试。没有自动清空历史或回收凭据版本，也不把磁盘历史副本宣称为已安全擦除。后续源码参考验收仍以 S11 的完整清单为准。

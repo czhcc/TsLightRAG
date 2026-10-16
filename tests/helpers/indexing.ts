@@ -28,12 +28,12 @@ export function kgHandler(request: ModelRequest, response: ServerResponse) {
     reply(response, messages.some((m) => m.role === 'assistant') ? empty : kg(messages.some((m) => m.content.includes('second document'))));
   }
 }
-export async function indexingHarness(options: { handler?: typeof kgHandler; documentOptions?: DocumentServiceOptions; storageHook?: Parameters<typeof SnapshotStore.open>[1] } = {}) {
+export async function indexingHarness(options: { embeddingPatch?: Record<string,unknown>; handler?: typeof kgHandler; documentOptions?: DocumentServiceOptions; storageHook?: Parameters<typeof SnapshotStore.open>[1] } = {}) {
   const directory = await temporaryDirectory(); const storage = await SnapshotStore.open(directory.path, options.storageHook);
   const app = await buildApp({ storage, ...(options.documentOptions ? { documentOptions: options.documentOptions } : {}) });
   const model = await startFakeModel(options.handler ?? kgHandler);
   const saved = await app.inject({ method: 'PUT', url: '/api/v1/settings/models', payload: { expectedRevision: 0,
-    profiles: [textProfile(model.url, {timeoutMs: 10000}), embeddingProfile(model.url, {timeoutMs: 10000})], bindings: { ...bindings, rerank: null } } });
+    profiles: [textProfile(model.url, {timeoutMs: 10000}), embeddingProfile(model.url, {timeoutMs: 10000,...options.embeddingPatch})], bindings: { ...bindings, rerank: null } } });
   if (saved.statusCode !== 200) throw new Error(saved.body);
   return { storage, app, model, directory,
     async import(text: string) {
