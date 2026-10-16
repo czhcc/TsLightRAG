@@ -13,6 +13,12 @@ export const relationRecord=(e:GraphEdge,view:SnapshotView)=>{const [a,b]=relati
 // Match ensure_ascii=False JSON spacing used by the upstream graph truncation stage.
 export function contextJson(value:Record<string,string>) { return '{'+Object.entries(value).map(([k,v])=>JSON.stringify(k)+': '+JSON.stringify(v)).join(', ')+'}'; }
 export function prefixBudget<T>(rows:T[],limit:number,encode:(rows:T[])=>number) { let n=0;for(let i=1;i<=rows.length;i++){if(encode(rows.slice(0,i))>limit)break;n=i;}return rows.slice(0,n); }
+export function generationMessages(query:Query,context:string):Message[]{
+  // Match upstream resolve_user_prompt's slot; no server-side prefix or environment setting.
+  const slot=query.userPrompt?`\n\n${query.userPrompt}`:'n/a';
+  const system=render(retrievalPrompts.rag_response,{response_type:'Multiple Paragraphs',user_prompt:slot,context_data:context});
+  return [{role:'system',content:system},...query.conversationHistory,{role:'user',content:query.query}];
+}
 export function buildContext(view:SnapshotView,query:Query,profile:Extract<ModelProfileInput,{kind:'text'}>,entities:GraphNode[],relationships:GraphEdge[],chunks:QueryChunk[]){
   const limit=Math.min(query.maxTotalTokens,profile.contextTokens);
   const count=(s:string)=>countTokens(s,profile.tokenizer);
@@ -33,8 +39,7 @@ export function buildContext(view:SnapshotView,query:Query,profile:Extract<Model
       text_chunks_str:linked.map(c=>JSON.stringify({reference_id:c.referenceId,content:c.content})).join('\n'),
       reference_list_str:refs.map(r=>`[${r.id}] ${r.fileName}`).join('\n'),
     });
-    const system=render(retrievalPrompts.rag_response,{response_type:'Multiple Paragraphs',user_prompt:query.userPrompt??'',context_data:context});
-    const messages:Message[]=[{role:'system',content:system},...query.conversationHistory,{role:'user',content:query.query}];
+    const messages=generationMessages(query,context);
     // Chat framing is conservatively charged in addition to exact tokenizer text counts.
     const inputTokens=3+messages.reduce((n,m)=>n+4+count(m.role)+count(m.content),0);
     return {context,prompt:messages.map(m=>`---${m.role}---\n${m.content}`).join('\n\n'),messages,chunks:linked,references:refs,budget:{limit,inputTokens,reservedOutputTokens:profile.maxOutputTokens,totalTokens:inputTokens+profile.maxOutputTokens}};

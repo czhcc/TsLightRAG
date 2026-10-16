@@ -171,18 +171,9 @@ export const ApiErrorSchema = z.strictObject({
   code: z.string().min(1).max(100), message: z.string().min(1).max(2000),
   requestId: z.string().min(1).max(200),
 });
-export const StreamEventSchema = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('meta'), requestId: IdSchema, mode: QueryModeSchema }),
-  z.strictObject({ type: z.literal('references'), references: z.array(CitationSchema).max(1000) }),
-  z.strictObject({ type: z.literal('delta'), text: z.string().max(100_000) }),
-  z.strictObject({ type: z.literal('done'), finishReason: z.enum(['stop', 'length']), warnings: z.array(z.string()).max(100) }),
-  z.strictObject({ type: z.literal('error'), error: ApiErrorSchema }),
-  z.strictObject({ type: z.literal('cancelled') }),
-]);
-export type StreamEvent = z.infer<typeof StreamEventSchema>;
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S08'), usable: z.literal(false),
+  status: z.literal('ok'), stage: z.literal('S09'), usable: z.boolean(),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),
@@ -207,6 +198,7 @@ export const QueryDataSchema = z.strictObject({
     generation: z.string(), corpusRevision: z.number(), configRevision: z.number(),
     embeddingSpaceId: z.string().nullable(), embeddingConfigRevision: z.number().nullable(),
     keywords: z.strictObject({ high: z.array(z.string()), low: z.array(z.string()), cached: z.boolean() }),
+    embeddingsCached: z.boolean().default(false),
     branches: z.array(z.enum(['entities','relations','chunks'])),
     recalled: z.strictObject({ entities: z.number(), relationships: z.number(), chunks: z.number() }),
     selectedEntityChunks: z.array(z.string()), selectedRelationChunks: z.array(z.string()),
@@ -216,3 +208,21 @@ export const QueryDataSchema = z.strictObject({
   }),
 });
 export type QueryData = z.infer<typeof QueryDataSchema>;
+
+export const QueryResponseSchema = z.strictObject({
+  answer: z.string().max(8*1024*1024), mode: QueryModeSchema,
+  status: z.enum(['success','empty','preview']), finishReason: z.enum(['stop','length']),
+  references: z.array(CitationSchema).max(1000), warnings: z.array(z.string()).max(100),
+  cached: z.boolean(), data: QueryDataSchema,
+});
+export type QueryResponse = z.infer<typeof QueryResponseSchema>;
+
+export const StreamEventSchema = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('meta'), requestId: IdSchema, mode: QueryModeSchema, cached: z.boolean().optional() }),
+  z.strictObject({ type: z.literal('references'), references: z.array(CitationSchema).max(1000) }),
+  z.strictObject({ type: z.literal('delta'), text: z.string().max(100_000) }),
+  z.strictObject({ type: z.literal('done'), finishReason: z.enum(['stop', 'length']), warnings: z.array(z.string()).max(100), cached: z.boolean().optional(), status: z.enum(['success','empty','preview']).optional(), data: QueryDataSchema.optional() }),
+  z.strictObject({ type: z.literal('error'), error: ApiErrorSchema }),
+  z.strictObject({ type: z.literal('cancelled') }),
+]);
+export type StreamEvent = z.infer<typeof StreamEventSchema>;

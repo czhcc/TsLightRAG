@@ -46,7 +46,7 @@ it('saves without sending requests; survives service restart with masked keys an
   const result = await send(service.address, 'PUT', { profiles, bindings, expectedRevision: 0 }); expect(result.status).toBe(200);
   const saved = ModelSettingsSchema.parse(await result.json()); expect(saved.revision).toBe(1); expect(saved.embeddingSpaceId).toMatch(/^[a-f0-9]{64}$/);
   expect(servers.map((s) => s.requests.length)).toEqual([0, 0, 0]);
-  const health = HealthSchema.parse(await (await fetch(`${service.address}/api/v1/health`)).json()); expect(health.models).toEqual({ configured: true, missingRoles: [] }); expect(health.usable).toBe(false);
+  const health = HealthSchema.parse(await (await fetch(`${service.address}/api/v1/health`)).json()); expect(health.models).toEqual({ configured: true, missingRoles: [] }); expect(health.usable).toBe(true);
   expect(await service.stop()).toBe(0);
   const restarted = await startService(['--data-dir', directory]); closers.push(restarted.stop);
   expect(await settings(restarted.address)).toEqual(saved);

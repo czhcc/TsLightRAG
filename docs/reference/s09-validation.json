@@ -1,0 +1,610 @@
+{
+  "stage": "S09",
+  "recordedAt": "2026-10-16T09:30:23.491697+00:00",
+  "targetParent": "044896cf78682134178348f9108ec6c31828dc6a",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux local filesystem",
+    "referenceOnlyPython": "3.12 standard library; no new runtime dependency"
+  },
+  "commands": [
+    {
+      "command": "python3 scripts/reference/s09.py /tmp/LightRAG-reference (deterministically regenerated)",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --reporter=json --outputFile=.tools/s09-vitest.json (includes clean production build)",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json > .tools/s09-playwright.json",
+      "exitCode": 0
+    },
+    {
+      "command": "bash .tools/start-server.sh",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "dependenciesChanged": false,
+  "coldInstall": "S04 retained evidence; no new S09 npm ci claim",
+  "vitest": {
+    "files": 64,
+    "total": 445,
+    "passed": 445,
+    "failed": 0,
+    "pending": 0
+  },
+  "playwright": {
+    "startTime": "2026-10-16T09:26:33.971Z",
+    "duration": 47414.671,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "productionHealth": {
+    "status": "ok",
+    "stage": "S09",
+    "usable": false,
+    "models": {
+      "configured": false,
+      "missingRoles": [
+        "query",
+        "embedding"
+      ]
+    },
+    "storage": {
+      "initialized": true,
+      "status": "ready",
+      "generation": "g-ad0efc62-8eb1-475e-9834-1371237199c8",
+      "revision": 0,
+      "corpusRevision": 0
+    },
+    "jobs": {
+      "available": true
+    }
+  },
+  "existingDataPreserved": true,
+  "environmentDraft": {
+    "draftId": "42f02ddc-1642-4888-b6e2-c5f740a29bf4~cecfgdraft_6ac757d74ea48199b539e4192672509e",
+    "revision": 15,
+    "status": "saved",
+    "requiresPublish": true,
+    "changedFields": [
+      "start_skill"
+    ],
+    "otherFieldsUnchanged": true,
+    "published": false,
+    "freshTaskRestoreTested": false
+  },
+  "reference": {
+    "manifest": {
+      "operate.py": {
+        "sha256": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326",
+        "executedFunctions": [
+          "kg_query",
+          "_answer_cache_kv"
+        ]
+      },
+      "utils.py": {
+        "sha256": "8c49d4b0150fdfc3343d85770a46c0c49da5b6c6a81c09eb5ca10a997c8dcdbe",
+        "executedFunctions": [
+          "EffectiveUserPrompt",
+          "resolve_user_prompt",
+          "compute_args_hash",
+          "_serialize_cache_variant",
+          "serialize_llm_cache_identity"
+        ]
+      }
+    },
+    "promptSha256": "db0cf2d0f5d420a8372fac2b33043d8b4f14c84ec0a60653862e4e53a27047e1",
+    "cases": 6,
+    "scope": "G12 final system/context/instructions/history/query handoff, debug bypass and empty retrieval; cache disabled, retrieval port separately covered by S08",
+    "fixtureSha256": "7cab878474eb97360506913763c971c560fc0b48b5a8183f795b8fdf517c4996",
+    "sourceAcceptance": "G12 stage final model-message handoff plus S08 retrieval references; not full G01-G12 acceptance"
+  },
+  "cachePolicy": {
+    "keyword": {
+      "entries": 256,
+      "serializedBytes": 8388608,
+      "ttlMs": 900000
+    },
+    "queryEmbeddings": {
+      "entries": 256,
+      "serializedBytes": 8388608,
+      "ttlMs": 900000
+    },
+    "answer": {
+      "entries": 64,
+      "serializedBytes": 16777216,
+      "entryBytes": 1048576,
+      "ttlMs": 900000
+    },
+    "storage": "schema-checked process-local LRU, restart clears all",
+    "answerPublication": "complete server delivery, success/stop/no warnings, no aborted signal and current corpus/config; byte-identical completed rebuild also invalidates corpus identity"
+  },
+  "scenarios": [
+    {
+      "name": "sends the exact final budgeted system/context/history/query and returns only existing evidence citations",
+      "status": "passed"
+    },
+    {
+      "name": "returns context/prompt previews and empty evidence without calling the answer model",
+      "status": "passed"
+    },
+    {
+      "name": "warns about nonexistent numeric references without fabricating sources and does not cache a truncated answer",
+      "status": "passed"
+    },
+    {
+      "name": "converts real fragmented UTF-8/CRLF/multiline SSE, empty/usage frames to ordered NDJSON and exactly one terminal",
+      "status": "passed"
+    },
+    {
+      "name": "converts a JSON model response requested as streaming and replays a complete cache entry through the same protocol",
+      "status": "passed"
+    },
+    {
+      "name": "reports model EOF/protocol failures as error, never done or a cached partial answer",
+      "status": "passed"
+    },
+    {
+      "name": "does not retry after a delivered delta when the upstream connection breaks",
+      "status": "passed"
+    },
+    {
+      "name": "hits a complete answer without any model request; separately reuses bounded keyword/query-embedding caches",
+      "status": "passed"
+    },
+    {
+      "name": "keys answer options by history/instructions/budgets/mode/thresholds/rerank and configured model identity",
+      "status": "passed"
+    },
+    {
+      "name": "invalidates after deletion/version replacement, byte-identical rebuild and embedding-space activation",
+      "status": "passed"
+    },
+    {
+      "name": "does not install an old in-flight generation into the new corpus cache after deletion",
+      "status": "passed"
+    },
+    {
+      "name": "explicit stop produces cancelled once, aborts upstream, never caches a partial stream, then permits a fresh answer",
+      "status": "passed"
+    },
+    {
+      "name": "client fetch abort closes the model request and cannot publish a partial answer cache entry",
+      "status": "passed"
+    },
+    {
+      "name": "timeout is an error terminal, and stopping a completed request cannot add a second terminal",
+      "status": "passed"
+    },
+    {
+      "name": "bounds LRU entries/bytes/TTL, validates schema and detaches cached values",
+      "status": "passed"
+    },
+    {
+      "name": "warns on nonexistent numeric/grouped/DC references without inventing or silently replacing citations",
+      "status": "passed"
+    },
+    {
+      "name": "splits large transport deltas without separating Unicode surrogate pairs",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 0",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 1",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 2",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 3",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 4",
+      "status": "passed"
+    },
+    {
+      "name": "matches pinned kg_query prompt/message handoff case 5",
+      "status": "passed"
+    },
+    {
+      "name": "incrementally decodes split Unicode and validates the ordered terminal protocol",
+      "status": "passed"
+    },
+    {
+      "name": "rejects missing/reordered/duplicate terminal records [{\"type\":\"meta\",\"requestId\":\"q1\",\"mode\":\"mix\"},{\"type\":\"refe",
+      "status": "passed"
+    },
+    {
+      "name": "rejects missing/reordered/duplicate terminal records [{\"type\":\"meta\",\"requestId\":\"q1\",\"mode\":\"mix\"},{\"type\":\"refe",
+      "status": "passed"
+    },
+    {
+      "name": "rejects missing/reordered/duplicate terminal records [{\"type\":\"meta\",\"requestId\":\"q1\",\"mode\":\"mix\"},{\"type\":\"delt",
+      "status": "passed"
+    },
+    {
+      "name": "rejects missing/reordered/duplicate terminal records [{\"type\":\"meta\",\"requestId\":\"q1\",\"mode\":\"mix\"},{\"type\":\"refe",
+      "status": "passed"
+    },
+    {
+      "name": "does not promote an unterminated final line to success and accepts error/cancelled terminals",
+      "status": "passed"
+    }
+  ],
+  "sourceHashes": {
+    ".gitattributes": "6fbbe550f1d63efa1c8d930717fb22208343703dbbb1f9768f43eef675c54797",
+    ".gitignore": "3347982113be1727a26e48a7d102b501e2dae1f7a0f664bbb2256d2dcc1714d8",
+    ".node-version": "7e8a2fa94951112b894a3dbe3d05efef5e9263741fa49125f0a70f40fedab4cc",
+    ".npmrc": "84636711bafeb36790782401b8dac466ee0344c91bbdd1967f62f2d3174304a5",
+    "README.md": "d40535345d6f3c1422bd5f5a8f95b79655996587603c3905ee627d066ea0ed0c",
+    "apps/server/package.json": "2e3b0f47cfb5fbeb1a2d0810d067054226dcedba1a20231def6dac449d9907fd",
+    "apps/server/src/app.ts": "c76e1dd4b138863ac030207b614cba5f0452793d0fa44ee7de25057518781ff5",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "93f4dbc350a130f87b32b7a7502f292db62a7cae5ac1d5c020325f04921c5c31",
+    "apps/server/src/core/chunker.test.ts": "150cacabe065de2c5a75b7fda92c90d7563fdf152b6112a2a1cb5fb740d908d0",
+    "apps/server/src/core/chunker.ts": "0ce18756756175779f52dea1e4023ca17546332b8a8adef983f80cf061ea41e2",
+    "apps/server/src/core/tokenizer.ts": "44aa800106f251a6384e857d87c884f3f719305a3e85ad80a422a082b063ba88",
+    "apps/server/src/documents/cleanup.ts": "23e32ce0866eb4eacd543c3920fdd8bee1cfbf1f55ed9886785dc614b9e450aa",
+    "apps/server/src/documents/files.ts": "3d405f4a9a5efd86208e7b33da7077501d37d271ce589f9a7b5427d97c53ce04",
+    "apps/server/src/documents/service.ts": "08f5c478e3c9a457fed79b8b0a48617bcabffb3d273c1ac0d5f2c2b7c136cae1",
+    "apps/server/src/generation/cache.test.ts": "dd7cbee41e0b5a4d7048acdcf8f0c89326af27e5b819ee449f4fc3cd86792df1",
+    "apps/server/src/generation/cache.ts": "a099e56411f4eadaea801789f72998e49c3d0641ae65317edad47e1c2270dc73",
+    "apps/server/src/generation/generation.test.ts": "043e161007be95280abd1c642b72dc3bcad89ad88179b549ae4ff7503d815642",
+    "apps/server/src/generation/ndjson.ts": "c8a22d175da97b6c3534d1b0a34fb916fd8666709659b9a3bea63547f934432d",
+    "apps/server/src/generation/reference.test.ts": "eaa32bddf76a536c32f2e12c7c28a452c855c173743667086497361fc7447f52",
+    "apps/server/src/generation/service.ts": "356db217e5ea85687d3588a15820993335066b25ff26cb5c49219421deab94aa",
+    "apps/server/src/indexing/contributions.test.ts": "c0b537e24b469e1d2515497cde4561d8f3b4a5840c800dbaeba913b1464d6aa5",
+    "apps/server/src/indexing/extraction.test.ts": "6dbabf8a79fba8708ce4379ce368fc82f6bf4de385c2634406060393dd5271d6",
+    "apps/server/src/indexing/extraction.ts": "0e4729f9d577ad2b4e499a73504bb0c3750d537e7a61de7ab6c51445bc209499",
+    "apps/server/src/indexing/indexer.ts": "894d260869464ec85883fcafbcb824a7d21439862a70b5caf62ed2018e2abc4c",
+    "apps/server/src/indexing/maintenance-reference.test.ts": "bb254f9929f2de54358f7ecef6d82c0955542bb4d2251bd53bc680380abd0e6f",
+    "apps/server/src/indexing/maintenance.ts": "fce947e57d1cbb169fa75eaf0cc2d18602e65fb886247f710f42f70a243d1233",
+    "apps/server/src/indexing/merge.test.ts": "fefeae94b72bca95ae5b95706b3bb2ecd3a81661fd31559b740dfac3830969e0",
+    "apps/server/src/indexing/merge.ts": "5e736b7ccfb52febcaa72a9f76a0d70cd7e8eb298564981e26305c8acfb3fd00",
+    "apps/server/src/indexing/prompts.ts": "f51a446234366fd107f949e82e39eeb23a48e8f9c6fd1ba7eb30c7eece21f29e",
+    "apps/server/src/indexing/reference.test.ts": "ca3219a7de92fcc27ff21723d507f94439026986da6c25847e4d0e6fb05c2c5b",
+    "apps/server/src/indexing/summary.test.ts": "921c30c06df91337fe2d68927401ad5c6af4203659ab46f94a380ff891ac777f",
+    "apps/server/src/indexing/summary.ts": "f03bf3b18a1b9ff01a97b0e51f9e484a731b15a1e71a5a64bc73ead452d97429",
+    "apps/server/src/main.ts": "3a0e9049ff5049e7ddc5478f2648de93a7fad8ea0671aa6d3b53c4068bb81d62",
+    "apps/server/src/models/chat.protocol.test.ts": "3c0a2b674f65e3ade292fb7e437a4467b13adbf1f616ad57b50b9fd2b7cf8f82",
+    "apps/server/src/models/client.ts": "61f4d7fff76269fe772e8d5721d31cb9bd2fa3234288055632e16a92e16cce05",
+    "apps/server/src/models/config.test.ts": "812559274dfc1e5e42dd7a049e9552b82789105a221733c5ddb9a8263619136b",
+    "apps/server/src/models/config.ts": "e888d72adcb65903aa33641c4a95f1852a1483f5006387a60f3da5f9ec6ad624",
+    "apps/server/src/models/embedding.protocol.test.ts": "9e30bf849f2f45b9292320c61967a3eddfb8b208ad3e3405dfe2842393930ee0",
+    "apps/server/src/models/errors.ts": "e4da2b34f17bd066de1ac587a53a9c73fad5e8acbb814135f4c9798b42ca8bd6",
+    "apps/server/src/models/http.ts": "5d1a0a56402bdfdf3dfb0755c9e0d008a3c5f600709fa70010777e8d0b41ea2a",
+    "apps/server/src/models/model-url.test.ts": "dd691153c73b934cba1c92217fee5dd70a7c2925648465f10e7b0b90263430c5",
+    "apps/server/src/models/rerank.protocol.test.ts": "48a1254f1fa5e4359eed2ab3a4ba9ffd0cc42ad1a0d25d9339790ab85b939e06",
+    "apps/server/src/models/url.ts": "c9ec575a70017e1be2a8ad35a5fdedbc4773c1fdea6e40669122c61673cec294",
+    "apps/server/src/parsers/archive.ts": "8ae037fe44f98329577c824eea423e97249c29a4d1ca7a2f3cbb1bbac48108fa",
+    "apps/server/src/parsers/common.ts": "7a93cea4d35ccfc1739a5f9f5540ae663dd5ad0f8160cce2a18610ec2e08a8f2",
+    "apps/server/src/parsers/formats.test.ts": "50e0ba48d0f95a10b14e8d2eeccdc9a5e54fd67a60b75c1dba301a1a420a7639",
+    "apps/server/src/parsers/index.ts": "ff76cb622835bfb5c5248757a94f87ecd2a4974d5c3931e75f283577c07586e1",
+    "apps/server/src/parsers/network.ts": "a1754c3e8af3434c215a6bf0ff76675d0f7e817a336274790809cfb37c2ebaab",
+    "apps/server/src/parsers/office.ts": "ac695345fbcd8248ba57c528a96ba5632295f30e6471cfa6f8f9cc58b4cd0d64",
+    "apps/server/src/parsers/parser-no-network.test.ts": "ad84dd56107776837e8fbd46df8735ec205cf238d1acff0e7b4b4e196257b4e6",
+    "apps/server/src/parsers/parser-security.test.ts": "0413f34c0bc834d83d58b59aebbd744d578af9e34b8823f9fb9bb4256c51611d",
+    "apps/server/src/parsers/pdf.ts": "46cd1b279fabc45771b977c1437730164012062c3f835fc2916815615d8fa3e5",
+    "apps/server/src/parsers/text.ts": "2de66ff1a3fa13f5bf5f3372e7571e995eabf17f1973b1e73eb200cd513a17c6",
+    "apps/server/src/parsers/worker.ts": "f18aaedda8793df26165b79b93833f7f7dcc99908ba63258d77ac468e8291f84",
+    "apps/server/src/parsers/xml.ts": "99529e6777658de042dc70b8557889bb978b8d434e52e26eea92aeed05216103",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/retrieval/algorithms.ts": "97c6d42b0bb80e7cc3c57f9393fe8886992cf995d7176dc4e6ba186ccdf908c4",
+    "apps/server/src/retrieval/context.ts": "00e2115592a0d0fb4824a3c4bf3926153738b7724b1abe622cec4e7dd760cdf2",
+    "apps/server/src/retrieval/keywords.test.ts": "077326ed3f8645ea2b23e7e07ec6e2c1e019a1659c61cbfad907bcbd10106712",
+    "apps/server/src/retrieval/kg-chunk-selection.test.ts": "82d7cd6b0a5467fee33bd5134115365bd871e474ba9379acb2bb659741169f2a",
+    "apps/server/src/retrieval/kg-ranking.test.ts": "cd2c37988bef73723a179561bba3214c97662677557392cee3d3c3eab010d6a9",
+    "apps/server/src/retrieval/prompts.ts": "d6899b34b413d6262816ec72aa82c5ea23e40d29c52eaa2fb2496c8196aef991",
+    "apps/server/src/retrieval/retrieval-order.test.ts": "0ebe9ffb0a4f6d773fee562bb3312f472154f284a54d8e376f2936ef8a55c3c7",
+    "apps/server/src/retrieval/service.ts": "06fba2e1ccc6f512252abde14b805e1da01b83d71ce317664b943bbaeeea3397",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "1ea004254b04c3c8002845695ce91044a1b7af2c0c24bc6e1120060024532319",
+    "apps/server/src/storage/graph.ts": "304bf09e5ff49edd406e08f60d0e562e9e03edc3a8bb127faed3cdfd7008e6f5",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "d39f5d7f6d3063ebcc0806cf5b793e967c98df75d02208346608799466da9982",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "2a1226b5001d3f94874d5f50b52492870cb5b6d26b0cd88f6a56e07db4477c2f",
+    "apps/server/src/storage/state.ts": "a31ee5ab4d0fe1538037d1797289fbbf810110b2574e0d1a030a0ded3e4a6798",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/server/tsconfig.json": "b3b3dbb1eab652d19b7a7b43c997d80c7daae43d999ad819b78d0133b2b91f03",
+    "apps/web/index.html": "bcc098f00004298d0984bd98e10ac90a40d816ff8e72c2a369b909112b1a3baa",
+    "apps/web/package.json": "27ff56f3d1057afff762ba9ef7acbace3b74d15713ed2e050cc942125c1942db",
+    "apps/web/src/App.test.tsx": "6235305e9dc6a8f982c841b6a395d37eda939a53198d56fe3a63f1bf7897855f",
+    "apps/web/src/App.tsx": "b8697d710c3509339694baca1cb4d2518b9a75cd6ced3c477ad74c2f71901173",
+    "apps/web/src/Documents.tsx": "51649b198b4b5162c85af1a31c3465d39d93a4af52d63ae20815a0abcf9e2168",
+    "apps/web/src/Maintenance.tsx": "9198d11938b91e07f4f5b27739f5e0ba7478d864a2692a39e92b2403c3f5cab9",
+    "apps/web/src/ModelSettings.tsx": "7cf98eafbcd7439be37961a30eda9ae471cef67e046f9bfb8be8e89cc47db6b6",
+    "apps/web/src/QueryPreview.tsx": "5b49df0f495d90cd7276124aab4855e45fe841248dda9dac693ee26edce26226",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "89058c28b3b3909103152777876e3edc789b4ffaf84de3517d02e9ecee112b78",
+    "apps/web/src/api/ndjson.test.ts": "19a315614f3d60f605bc2a07d854fe1bbd1942a1f293dc100697884d8ebb5ef9",
+    "apps/web/src/api/ndjson.ts": "4d98c7320f499dd1090b2688569cc3a6d3cab57fa28b20f0886669999035c81a",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/style.css": "370a9953359304e0ae061b3169033780b13f62a853e413ce5f468f66daa89e50",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "apps/web/tsconfig.json": "ffff2f934cab3a0918157c1548c8365d8c3cc9d25917d52a107005ba91477d13",
+    "apps/web/vite.config.ts": "ed8d8fcc257c1e9180dc99d2527f8552b13e7972b504fd39ff73f4d1ecc62df0",
+    "docs/IMPLEMENTATION_STATUS.md": "776b7448f8a19b36e44a2c753a468d6b2276c5a65b429cc36b4c567d36b406a8",
+    "docs/LightRAG代码转移实施步骤.md": "df7c3b9281a13a2a2441e08e83424419239bb22e59cc3c69358cf41cc2950bcf",
+    "docs/LightRAG代码转移实现方案.md": "dd2b941224ec300ba4b9cc70270b1a315e071bfb8a693e4c102d9d648a19815f",
+    "docs/S01_VALIDATION.md": "e9638055dc31cea33718706e29b17f73082cfc69caf1aeda312a9c6f6b8ee128",
+    "docs/S02_VALIDATION.md": "fa207cb07cf7b8b5a144de2d5a9b73c3134bdc8e2221c634d312f0f34f1ac63f",
+    "docs/S03_VALIDATION.md": "b3d6abcf06b37d5a04a463bcc3c06516f83ea35c6d6a9289e6ca3d2e8f6221e6",
+    "docs/S04_VALIDATION.md": "c5cc1392c1bd8a51453be0b65941cd23cc4deaeafa525e86ea589f7a8848e50c",
+    "docs/S05_VALIDATION.md": "d9484a4d37d9b299a1ce7f502dac36e7c83a315d8442cc14543d71109953338d",
+    "docs/S06_VALIDATION.md": "6d757c8c2663c0ad079cb7b8c60b8b90cb37a48fc6cf88b1575342ca16c0a7b2",
+    "docs/S07_VALIDATION.md": "c31a32c23bd15343e683f2e7bbe46b62469a1178210a165563c18b92264c0f41",
+    "docs/S08_VALIDATION.md": "ae21e72046532be1fecfca39923cf86939b52d65a183556e806d18982aa937c9",
+    "docs/S09_VALIDATION.md": "231e92a6ea7f8833fe3854212735b4b9cf3c826c7e29dc472278360b623e6707",
+    "docs/UPSTREAM_PROVENANCE.md": "b4ec26438243bc01659f9d11770240a429b96ac6363201eb8b6f5f2d8e59aaf3",
+    "docs/reference/s01-validation.json": "5b03b87371e2935cb3d4d48e19f96fd7c7da69332c749e87eac65ed81e37c0eb",
+    "docs/reference/s02-validation.json": "e4051f7a44c4e850bf47c23c2301922d89aade3dcbf4dede49d54fe3f6b86ae2",
+    "docs/reference/s03-validation.json": "5c3f411bf8b6bf55b1fe0c061e21c3c7b59613524b379d343544e36ea49b43ba",
+    "docs/reference/s04-validation.json": "77e2b90451288c7788eb6f17d2cb5b34c5a6e49089aad28437fc98681a56370f",
+    "docs/reference/s05-validation.json": "ea0847fc72e6cd631ca2f19337350b69b4db07579484793e11ea25917a49ee58",
+    "docs/reference/s06-validation.json": "d6e957a2777ed12c12d680a6b5926c12da47dcae493378fc8731f3fb1bca1ac0",
+    "docs/reference/s07-validation.json": "b33a8cd16858ce99b8c97aa7e85df8d4cbef9b3b5889dfcc80b3773c777d745c",
+    "docs/reference/s08-validation.json": "b570b69ea5a5611c137271cef4aca252323e28b7389225869903b15770b8e16a",
+    "eslint.config.js": "b753f6780e2549ae8068ebb4ed827a06cb07a28493c17fbbcd8970db59c1afb4",
+    "internal/contracts/package.json": "1a300e99e344bcfbd828e5c25c6f46600dede0179becf1505b72f07fcc051b33",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "726a93254eb0bac0f7adb18ef002fdacfa643b45fd94668d5379bfcd40d7785e",
+    "internal/contracts/src/parsing.ts": "95ad8c17fe8336d8c01374ac0ba6ca17a1fd13b16128473c79781f48d72fd19d",
+    "internal/contracts/tsconfig.json": "da4ada59566467075ab94a1fa1297cbc3be41523282bb3059116b006b2881eb2",
+    "package-lock.json": "b914e1c0dad6634321922c168df89a443719cd83b5241ee95ae28ff46e035504",
+    "package.json": "3d4483f3b0c13bda885c745b5cb4dad11c5be73d01cae2837a0d23915b32d1a1",
+    "playwright.config.ts": "b503071dc06ac38a187b65c71069f44eabba8a9a3db64206f695f4ae160f2278",
+    "scripts/clean.mjs": "f292d85ec050024f04ea65fd10ef9ebd3fd4f683b319c0cc8c23eb262cc5c190",
+    "scripts/reference/s06.py": "515fb7fa75a8b5d2a48d0e8dce2cd21823349d264b2d88d50dbcfffca3e17cd6",
+    "scripts/reference/s07.py": "928f1bff4ba68c72338a447c4b84a6501cb8d412c3d7aa3e1d9a3cea6712ce8e",
+    "scripts/reference/s08.py": "e9694507b881bd72c581030342ba0a289a77505352bd8906eeee97342a2b80dd",
+    "scripts/reference/s09.py": "66fadb28e62e3b71942f49c7ffe6cf30308e85be128e7104c00999d5d8c459f5",
+    "tests/e2e/bootstrap.spec.ts": "b4b604b57d02778ccbfb34922a335793fba99b9b8400c16df1a25729c13c943a",
+    "tests/e2e/documents.spec.ts": "04e1ea4013253692b0e75a1469cf319d35fab7d5193bcf707bd29d93a9fdcef5",
+    "tests/e2e/generation.spec.ts": "9cb3f4477e13d903b90e29d0c52d90e2a18691b90e133b45e4b66c3cbb83e169",
+    "tests/e2e/indexing.spec.ts": "575735d4404654c853823f3c25d545dd0985368f252128dc612b4b00a3355699",
+    "tests/e2e/maintenance.spec.ts": "4b3c5529440ff813a5307246e68d32bdac04e3e2769199aaa6c7a84ebd49c725",
+    "tests/e2e/models.spec.ts": "0c8f7caf443d199ce42d85b2888711fcdd2a7fac97654db292f51fa44f915204",
+    "tests/e2e/parsers.spec.ts": "03e868e4f93a964dcf5f3da8a95dfc9b050d73ad7629dea0b9086215476bab55",
+    "tests/e2e/retrieval.spec.ts": "fb9c59d3445a5cb46c29678bd9bad1a0d59a05ba0f03f65c8b16a0034cbc3d1b",
+    "tests/fixtures/build-documents.mjs": "48679e68b0480f6be181638e936c85156e74f0c57941c065af4049e7d6a489b2",
+    "tests/fixtures/documents-process.mjs": "0ce0be0c265aebd32c47a97d93b994365f45d86c0f3dd6b294d12525761d7764",
+    "tests/fixtures/documents/README.md": "41d7f2be9982da8ea87f686916a7d9ca860760d65bf5e1f852576e86ca881647",
+    "tests/fixtures/documents/broken.docx": "f300f6a921e42e9c177aa31cb9085db9067972ed4901536757e8e339158c6814",
+    "tests/fixtures/documents/broken.pdf": "5870df335041bbe3acb086b9263f67447fc34ebaba0e6fd6dcdb76b1c99a4799",
+    "tests/fixtures/documents/empty.docx": "84cad7f3a46de4a2ccf67265fc60c3b3a670077ebc032740d4418efb50deb88d",
+    "tests/fixtures/documents/empty.pdf": "821ed44e9cb5ca4468979e31a4776ac9153b9f42c5418f5ea1d0376c8dcc88af",
+    "tests/fixtures/documents/empty.pptx": "7ffb5266839d76c5a974d48f747eeefa83a8e9fc6cc9da11b8e83fe1782ea467",
+    "tests/fixtures/documents/empty.xlsx": "574714f0b8f51a64c421527f22d25a95f10f5f59b7f7ae1ff3331f932677f39b",
+    "tests/fixtures/documents/encrypted.pdf": "ba4d71eb6b420bb5046b666890e9d5995b900004aa9e07d62bae62752e0e0017",
+    "tests/fixtures/documents/expected.json": "bb405004ebead14009a8dd9bf8fe0116f395870be655f1dcc7f0798103e4ecd0",
+    "tests/fixtures/documents/invalid-utf8.txt": "eddf68639913a3cb8331cdfe7f87559e0beccf2c289c0d90ac4d89b3204004f8",
+    "tests/fixtures/documents/sample.csv": "fe85f8663d7493d84f8d200772a650b82c328c7280483bea055521ee8c4db0f8",
+    "tests/fixtures/documents/sample.docx": "869fa63677e6fb6d8af522eab1f10c5849742612498ddde5670cef05341dce46",
+    "tests/fixtures/documents/sample.html": "220e5a9ae10ca2d51a83fbeb528caa227bbdf3c2720c531ef29fefba285cedab",
+    "tests/fixtures/documents/sample.json": "7b9d8951a15249de918df41c6d8d7fc59d8911a7628884a5dcc93ffada262dfb",
+    "tests/fixtures/documents/sample.md": "d9ea8078665bf2820d2725960664b2bd0482b59e494a742bc2781a6ebc5797ba",
+    "tests/fixtures/documents/sample.pdf": "523744598e7ee5b46866aa15a7a0207491daa55c3d7cd70711ba962fc7843adf",
+    "tests/fixtures/documents/sample.pptx": "bc82b8298f05341491c83fbb835dddb289469127919be64135af30682754ca10",
+    "tests/fixtures/documents/sample.txt": "88535842dc38ccf4bd2e60ea1bc901d136100ec3b9b0a92aa3d769ac09003742",
+    "tests/fixtures/documents/sample.xlsx": "d2cdc6a05992aaae5a77ba1b87af7ef662e937bd7a8f31ed5b6d6a1b30a7cce8",
+    "tests/fixtures/documents/scanned.pdf": "5bb79e34f20054671c32cdc37305a6fac1dd8c42c72d8fade16245117b037164",
+    "tests/fixtures/graph/s06-input.json": "06c4bd8e6d5badf88980250109cf148db54c7e5e0942365f51bf1e8dcbc7bf79",
+    "tests/fixtures/graph/s06-python-reference.json": "4a20c4e2f1c11da3d3941e6f7591151016c7d240c90d8d3a8ac5af3e5cebf488",
+    "tests/fixtures/graph/s07-python-reference.json": "7e8f866ffe51310ba2e46a514ee4bee3354f3e890e20968ccf7baabdfd3e522b",
+    "tests/fixtures/graph/s08-python-reference.json": "faf43385367d74dd08b5ac3e0d3489ec648ae4c0e339e63e9c2c0a087ea1f96b",
+    "tests/fixtures/graph/s09-python-reference.json": "7cab878474eb97360506913763c971c560fc0b48b5a8183f795b8fdf517c4996",
+    "tests/fixtures/parser-network-probe.mjs": "2c084d325d7619360d3b8d0e63f10c25437e37f63056c169273e9dd4b7f7385e",
+    "tests/fixtures/parser-resource-probe.mjs": "6b1707ae31e9cb7d4ba68b5f13008130f9c3fe26ec7a2a8fd54fab7a2927e16f",
+    "tests/fixtures/storage-process.mjs": "730dc13403b2bfc4fd7d50a6cc93d9445b804bacca824ef09aee3b2fe5a874cf",
+    "tests/helpers/controlled-documents.ts": "1af203955429b3e3cd2be1b82dc3b5e9430671875e4779ca0009b5e4a9170742",
+    "tests/helpers/document-fixtures.ts": "8951dff80b7e9acd51666250202418b8b7aa36d83321a5cb68b9cb00d3a13784",
+    "tests/helpers/document-service.ts": "db767904828d82d1a7f9128aaac78a4001fedfb2d85aa8f2083fe81945ac03a8",
+    "tests/helpers/fake-model.ts": "c76bd9eba5728b246f3b344b0a88c136f9cb5e73cfb031bd102ca089b6457d55",
+    "tests/helpers/generation.ts": "593897cfaf637b5e6ef0cc76343c4de1c1e7e802243eaf86c22128d8c166f120",
+    "tests/helpers/indexed-state.ts": "ac1a6422006aefe9500437c9a6c857cb3c28670f8f01fbd73c0292a8912c5e7e",
+    "tests/helpers/indexing.ts": "25135cffc305716e35c0fb9ee3b94ba0d087eaa034e021996c230ee9bf4f7700",
+    "tests/helpers/maintenance.ts": "00c1b4169b689d9897a04e0841a491af1625c1c18899f70c1567b2ac4513b093",
+    "tests/helpers/model-profiles.ts": "700d71940940f8091df1a9b32bc7b06462e309c59525ebe44d444d4aff69abe0",
+    "tests/helpers/owned-service.ts": "41b279088c5d289559c2e37acbd80fb32e8bee24ee9561a9c86e8f75cad1b241",
+    "tests/helpers/retrieval.ts": "2f7973491474a60d868ea0ca9d268a1dbc10c33759026aec77cbcfd30d1ce7cf",
+    "tests/helpers/storage-process.ts": "7f42a924548a6d887f614aea2ae07c1f3a2ab8e627424fdaf209a3f4bc5121c1",
+    "tests/helpers/temporary-directory.ts": "c5f48e79db136f99135bb4c1f5b7c2cb419843ac959072e03bb852c4cdf880c8",
+    "tests/integration/cancellation.integration.test.ts": "b2569ab1872badeb847b41b03e637e8f68d21ec6067741189cbea0f7cbd67d41",
+    "tests/integration/config-crash.integration.test.ts": "56a9ce24171254efcf7693d63623cf6aa7a3ec41ac7349aa3b85e326702c388b",
+    "tests/integration/context-budget.test.ts": "e001efb36d2f823f2358ef7ebbdfb3ad9420b3488c9bd15ebe28bce4fe61b30d",
+    "tests/integration/delete-all.integration.test.ts": "10ada56d805b9eb2b3ce3817588ac96c224c6506289041ca65c8fd286cdfd274",
+    "tests/integration/delete-crash.integration.test.ts": "79b6bb18087c68677a796a9afa5975efe88cb0265c248820a7ebc5bbd5124afb",
+    "tests/integration/delete-shared-entity.integration.test.ts": "31363f28cc01056543198e88dec264ba156104128413bfa9cb29aff74eae54df",
+    "tests/integration/documents-api.integration.test.ts": "10b16f21bcf0b74b964568eef0a47519cfa7b71324dced5da90424ae05f77a3e",
+    "tests/integration/embedding-switch-crash.integration.test.ts": "896e7b3bfb575bd937bdd942981b02729ed5441d1d58937b1ba98d890b0ef7a0",
+    "tests/integration/embedding-switch.integration.test.ts": "f5c2ea54fffa69e1c1981714176cd62b0e05e691ee66355d249101f373ab4a16",
+    "tests/integration/generation.test.ts": "5b149db1f284812e083eb012cac27dc565321ba27362eaf592ba314d53c16ddb",
+    "tests/integration/graph-rag-reference.integration.test.ts": "934b7856f9e1fd926b3ec4e82075a1db1d6c0886edfe4cbeb331df86c8bd2d9d",
+    "tests/integration/health.integration.test.ts": "dd313c5d4c59f1f7f43db33974af8e1d71ecbdd4160eca329b2aef3acdd25b38",
+    "tests/integration/index-binding.integration.test.ts": "9dc7acbe6ef06a4ffe3e24d015ccad180c48397dfbedf5504539e114d1cb6811",
+    "tests/integration/index-restart.integration.test.ts": "24d31708455ebb4a84bfcf6e164c0c9134c2620bf7c1c953c1f4c08d4853ea8b",
+    "tests/integration/index-retry.integration.test.ts": "141b9987a8a44147d66fb33f83b1755000648a0c6c0483cbef8841894064a3ec",
+    "tests/integration/indexing.integration.test.ts": "ffef96325f429c08ddaaa569ce60cdb47fbaf4059864fbb74e9fa27f004c2922",
+    "tests/integration/ingestion-commit.integration.test.ts": "61371c9db727adb1c3f3f95450c90b4376c030f7a49e73b3818d2d43b47a3bbc",
+    "tests/integration/jobs-restart.integration.test.ts": "198ef6e7e1a8bff10b4ba2bfb0c220452a9e10979e5c2fe3792195b540b0bcf9",
+    "tests/integration/jobs.integration.test.ts": "abedfcb0d1c6bcd69321588717ce0375f0cbda81ebbf0e072b50af6d347d6481",
+    "tests/integration/models-api.integration.test.ts": "d459321df8345519860edd98729e1f5f35c51588cac9f82e45d0f2e5483ecae3",
+    "tests/integration/ndjson.integration.test.ts": "de8e06a618af86a496dfb69e23eb7c58154bee899c58e00e5d3a43b2b13a624f",
+    "tests/integration/query-cache.integration.test.ts": "99d25f17f48ad5525e4226a68e68f0d89fb21ce6d7300c6558775aa91d10b95d",
+    "tests/integration/query-data.integration.test.ts": "0b14a7bcaf6105bd88190308f7571048557f9c3c49212257e8f5f4266f507ff4",
+    "tests/integration/references.test.ts": "504b5504fffc3752b82a0e4f083a8bf5f8d3120d35145ce40c915570dbf2cb73",
+    "tests/integration/reindex.integration.test.ts": "7b50292d0593a93e58bd4d07b3bb7e1e07405b40861d7eba6158e9c54dcd3c8b",
+    "tests/integration/rerank-integration.test.ts": "08b410912bf8260c400c1f1227f502a367846b09324c1642df652f83b31e90cb",
+    "tests/integration/retrieval-index.integration.test.ts": "aa52c31386fbaa2fc31c813c327252e473c1aa2a9c3469941d51edac6837cd51",
+    "tests/integration/retrieval-modes.test.ts": "e9eec5d9c2f129cf712c136325695b3cd5cbaff8393bb715cc38f0793072094f",
+    "tests/integration/snapshot-crash.integration.test.ts": "3ad14db42cd5ca655108ab011036421fa055074fe52bce40ed7c6e0af7483271",
+    "tests/integration/snapshot.integration.test.ts": "ec26e3c2edf545bd159ea2f58b37e1f5a3a2bcfc3a8ca491df69e55e47e341fc",
+    "tests/integration/storage-lifecycle.integration.test.ts": "9d60f4d51ae45b43f2ad91f26d27003c157efc087923f24765fec18c923192d7",
+    "tests/integration/stream-cancel.integration.test.ts": "bf27c9e702aa8ce7e728555772a03b0e5b2bbc44562256814bd4b46ad81d52b7",
+    "tests/integration/test-infrastructure.test.ts": "03549bb7398163076815b299a3ac3d9c915efd03efaf02cd50ee74c321c269d4",
+    "tests/integration/writer-lock.integration.test.ts": "2611d32035444d905954fb699a5dd1b817409639a8004838560f6664f0c9f157",
+    "third_party/LightRAG/LICENSE": "0c16924564059e493c86854574660a47ed1dcc2a476ba7b5f949d3f2f73a1984",
+    "tsconfig.base.json": "5ce26322ac68850a1568472295f545e1772c0e8a2fa1b169d85a7d8e36e9e7f1",
+    "tsconfig.json": "201730d1d12ab561ce834b1ee1b4819c354376939ee8f399c241e29666deafb8",
+    "tsconfig.tests.json": "2c4583e849a4b734694bd1777bb0868d98a6990ffdd81f64b1e55c2669692f54",
+    "vitest.config.ts": "1341c9737081bc847f3d6d833e2933746958bdf0092e62af5f7e123af1511637"
+  },
+  "compiledHashes": {
+    "apps/server/dist/app.d.ts": "281956832543abb467eddc767d1e6bf11f59811b5f64c55e3684611da4e8daf9",
+    "apps/server/dist/app.js": "1e136770206081595d4e3998163aff6799c8c64aba4d62bc1dc543b0579c5a16",
+    "apps/server/dist/cli.d.ts": "5a71a516ce16caedc8fca6bf5f58be385cd49b873a14570ee196ad88a38e2de9",
+    "apps/server/dist/cli.js": "dd5be4fff9a768af8c89b42d20113e09d1dc9900f4af8d665a77c746251a1de9",
+    "apps/server/dist/core/chunker.d.ts": "9f397f8fb0f6e341fcedbff0c86a1a09eb8ebf5fef86c0a7768d5fe7721c9dca",
+    "apps/server/dist/core/chunker.js": "141127f4c948efe80c87b672bbdd5b8785e9fc0db43e88b99f5c2ba0d5bb4c47",
+    "apps/server/dist/core/tokenizer.d.ts": "f6bd149f941ed9a00bb2791d0573de46ea24c82baa84f54521dce6bb17f308f1",
+    "apps/server/dist/core/tokenizer.js": "4d3ec106deb8cf79cdc10a500c0c56dba642183a2a69c76d48d90a2c23612435",
+    "apps/server/dist/documents/cleanup.d.ts": "903d9ac9ea77f5e738396a54e207034be1c12fc9aecc3532d3ef1a6382bf836b",
+    "apps/server/dist/documents/cleanup.js": "ae0ff72f2b88162c13d27bc5b2b97a9b58bc410a02c801a9ed05cd0edea3cc80",
+    "apps/server/dist/documents/files.d.ts": "ff7926f1ecafe1042acd165a0c98e18da2729a1a7d1dcb6d797660876f8d7db8",
+    "apps/server/dist/documents/files.js": "34cbd4b0091952ca0ef6b6ff218de3ec3ee3ba8cf22573a89386a7bfae697787",
+    "apps/server/dist/documents/service.d.ts": "9f0ca7c050fc859dfe016bbc6e58310cbf69a8452cc194efac9f206b9edabfbe",
+    "apps/server/dist/documents/service.js": "15d69a64ccf7c78b9c3df9bb008bdc40c247d486756da3033f48c196c8fb2048",
+    "apps/server/dist/generation/cache.d.ts": "a9c491b6d6c0d6be0001ce6a4bbf4c73b824a7e410860854cef759635f953947",
+    "apps/server/dist/generation/cache.js": "3de4a23938e625a9f48d2278701398564a5214e4cbd6991c0628a9b796261f2b",
+    "apps/server/dist/generation/ndjson.d.ts": "c85a3ccfa17d2d86e4277cbd70e2ce4a080fce413616d75e7661cf6c77d7210b",
+    "apps/server/dist/generation/ndjson.js": "81b2aaf0517b727905b0e4b72cc1365fef33101c343de1ae61f3ac0f38314109",
+    "apps/server/dist/generation/service.d.ts": "ef65070e2c20a9f717b7e4148ed31f41a723b75554265d344242ed20966af7ce",
+    "apps/server/dist/generation/service.js": "78aa6a817491021d1c39b06d521e51c2662151ce965e8d43cea6bb68f3ea98f7",
+    "apps/server/dist/indexing/extraction.d.ts": "8bfc2bfaf110b21ff15739f9f2164be2409da7d939218a9500ff3f7f36b20409",
+    "apps/server/dist/indexing/extraction.js": "e781a047b6e73708d520a21b596d28793e369a677ddf761567f17125af727326",
+    "apps/server/dist/indexing/indexer.d.ts": "220cae7f96570336dc975fe12604c6f7466c2c1e49d12112ab413acdc3a6c79b",
+    "apps/server/dist/indexing/indexer.js": "4afa7db6de88ae8e16fa316fc4743854fa045ad9f7a71c5be0a0259122ed132c",
+    "apps/server/dist/indexing/maintenance.d.ts": "8eafdb46d40f7ff5d11b4f6e6dd9048fb379042393e7132da64099b61e72e87b",
+    "apps/server/dist/indexing/maintenance.js": "4e826e40b6fa5b9928932e7034e5e038ff127357b34320a3593959bf3b9071fa",
+    "apps/server/dist/indexing/merge.d.ts": "dc25bf1a2a8453bd45c5a2e52e92495733ca1814e9e89375e542ab68ea15fde1",
+    "apps/server/dist/indexing/merge.js": "09d9041ad74ffa6f6f176ae3e66c714b8c595a2a46e055e13038310218b3ac08",
+    "apps/server/dist/indexing/prompts.d.ts": "461d468d8f2bc4154079376788ba42b6b14f40fa78420bc608dec907f074a992",
+    "apps/server/dist/indexing/prompts.js": "581fbcc5144f953c07263eb12dfe8da711a04f4f9099c38bb5a5402ce4e49c5f",
+    "apps/server/dist/indexing/summary.d.ts": "68c65080e57ff0cf84ecdc9a09a90783be7e16d37c0e2ff9d56ec8e30d7171b9",
+    "apps/server/dist/indexing/summary.js": "972ba6cbe2ee9707361a1e1b9aa0e6ad58b9e13bce9d5deac2f17f879e157aa8",
+    "apps/server/dist/main.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/main.js": "f0e4f531210d623dac19c4a1724e21692c08b226085c06872f025113e8136740",
+    "apps/server/dist/models/client.d.ts": "2ab2bb693576ac34284d5425151cbd117c5e74a8da3da7448fa51f440d7ec216",
+    "apps/server/dist/models/client.js": "38c3c5a6832e80d9bae88b9d5d42536f59debff74f023c8cb7c319847d95f1e1",
+    "apps/server/dist/models/config.d.ts": "e9f1b28fa10640043572a72f5ad752a38026da6521dfdee8b6c109e04aaff421",
+    "apps/server/dist/models/config.js": "6a428c7f43f28111a86dcd9b7237ca89971603c5d5d82bedca455acdb3a3331c",
+    "apps/server/dist/models/errors.d.ts": "6119260baef2185d133808a4db74bbb9fc2654c2309b5d829211c8b1275ded3f",
+    "apps/server/dist/models/errors.js": "99b73146782c3aa2610f98a95c8d5bed55eb865f64fe2f63b0c6ce3f23d80e34",
+    "apps/server/dist/models/http.d.ts": "49eff650dc568e74614d329e75b202bd4d9b7d589c41441378f49f8293aa0cb2",
+    "apps/server/dist/models/http.js": "8df24ae843fcefd5ce4f854fa26ca94afb6da360a08e369eb5c982e327e01a21",
+    "apps/server/dist/models/url.d.ts": "121815c7ba140d0d140fb0aa52cfc1cab743b083ee755c507c91e34ab55e11a9",
+    "apps/server/dist/models/url.js": "3749c9fc5659876a1b6930a38ad79240d043e2a4ba0aa46f70dd6380d2b62b58",
+    "apps/server/dist/parsers/archive.d.ts": "7a39315e7069adc24939d50bca9042bb659f0a3b647cb0442f5476a022ed8e5e",
+    "apps/server/dist/parsers/archive.js": "10e49b9f31202dca5c66e297d1b8c2d3bb9ed94d7aa0e7b6440037209b1ae84c",
+    "apps/server/dist/parsers/common.d.ts": "f9d902b5a6cceb4959170f31e1548f8014f05e08e555638bf6e7c3ddbf92af23",
+    "apps/server/dist/parsers/common.js": "e7d6c60808b29e3b413bafa18d5b589172a3cc4eaa659ad406534272eb494680",
+    "apps/server/dist/parsers/index.d.ts": "87faeab6c91991c208f53078f04f7f4adc62d955d2b36d6ade7343d46437981e",
+    "apps/server/dist/parsers/index.js": "c8a24129508b11470c1fd775ccbbfb5869b534d20b4f97245a13e150414b4409",
+    "apps/server/dist/parsers/network.d.ts": "7708a098f0a46ab6a915fc7aed2223dd3a20c05dbfa96ad1e002c5cdf4f46966",
+    "apps/server/dist/parsers/network.js": "7096afedb1e9a9b6be3dcaae56b6673636165966cec59d0de579bb7e34f7c4b3",
+    "apps/server/dist/parsers/office.d.ts": "c70a41778217d4e6291d084f8a088623ba3b0713cf43be3ce162a64843ebf8c0",
+    "apps/server/dist/parsers/office.js": "54c33dd260f1d9978150cb0916ccce647205ef08831bb1c6b59a3cf1b42af6a4",
+    "apps/server/dist/parsers/pdf.d.ts": "0050563b2581bd2c1b3e8f407309457dc67eee3fb12a2e6c1f26e9d56a5430f7",
+    "apps/server/dist/parsers/pdf.js": "02ae9953bbed61a72ae34987dada4c891e8167497a499704ac198413b7bf5a39",
+    "apps/server/dist/parsers/text.d.ts": "0956e73a25b9a917824168a113a4e23be445fe160334842f4269cbf33948a0aa",
+    "apps/server/dist/parsers/text.js": "dc44ce053d39fd625ac119c17ad243e1b81264090ea96bcd940ddc3c3090bb2e",
+    "apps/server/dist/parsers/worker.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/parsers/worker.js": "d0ad7f1ed8a028cbe87abf3dae4c6fdf1794b3bdf19d99fc47155962afcaa48f",
+    "apps/server/dist/parsers/xml.d.ts": "ed7f8f51bffe447fee72df763d73edaf7617d74e9c015eb713ab378f77bbddf3",
+    "apps/server/dist/parsers/xml.js": "c822270283012cab233bad492c75bfc6447dbfc90f80709f3c690df95820c989",
+    "apps/server/dist/paths.d.ts": "24ac60ebf4142be60b39763a192a1b471b4944e3b10c6a6fdf8026e090da908d",
+    "apps/server/dist/paths.js": "152a1eb0c8c4224f360d67b01bb464b7de890685cd691070a79f942acfed0ab6",
+    "apps/server/dist/retrieval/algorithms.d.ts": "43b74483e451f6a5a4c24a6725be78c3effcf47b8961a0fc13aff6a68a0748e8",
+    "apps/server/dist/retrieval/algorithms.js": "bcc17f11dc9fef7f79c01f4628d61ea2c67c21fb290ee20700ca4350eafecb88",
+    "apps/server/dist/retrieval/context.d.ts": "ae1bb5a797bf91a8147e355b5be1dd3921091e772a6c48938db4894b3f7e3422",
+    "apps/server/dist/retrieval/context.js": "cfd00f682d0abb54ca95c53292176236d55188f4efe62a9401b3f11c892a9d58",
+    "apps/server/dist/retrieval/prompts.d.ts": "196260e863f817f4cd4fd3615b0146f6add992944712e97a7fbecf17b13d7413",
+    "apps/server/dist/retrieval/prompts.js": "35d104b94878f8ba71695f1ecfd67a011fcc0ed0badfa7fefc49ac4ab5338e4e",
+    "apps/server/dist/retrieval/service.d.ts": "f2ee5e5f401a95c7ee16da2c3abcd17ec9e71456994e12b47670d0a800f9408b",
+    "apps/server/dist/retrieval/service.js": "30de2e2d3e60347695d40a8784375f36a77627c1deb65e528da895001b543c40",
+    "apps/server/dist/storage/disk.d.ts": "61d87608e350b8c6ee5fcd796f66710fb3c4c93480e1ba5e9d8b43a632a8602b",
+    "apps/server/dist/storage/disk.js": "06c77d9f7bc772860696ad0e5d60045fe81eabde8a77666b53be5231d8eb3c00",
+    "apps/server/dist/storage/graph.d.ts": "3f5f503710000c29139fa4ce5a90503ce42bb7bb4e3f88bc8e3572ab46208c84",
+    "apps/server/dist/storage/graph.js": "180aa4e685575c2562aad4782274adfc1377b89ef80578680e536d6801d8b892",
+    "apps/server/dist/storage/io.d.ts": "8910036f9c08726a64772af328fccaf5b1da07a96a088bfec78c59357f88c708",
+    "apps/server/dist/storage/io.js": "14a1ecaba6ae496d1055a7160a91f13b29fdb41bdb4c817da978a9e9f3850330",
+    "apps/server/dist/storage/kv.d.ts": "c68e699d423e0e174fc9e4e0fb8505958102194fea98365f095e686729017d86",
+    "apps/server/dist/storage/kv.js": "c59a1098bc93a07f6e9897c165e7b8d65594c07af73a5cf557f0e7a7a22f4679",
+    "apps/server/dist/storage/maintenance.d.ts": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "apps/server/dist/storage/maintenance.js": "546005429eed0cd977334a69469c8b457813e1ec151a3f0bd8f4bad6cb5bb79c",
+    "apps/server/dist/storage/recovery.d.ts": "eafadb1b6611ccfebfd17e5b6d632f5d835a1cf27798407e784752b2ed0eb0b3",
+    "apps/server/dist/storage/recovery.js": "7982317bb3a332dd17c04cd281ab8073406a2bc5cae6d6456e3c5219e9346e8e",
+    "apps/server/dist/storage/snapshot.d.ts": "1ea5eb49e39a73013ff63c1c168154eb295df1fe782be0e370e7da4b7e35ac5e",
+    "apps/server/dist/storage/snapshot.js": "c7e27e31828d08cea2f58ccc574d159004cc54b957ccd05d5cd6ae491f18ae69",
+    "apps/server/dist/storage/state.d.ts": "77530cbd386fb6bc13c6fc1ce25f550f4ba26bcd61af4c69fa0fe3d32ae82522",
+    "apps/server/dist/storage/state.js": "507d6b8623fecfe65413689d0989ac4b621413bf497b9aeacbdad2d7ae503c5f",
+    "apps/server/dist/storage/vectors.d.ts": "6760a0c88ad13c16767d31045c12804a6d98c92693bd32dbf08e4c0628e1ecfd",
+    "apps/server/dist/storage/vectors.js": "8ee3e7eac1a95cdf0a31e06da7e796adf4e0a50f5100692f474b4ebee6aa39f9",
+    "apps/server/dist/storage/writer-lock.d.ts": "15053f43d65f5029871ca6791a5ed987b4b5d37d43c098bedd2c9e1c447b7d8a",
+    "apps/server/dist/storage/writer-lock.js": "6df2ece73b331403caa50965d9695fd6e53eaece3c77cffc1cb7f1297e935714",
+    "apps/server/dist/tsconfig.tsbuildinfo": "50d215d589e01118f0780e1387ff7ea712b184cfb88668f35a7bf459609ce5cd",
+    "apps/web/dist/assets/index-BmsT99RN.css": "8ef9356d80ba082dfff4ed1baf1fb0e5cc6597968df65859cfe0003f55172a33",
+    "apps/web/dist/assets/index-DWfZebKK.js": "13ddd53f4dc21c287183eecc0c1570978599aa08ac7f4fada0ae65186d18ede3",
+    "apps/web/dist/index.html": "8beef28009b05bb798dba2b1badf8b2c3b58e883fbc968b74ea06ce9944d995f",
+    "internal/contracts/dist/index.d.ts": "09c452e3d50ebb4e419ba80a39ca42077ccca05cc2e0421ffce82a3fa1a60ce9",
+    "internal/contracts/dist/index.js": "201f65f5a0062ea74d7eb34670751a7ae23551bb1a5e6afd10fd4dd8ad93901a",
+    "internal/contracts/dist/parsing.d.ts": "4256a67c1bd1b9e819b59256206330bbee7fa9c4e47ac9bd49c6f330a216527e",
+    "internal/contracts/dist/parsing.js": "9efdb0f416e042d878da2e87173bdd03a6ffc1be2e754c84d67b7d46e16a3ca6",
+    "internal/contracts/dist/tsconfig.tsbuildinfo": "272861cdd725c9f30074b3628509d5b3da0027387dd4c8b020a24c48b310db84"
+  },
+  "artifactHashes": {
+    ".tools/s09-vitest.json": "c5917c64eb03ba72cf33da91a74d5329f5a590f21f964a41699b5a4b8841dbcf",
+    ".tools/s09-playwright.json": "26cfdda106b019e3efa40e0e86a9f162c783e49456451de2dfbe483c0e7c5fac",
+    ".tools/s09-before-health.json": "82c120ec7b471dcefdbdfe7764c8bffd17f06243617eade47624b280a4931730",
+    ".tools/s09-after-health.json": "290636d34a065a4bbc53112688e2c953e19184cd32fb764b2ff3d14c56cec336",
+    ".tools/s09-typecheck.log": "ad8f747aaf75d35a6bb3d5fa89d77b3d8269413f665bac807d3a97175712ce9a",
+    ".tools/s09-lint.log": "e66199057b97b815d555a568aa59eafc118245af6ba8cecf12efa259c3d5848d",
+    ".tools/s09-python-reference.log": "f22fb1aac3e84f583bacafe7b7902d548fff6e77d73467cc290730393a89708a",
+    ".tools/start-server.sh": "557bcf0bac1bd78fbf9c75a9a36a30bd0b868eb5951a7572aa305ea4de152bec",
+    ".tools/s09-environment-draft.json": "91524fbd58d96149b02a9057a853e373c4c702cd572e0e591ac42451a7ba69ab"
+  },
+  "limits": [
+    "Full G01/G02 extraction/summary, G11 and overall G01-G12 acceptance remain pending; G12 handoff evidence has explicit fixed-context retrieval/model/cache ports.",
+    "S10 full model/document/query/graph UI integration is pending; answer rendering is safe plain text.",
+    "Synthetic local HTTP providers validate protocol/cancellation and cache isolation, not external provider/RAG quality.",
+    "S08 embedding-content/ID/strict JSON/naive-template/budget adapter differences remain; target instruction slot now matches original resolve_user_prompt.",
+    "Server finish is not client business-read acknowledgement. Disconnected clients cannot be promised a cancelled record. The existing HTTP idle connection timeout still applies.",
+    "Process caches are serialized-byte bounded, not heap caps; no query cache persistence or in-progress model single-flight. Valid keyword/embedding subresults can outlive a failed later generation.",
+    "No new cold installation, multi-host, physical-power-loss, historical GC or physical secure-erasure claim."
+  ],
+  "initialIssuesResolved": [
+    "Injected mock HTTP raw close reports writableFinished=false on normal end; cache acceptance now uses actual TCP, preserving real disconnect protection.",
+    "Added terminal-delivery completion barrier to avoid EOF/cache-publication microtask races.",
+    "Added completed-rebuild identity to corpus hashing so byte-identical deterministic rebuilds invalidate answer cache.",
+    "Reference harness initially omitted standard-library json from the original-function namespace; supplied it and regenerated deterministic six-case fixture."
+  ]
+}

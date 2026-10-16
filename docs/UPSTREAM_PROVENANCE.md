@@ -91,3 +91,17 @@ Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权�
 | 共享 QueryData/Chunk schema、API、只读 size/edgeById、`QueryPreview.tsx`、测试 | 本仓库方案 | 新写 TypeScript 本地集成，不复制上游 routers/UI/SDK 或存储文件格式 |
 
 实际结果和 G03–G10 对应见 [S08 验证记录](S08_VALIDATION.md)。关键词 JSON 容错、无模型处理、WEIGHT 的无用 query embedding 省略、既有 S06 索引文本格式/规范 ID、引用身份、naive 模板统一及额外 token 预算均明确列为差异；不宣称向量输入字节、实际模型输出或全部 Python 服务行为相同。Python/NumPy 只用于源码参考，不用于文档解析或业务运行。G01–G12 总验收仍未完成。
+
+## S09 来源状态
+
+继续保留固定 SHA 与 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)，无新增 npm 依赖。
+
+| 目标文件 | 来源 | 实现/差异 |
+|---|---|---|
+| `retrieval/context.ts::generationMessages` | `operate.py::kg_query`、`utils.py::resolve_user_prompt`、已复用 rag_response | 统一真实发送和预算消息，空指令 n/a、非空两个换行，包含历史/问题/最终上下文；不复制环境前缀机制 |
+| `generation/service.ts` | kg_query 的回答、预览和引用原则；本仓库方案 | 新写稳定会话、非流式与 NDJSON 协调、未知引用警告和终态后缓存；不复制响应字符串裁剪或直接保存流迭代器 |
+| `generation/cache.ts`、query embedding/keyword cache、成功 rebuild corpusIdentity | 本仓库方案与上游模型/语料隔离原则 | 新写有 schema 的进程内 LRU/容量/TTL、完成交付后的回答发布、语料/空间/配置和历史身份；不复用上游持久缓存格式 |
+| `generation/ndjson.ts`、API、浏览器 `api/ndjson.ts` 与查询页 | 上游 `api/routers/query_routes.py` 使用 NDJSON 的协议思想 | 新写框架/背压/唯一终态/显式停止/断连传播与逐行校验；模型 SSE 沿用 S03 自写解码器，未复制上游 router/UI |
+| `scripts/reference/s09.py`、`tests/fixtures/graph/s09-python-reference.json` | 固定源码完整 kg_query、_answer_cache_kv、EffectiveUserPrompt/resolve_user_prompt、hash/identity 序列化、原 rag_response | AST 独立执行；固定上下文及记录模型为端口、缓存关闭。六例覆盖最终提示/历史/问题和 debug/空上下文；实际 HTTP 模型接收另由 TS 集成验证 |
+
+目标回答缓存包含 history（上游对有 history 的回答绕过缓存），并要求成功完整终态交付、stop、无警告和当前语料/配置一致；关键词/embedding 有效子结果可独立复用。空检索不调用回答模型，未知引用警告而不补造来源；引用以文档 ID/版本关联。S08 既有格式/预算适配差异继续有效。详见 [S09 验证记录](S09_VALIDATION.md)，不宣称与上游全部 HTTP API、缓存行为或模型质量一致，G01–G12 总验收仍在后续阶段。

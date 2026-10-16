@@ -17,7 +17,9 @@ function corpusIdentity(state: WorkspaceDraft) {
       const doc = StoredDocumentSchema.parse(value);
       return [id, { name: doc.name, contentHash: doc.contentHash, version: doc.version, content: doc.content ?? null }];
     });
-  return sha(JSON.stringify({ docs, chunks: state.kv.textChunks.entries(),
+  // A completed rebuild is an explicit cache invalidation even when deterministic vectors have identical bytes.
+  const rebuilds=state.jobs.entries().filter(([,job])=>job.operation==='rebuild'&&job.status==='processed').map(([id])=>id);
+  return sha(JSON.stringify({ docs, rebuilds, chunks: state.kv.textChunks.entries(),
     graph: files['graph.json'], binding: state.indexBinding ?? null, vectors: [files['vectors-chunks.json'], files['vectors-entities.json'], files['vectors-relations.json']] }));
 }
 export class PublishedCommitError extends Error {
