@@ -4,13 +4,13 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S01–S07 已完成。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；检索问答将在后续阶段接入。
+> **当前状态：S01–S08 已完成。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；五模式检索、重排和引用预览已接入，回答生成在 S09 实施。
 
 ## 快速开始
 
 使用 Node.js **24.19.0** 与 npm **11.9.0**（版本约束见 `.node-version` 和 `package.json`），在仓库根目录执行：
 
-当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 只用于安装时编译，不参与应用运行、文档解析或模型调用。
+当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 用于安装时编译及可选源码参考验证，不参与应用运行、文档解析或模型调用。
 
 ```bash
 npm ci
@@ -48,7 +48,7 @@ npm run test:e2e
 
 `npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
 
-S07 验证结果：**348 项测试和 7 项浏览器 E2E 通过**，无失败或跳过；包含九格式真实夹具、本地解析/禁网/安全/分块、模型协议，以及 10 个快照和 2 个配置真实 SIGKILL 边界。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S07 验证记录](docs/S07_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+S08 验证结果：**416 项测试和 8 项浏览器 E2E 通过**，无失败或跳过；包含九格式真实夹具、本地解析/禁网/安全/分块、模型协议，以及 10 个快照和 2 个配置真实 SIGKILL 边界。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S08 验证记录](docs/S08_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
 
 ## 配置模型
 
@@ -82,7 +82,15 @@ S07 验证结果：**348 项测试和 7 项浏览器 E2E 通过**，无失败或
 
 抽取缓存包含模型配置版本、提示词、分块器、编码和内容身份；失败不缓存为成功，向量失败后可手动重试复用有效抽取。描述多于阈值时调用文本模型摘要。缓存与历史快照保存在本机，当前没有自动清理；缓存容量上限 128 MiB。配置齐备后的导入会实际调用模型，可能计费。
 
-S07 已完成删除、重新索引、完整向量重建与空间切换；检索、引用和回答仍待 S08/S09。完整 G01–G12 算法验收仍未通过，不能把索引完成等同于问答可用。详见 [S06 验证记录](docs/S06_VALIDATION.md)。
+S07 已完成删除、重新索引、完整向量重建与空间切换；S08 已完成检索与引用预览，回答待 S09。完整 G01–G12 算法验收仍未通过，不能把索引完成等同于问答可用。详见 [S06 验证记录](docs/S06_VALIDATION.md)。
+
+## 检索预览
+
+完成索引后打开 `/query`，输入问题并选择 naive、local、global、hybrid 或默认 mix。可选 VECTOR/WEIGHT 关联块策略、关联块数量与重排。页面展示真实证据正文、文档版本/原始位置、上下文、完整提示词与截断/token 诊断；当前不生成回答。
+
+`POST /api/v1/query/data` 接收查询与选项；onlyNeedContext/onlyNeedPrompt 可预览检索上下文或待生成提示词。关键词与向量请求会访问配置的模型地址，开启重排时还会访问重排接口，可能计费。查询固定使用所读索引的活动向量模型；尚未激活的候选不参与搜索旧库。
+
+来源块默认只在图关联集合中做 VECTOR 排序，mix 另外召回全文本向量库。引用仅来自最终预算保留的证据，同名文档分别关联。实现范围、Python 参考与有意保留的适配差异见 S08 验证记录；不保证与 Python 原版生成相同向量或自然语言结果。
 
 ## 删除、重新索引与向量切换
 
@@ -94,7 +102,7 @@ S07 已完成删除、重新索引、完整向量重建与空间切换；检索�
 
 ## 本地存储与恢复
 
-已实现内存 KV、归一化 Float32 向量的 cosine/top-k、无向图及状态/贡献表容器。已用于持久化文档块、实体和关系索引。GraphRAG 多模式检索与回答生成仍待实现。
+已实现内存 KV、归一化 Float32 向量的 cosine/top-k、无向图及状态/贡献表容器。已用于持久化文档块、实体和关系索引。GraphRAG 五模式检索已接入；回答生成待 S09。
 
 数据位于 `data/workspace/default/`，以完整 generation 文件和 `CURRENT` 指针发布。查询持有一个稳定版本；同一 dataDir 只允许一个服务或维护进程持有内核文件锁。锁文件内容和年龄不是判断依据，进程退出后锁由内核释放，不能通过删除 lease 文件解锁。
 
@@ -147,7 +155,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 - 图候选排序、三路文本块融合、重排、预算截断和引用构建。
 - 文档删除后的共享图谱贡献撤销与重建。
 
-这些算法目前**尚未移植**。实现方案中定义了 G01–G12 保真清单，要求以固定上游版本的参考算法核对中间结果；有图谱界面或模式选项不代表算法移植完成。项目不将 Microsoft GraphRAG 的社区检测、社区报告或全局 map-reduce 作为本次迁移内容。
+以上功能已在 S06–S08 分阶段实现。S08 对固定源码执行检索、来源块、排序/融合、截断与引用参考，并公开索引文本格式、严格 JSON 和预算等适配差异。G01–G12 总验收仍待完成；当前证据不保证与 Python 真实模型结果一致。项目不将 Microsoft GraphRAG 的社区检测、社区报告或全局 map-reduce 作为本次迁移内容。
 
 ## 技术路线
 
@@ -174,9 +182,10 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [S05 验证记录](docs/S05_VALIDATION.md)：原文/产物持久化、导入任务、取消/幂等重试和真实进程重启。
 - [S06 验证记录](docs/S06_VALIDATION.md)：抽取/补充、合并摘要、贡献账本、三类向量与原子提交。
 - [S07 验证记录](docs/S07_VALIDATION.md)：删除/重建、活动模型绑定、版本替换、并发与文件释放。
+- [S08 验证记录](docs/S08_VALIDATION.md)：五模式检索、来源选择、重排、预算、引用、Python 参考和浏览器验证。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 S01–S07。下一步是 **S08：五种检索模式、重排、上下文与引用**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
+当前已完成源码分析、方案文档和 S01–S08。下一步是 **S09：回答生成、NDJSON、取消与缓存**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
 
 获取当前仓库：
 
@@ -199,4 +208,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。S06 已复用上游 JSON 抽取/补充、摘要和关键词提示词，并依据相关合并算法实现 TypeScript 版本；适用版权与 MIT 全文保留在 [third_party/LightRAG/LICENSE](third_party/LightRAG/LICENSE)。逐文件来源、修改及参考验证范围见 [上游来源清单](docs/UPSTREAM_PROVENANCE.md)。根项目的完整许可交付审查仍在 S12。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。S06/S08 已复用上游 JSON 抽取/补充、摘要、关键词与回答上下文提示词，并依据相关合并算法实现 TypeScript 版本；适用版权与 MIT 全文保留在 [third_party/LightRAG/LICENSE](third_party/LightRAG/LICENSE)。逐文件来源、修改及参考验证范围见 [上游来源清单](docs/UPSTREAM_PROVENANCE.md)。根项目的完整许可交付审查仍在 S12。

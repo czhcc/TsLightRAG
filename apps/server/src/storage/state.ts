@@ -1,6 +1,6 @@
 import { LedgerSchema, entityId, hash } from '../indexing/extraction.js';
 import { edgeId } from './graph.js';
-import { DocumentSchema, JobSchema, IdSchema, IndexBindingSchema, CleanupTaskSchema } from '@tslightrag/contracts';
+import { ChunkSchema, DocumentSchema, JobSchema, IdSchema, IndexBindingSchema, CleanupTaskSchema } from '@tslightrag/contracts';
 import { z } from 'zod';
 import { MemoryKV, JsonSchema } from './kv.js';
 import { MemoryVectors } from './vectors.js';
@@ -19,11 +19,8 @@ const KvFileSchema = z.strictObject({
   fullRelations: rows, entityChunks: rows, relationChunks: rows, caches: rows,
 });
 export const StoredDocumentSchema = DocumentSchema.extend({ content: z.string().optional(), chunkIds: z.array(IdSchema).optional() });
-export const ChunkSchema = z.strictObject({
-  id: IdSchema, docId: IdSchema, docVersion: z.number().int().positive(),
-  order: z.number().int().nonnegative(), content: z.string().min(1), tokens: z.number().int().positive(),
-  location: z.string().optional(), indexVersion: z.literal('s06-json-v1').optional(),
-});
+export { ChunkSchema } from '@tslightrag/contracts';
+
 const StatusFileSchema = z.strictObject({
   documents: z.array(z.tuple([IdSchema, DocumentSchema])), jobs: z.array(z.tuple([IdSchema, JobSchema])),
   indexBinding: IndexBindingSchema.optional(), cleanupTasks: z.array(CleanupTaskSchema).optional(),

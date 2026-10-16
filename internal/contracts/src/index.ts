@@ -144,6 +144,10 @@ export const QuerySchema = z.strictObject({
   query: text, mode: QueryModeSchema.default('mix'),
   topK: z.number().int().min(1).max(200).default(40),
   chunkTopK: z.number().int().min(1).max(200).default(20),
+  maxEntityTokens: z.number().int().min(0).max(100_000).default(6000),
+  maxRelationTokens: z.number().int().min(0).max(100_000).default(8000),
+  cosineThreshold: z.number().min(-1).max(1).default(0.2),
+  minRerankScore: z.number().min(0).max(1).default(0.5),
   maxTotalTokens: z.number().int().min(1).max(1_000_000).default(16_000),
   enableRerank: z.boolean().default(false),
   kgChunkPickMethod: z.enum(['VECTOR', 'WEIGHT']).default('VECTOR'),
@@ -178,7 +182,7 @@ export const StreamEventSchema = z.discriminatedUnion('type', [
 export type StreamEvent = z.infer<typeof StreamEventSchema>;
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S07'), usable: z.literal(false),
+  status: z.literal('ok'), stage: z.literal('S08'), usable: z.literal(false),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),
@@ -187,3 +191,28 @@ export const HealthSchema = z.strictObject({
 export type Health = z.infer<typeof HealthSchema>;
 
 export * from './parsing.js';
+
+export const ChunkSchema = z.strictObject({
+  id: IdSchema, docId: IdSchema, docVersion: z.number().int().positive(),
+  order: z.number().int().nonnegative(), content: z.string().min(1), tokens: z.number().int().positive(),
+  location: z.string().optional(), indexVersion: z.literal('s06-json-v1').optional(),
+});
+export const QueryDataSchema = z.strictObject({
+  mode: QueryModeSchema, status: z.enum(['success', 'empty']),
+  context: z.string(), prompt: z.string(), content: z.string(),
+  entities: z.array(EntitySchema), relationships: z.array(RelationSchema),
+  chunks: z.array(ChunkSchema.extend({ source: z.enum(['vector','entity','relationship']), referenceId: z.string() })),
+  references: z.array(CitationSchema), warnings: z.array(z.string()),
+  diagnostics: z.strictObject({
+    generation: z.string(), corpusRevision: z.number(), configRevision: z.number(),
+    embeddingSpaceId: z.string().nullable(), embeddingConfigRevision: z.number().nullable(),
+    keywords: z.strictObject({ high: z.array(z.string()), low: z.array(z.string()), cached: z.boolean() }),
+    branches: z.array(z.enum(['entities','relations','chunks'])),
+    recalled: z.strictObject({ entities: z.number(), relationships: z.number(), chunks: z.number() }),
+    selectedEntityChunks: z.array(z.string()), selectedRelationChunks: z.array(z.string()),
+    mergedChunkIds: z.array(z.string()),
+    truncated: z.strictObject({ entities: z.number(), relationships: z.number(), chunks: z.number() }),
+    budget: z.strictObject({ limit: z.number(), inputTokens: z.number(), reservedOutputTokens: z.number(), totalTokens: z.number() }),
+  }),
+});
+export type QueryData = z.infer<typeof QueryDataSchema>;

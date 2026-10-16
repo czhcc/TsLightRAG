@@ -76,3 +76,18 @@ Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权�
 `scripts/reference/s07.py` 在固定 SHA 校验后，执行上游 `operate.py` 第 2182/2201 行两条原始 AST 赋值语句（非退化 rebuild 权重分支）；人工存活来源夹具与生成结果保存到 `tests/fixtures/graph/s07-python-reference.json`，TS `maintenance-reference.test.ts` 独立对照。它补充 G02 删除后的权重参考，未宣称执行完整 Python 删除/摘要/所有 G01–G12 路径。脚本/源码派生部分适用 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)。
 
 目标端额外提供单快照发布、版本冲突拒绝、配置私密版本归档和快照活动绑定；保留历史快照仍视为原文/产物引用，因此文件释放任务可持久显示 retained，待历史真正退出引用后重试。没有自动清空历史或回收凭据版本，也不把磁盘历史副本宣称为已安全擦除。后续源码参考验收仍以 S11 的完整清单为准。
+
+## S08 来源状态
+
+仍固定 `aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`；派生实现保留 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)。无新增 npm 依赖。
+
+| 目标文件 | 来源 | 实现/复用 |
+|---|---|---|
+| `retrieval/prompts.ts` | `prompt.py` keywords_extraction_examples、rag_response、kg_query_context | 三个模板值原样转换为 TS 常量，使用既有单次插值渲染器 |
+| `retrieval/algorithms.ts` | `operate.py` 本地邻边/global 端点、perform_kg_search/merge_all_chunks、两类 source 函数及 quota；`utils.py` weighted_polling/vector_similarity | TS 移植图排序、分组归属/频次/排除、线性配额、Python rounding、稳定余弦排序和交错去重；按本地 SnapshotView 接口访问 |
+| `retrieval/service.ts` | `kg_query`、`extract_keywords_only`、`perform_kg_search`、`process_chunks_unified` | 新写本地查询协调、模型角色/版本捕获、严格 JSON、进程内有界关键词缓存和共享 HTTP 客户端；不执行回答模型 |
+| `retrieval/context.ts` | `_apply_token_truncation`、`_build_context_str`、`utils.py` 引用函数 | 新写预算/渲染/引用；保留阶段顺序、前缀截断与频次/首次序，额外包含历史/回答预留；文件名身份改为文档 ID/版本 |
+| `scripts/reference/s08.py`、`tests/fixtures/graph/s08-python-reference.json` | 固定 SHA 完整原函数 AST，函数名单和原源码 SHA256 写入夹具；另有两个原内容 f-string | 原函数独立执行，内存图/KV/向量/model/token 端口为人工夹具；排序/来源算法未由 TS 重写作参考 |
+| 共享 QueryData/Chunk schema、API、只读 size/edgeById、`QueryPreview.tsx`、测试 | 本仓库方案 | 新写 TypeScript 本地集成，不复制上游 routers/UI/SDK 或存储文件格式 |
+
+实际结果和 G03–G10 对应见 [S08 验证记录](S08_VALIDATION.md)。关键词 JSON 容错、无模型处理、WEIGHT 的无用 query embedding 省略、既有 S06 索引文本格式/规范 ID、引用身份、naive 模板统一及额外 token 预算均明确列为差异；不宣称向量输入字节、实际模型输出或全部 Python 服务行为相同。Python/NumPy 只用于源码参考，不用于文档解析或业务运行。G01–G12 总验收仍未完成。

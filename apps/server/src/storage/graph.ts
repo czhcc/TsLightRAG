@@ -31,6 +31,7 @@ export class MemoryGraph {
     this.adjacent.get(edge.targetId)?.add(edge.sourceId);
     return edge.id;
   }
+  getEdgeById(id: string) { return structuredClone(this.edges.get(id)); }
   getEdge(source: string, target: string) { return structuredClone(this.edges.get(edgeId(source, target))); }
   neighbors(id: string) { return [...(this.adjacent.get(id) ?? [])]; }
   degree(id: string) {

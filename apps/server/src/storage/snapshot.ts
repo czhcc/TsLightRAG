@@ -35,12 +35,14 @@ export class SnapshotView {
   get revision() { return this.current.manifest.revision; }
   get corpusRevision() { return this.current.manifest.corpusRevision; }
   getKV(namespace: KVName, id: string) { return this.current.state.kv[namespace].get(id); }
+  size(namespace: KVName) { return this.current.state.kv[namespace].size; }
   entries(namespace: KVName) { return this.current.state.kv[namespace].entries(); }
   documents() { return this.current.state.documents.entries().map(([, doc]) => doc); }
   jobs() { return this.current.state.jobs.entries().map(([, job]) => job); }
   document(id: string) { return this.current.state.documents.get(id); }
   job(id: string) { return this.current.state.jobs.get(id); }
   node(id: string) { return this.current.state.graph.getNode(id); }
+  edgeById(id: string) { return this.current.state.graph.getEdgeById(id); }
   edge(source: string, target: string) { return this.current.state.graph.getEdge(source, target); }
   neighbors(id: string) { return this.current.state.graph.neighbors(id); }
   getVector(namespace: 'chunks' | 'entities' | 'relations', id: string) { return this.current.state.vectors[namespace].get(id); }

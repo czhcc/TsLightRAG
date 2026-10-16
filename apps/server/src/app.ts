@@ -1,3 +1,4 @@
+import { QueryService } from './retrieval/service.js';
 import { z } from 'zod';
 import { DocumentService } from './documents/service.js';
 import type { DocumentServiceOptions } from './documents/service.js';
@@ -20,6 +21,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   const models = new ModelClient();
   const config = await ModelConfigStore.open(options.storage.dataDir, options.storage);
   const documents = await DocumentService.open(options.storage, config, {...options.documentOptions,client:models});
+  const queries = new QueryService(options.storage, config, models);
   const shutdown = new AbortController();
   const app = Fastify({ logger: false, bodyLimit: 1024 * 1024, requestTimeout: 30_000, connectionTimeout: 30_000, forceCloseConnections: true });
   app.addHook('preClose', async () => { shutdown.abort(); await documents.close(); });
@@ -66,7 +68,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const captured = config.capture();
     const missingRoles = (['query', 'embedding'] as const).filter((role) => !boundProfile(captured, role));
     return HealthSchema.parse({
-      status: 'ok', stage: 'S07', usable: false,
+      status: 'ok', stage: 'S08', usable: false,
       models: { configured: missingRoles.length === 0, missingRoles },
       storage: { initialized: true, status: 'ready', generation: snapshot.generation,
         revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: true },
@@ -83,6 +85,14 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     try {
       return TestModelResultSchema.parse(await models.test(candidate, AbortSignal.any([controller.signal, shutdown.signal])));
     } finally { reply.raw.off('close', onClose); }
+  });
+
+  app.post('/api/v1/query/data', async (request, reply) => {
+    const controller=new AbortController();
+    const onClose=()=>{if(!reply.raw.writableFinished)controller.abort();};
+    reply.raw.on('close',onClose);
+    try{return await queries.data(request.body,AbortSignal.any([controller.signal,shutdown.signal]));}
+    finally{reply.raw.off('close',onClose);}
   });
 
   let receiving = 0;
@@ -134,6 +144,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   catch { throw new Error('WebUI 构建产物缺失；请先执行 npm run build'); }
   await app.register(staticFiles, { root, wildcard: false, index: false });
   app.get('/', async (_request, reply) => reply.sendFile('index.html'));
+  app.get('/query', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/documents', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/settings/models', async (_request, reply) => reply.sendFile('index.html'));
   app.setNotFoundHandler((request, reply) => reply.code(404).send(ApiErrorSchema.parse({

@@ -1,0 +1,2072 @@
+{
+  "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "manifest": {
+    "operate.py": {
+      "sha256": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326",
+      "executedFunctions": [
+        "kg_query",
+        "_normalize_keyword_list",
+        "_perform_kg_search",
+        "_get_vector_context",
+        "_get_node_data",
+        "_find_most_related_edges_from_entities",
+        "_get_edge_data",
+        "_find_most_related_entities_from_relationships",
+        "_vector_chunk_quota",
+        "_find_related_text_unit_from_entities",
+        "_find_related_text_unit_from_relations",
+        "_merge_all_chunks",
+        "_apply_token_truncation"
+      ]
+    },
+    "utils.py": {
+      "sha256": "8c49d4b0150fdfc3343d85770a46c0c49da5b6c6a81c09eb5ca10a997c8dcdbe",
+      "executedFunctions": [
+        "split_string_by_multi_markers",
+        "cosine_similarity",
+        "pick_by_weighted_polling",
+        "pick_by_vector_similarity",
+        "truncate_list_by_token_size",
+        "atruncate_list_by_token_size",
+        "_rendered_prefix_item_count",
+        "process_chunks_unified",
+        "_truncate_chunks_for_unified_context",
+        "generate_reference_list_from_chunks",
+        "render_chunks_context_text"
+      ]
+    }
+  },
+  "ports": "deterministic graph/KV/vector/embedding and one-codepoint tokenizer; no replacement ranking implementations",
+  "nodes": {
+    "A": {
+      "entity_type": "Concept",
+      "description": "A evidence",
+      "source_id": "z<SEP>a<SEP>shared"
+    },
+    "B": {
+      "entity_type": "Concept",
+      "description": "B evidence",
+      "source_id": "shared<SEP>b<SEP>c<SEP>d"
+    },
+    "C": {
+      "entity_type": "Concept",
+      "description": "C evidence",
+      "source_id": "a<SEP>e"
+    },
+    "D": {
+      "entity_type": "Concept",
+      "description": "D evidence",
+      "source_id": "f"
+    }
+  },
+  "edges": [
+    {
+      "source": "A",
+      "target": "B",
+      "weight": 2,
+      "description": "AB",
+      "source_id": "shared<SEP>g"
+    },
+    {
+      "source": "A",
+      "target": "C",
+      "weight": 1,
+      "description": "AC",
+      "source_id": "a<SEP>h"
+    },
+    {
+      "source": "B",
+      "target": "D",
+      "weight": 9,
+      "description": "BD",
+      "source_id": "b<SEP>i"
+    },
+    {
+      "source": "D",
+      "target": "D",
+      "weight": 1,
+      "description": "DD",
+      "source_id": "j"
+    }
+  ],
+  "vectors": {
+    "z": [
+      1,
+      0
+    ],
+    "a": [
+      1,
+      0
+    ],
+    "shared": [
+      0.6,
+      0.8
+    ],
+    "b": [
+      0.6,
+      0.8
+    ],
+    "c": [
+      0.6,
+      0.8
+    ],
+    "d": [
+      0.6,
+      0.8
+    ],
+    "e": [
+      0.6,
+      0.8
+    ],
+    "f": [
+      0.6,
+      0.8
+    ],
+    "g": [
+      0.6,
+      0.8
+    ],
+    "h": [
+      0.6,
+      0.8
+    ],
+    "i": [
+      0.6,
+      0.8
+    ],
+    "j": [
+      0.6,
+      0.8
+    ],
+    "outside": [
+      1,
+      0
+    ]
+  },
+  "cases": [
+    {
+      "mode": "local",
+      "method": "VECTOR",
+      "related": 0,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "local",
+      "method": "VECTOR",
+      "related": 1,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a"
+      ],
+      "relationChunks": [
+        "b"
+      ],
+      "merged": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "mode": "local",
+      "method": "VECTOR",
+      "related": 2,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e"
+      ],
+      "relationChunks": [
+        "b",
+        "i",
+        "shared"
+      ],
+      "merged": [
+        "a",
+        "b",
+        "z",
+        "i",
+        "e",
+        "shared"
+      ]
+    },
+    {
+      "mode": "local",
+      "method": "VECTOR",
+      "related": 5,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "z",
+        "g",
+        "e",
+        "h",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "local",
+      "method": "WEIGHT",
+      "related": 0,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "local",
+      "method": "WEIGHT",
+      "related": 1,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "shared",
+        "b"
+      ],
+      "relationChunks": [
+        "i",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "shared",
+        "g",
+        "b",
+        "h"
+      ]
+    },
+    {
+      "mode": "local",
+      "method": "WEIGHT",
+      "related": 2,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "shared",
+        "z",
+        "b"
+      ],
+      "relationChunks": [
+        "i",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "e",
+        "g",
+        "shared",
+        "h",
+        "z",
+        "b"
+      ]
+    },
+    {
+      "mode": "local",
+      "method": "WEIGHT",
+      "related": 5,
+      "entities": [
+        "C",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "shared",
+        "z",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "e",
+        "g",
+        "shared",
+        "h",
+        "z",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "VECTOR",
+      "related": 0,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "global",
+      "method": "VECTOR",
+      "related": 1,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z"
+      ],
+      "relationChunks": [
+        "j"
+      ],
+      "merged": [
+        "a",
+        "j",
+        "z"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "VECTOR",
+      "related": 2,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "f",
+        "shared"
+      ],
+      "relationChunks": [
+        "j",
+        "h",
+        "g"
+      ],
+      "merged": [
+        "a",
+        "j",
+        "z",
+        "h",
+        "f",
+        "g",
+        "shared"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "VECTOR",
+      "related": 5,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "f",
+        "shared",
+        "e",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "j",
+        "h",
+        "g"
+      ],
+      "merged": [
+        "a",
+        "j",
+        "z",
+        "h",
+        "f",
+        "g",
+        "shared",
+        "e",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "WEIGHT",
+      "related": 0,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "global",
+      "method": "WEIGHT",
+      "related": 1,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "f",
+        "a",
+        "e",
+        "b"
+      ],
+      "relationChunks": [
+        "j",
+        "h",
+        "shared"
+      ],
+      "merged": [
+        "f",
+        "j",
+        "a",
+        "h",
+        "e",
+        "shared",
+        "b"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "WEIGHT",
+      "related": 2,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "f",
+        "a",
+        "shared",
+        "e",
+        "b",
+        "z"
+      ],
+      "relationChunks": [
+        "j",
+        "h",
+        "g"
+      ],
+      "merged": [
+        "f",
+        "j",
+        "a",
+        "h",
+        "shared",
+        "g",
+        "e",
+        "b",
+        "z"
+      ]
+    },
+    {
+      "mode": "global",
+      "method": "WEIGHT",
+      "related": 5,
+      "entities": [
+        "D",
+        "A",
+        "C",
+        "B"
+      ],
+      "relations": [
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "C"
+        ],
+        [
+          "A",
+          "B"
+        ]
+      ],
+      "entityChunks": [
+        "f",
+        "a",
+        "shared",
+        "z",
+        "e",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "j",
+        "h",
+        "g"
+      ],
+      "merged": [
+        "f",
+        "j",
+        "a",
+        "h",
+        "shared",
+        "g",
+        "z",
+        "e",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "VECTOR",
+      "related": 0,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "hybrid",
+      "method": "VECTOR",
+      "related": 1,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z"
+      ],
+      "relationChunks": [
+        "b",
+        "i"
+      ],
+      "merged": [
+        "a",
+        "b",
+        "z",
+        "i"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "VECTOR",
+      "related": 2,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e",
+        "f"
+      ],
+      "relationChunks": [
+        "b",
+        "i",
+        "j",
+        "shared"
+      ],
+      "merged": [
+        "a",
+        "b",
+        "z",
+        "i",
+        "e",
+        "j",
+        "f",
+        "shared"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "VECTOR",
+      "related": 5,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e",
+        "f",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "z",
+        "j",
+        "e",
+        "g",
+        "f",
+        "h",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "WEIGHT",
+      "related": 0,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": []
+    },
+    {
+      "mode": "hybrid",
+      "method": "WEIGHT",
+      "related": 1,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "f",
+        "shared",
+        "b"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "f",
+        "j",
+        "shared",
+        "g",
+        "b",
+        "h"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "WEIGHT",
+      "related": 2,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "f",
+        "shared",
+        "b",
+        "z"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "e",
+        "j",
+        "f",
+        "g",
+        "shared",
+        "h",
+        "b",
+        "z"
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "method": "WEIGHT",
+      "related": 5,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "f",
+        "shared",
+        "z",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "a",
+        "i",
+        "e",
+        "j",
+        "f",
+        "g",
+        "shared",
+        "h",
+        "z",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "VECTOR",
+      "related": 0,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": [
+        "outside",
+        "z",
+        "j"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "VECTOR",
+      "related": 1,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z"
+      ],
+      "relationChunks": [
+        "b",
+        "i"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "b",
+        "z",
+        "i",
+        "j"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "VECTOR",
+      "related": 2,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e",
+        "f"
+      ],
+      "relationChunks": [
+        "b",
+        "i",
+        "j",
+        "shared"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "b",
+        "z",
+        "i",
+        "j",
+        "e",
+        "f",
+        "shared"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "VECTOR",
+      "related": 5,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "z",
+        "e",
+        "f",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "i",
+        "z",
+        "j",
+        "e",
+        "g",
+        "f",
+        "h",
+        "shared",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "WEIGHT",
+      "related": 0,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [],
+      "relationChunks": [],
+      "merged": [
+        "outside",
+        "z",
+        "j"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "WEIGHT",
+      "related": 1,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "f",
+        "shared",
+        "b"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "i",
+        "z",
+        "f",
+        "j",
+        "shared",
+        "g",
+        "b",
+        "h"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "WEIGHT",
+      "related": 2,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "f",
+        "shared",
+        "b",
+        "z"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "i",
+        "z",
+        "e",
+        "j",
+        "f",
+        "g",
+        "shared",
+        "h",
+        "b"
+      ]
+    },
+    {
+      "mode": "mix",
+      "method": "WEIGHT",
+      "related": 5,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ],
+      "entityChunks": [
+        "a",
+        "e",
+        "f",
+        "shared",
+        "z",
+        "b",
+        "c",
+        "d"
+      ],
+      "relationChunks": [
+        "i",
+        "j",
+        "g",
+        "h"
+      ],
+      "merged": [
+        "outside",
+        "a",
+        "i",
+        "z",
+        "e",
+        "j",
+        "f",
+        "g",
+        "shared",
+        "h",
+        "b",
+        "c",
+        "d"
+      ]
+    }
+  ],
+  "fallback": [
+    {
+      "query": "short",
+      "content": "{\"low\": \"short\", \"high\": \"\"}"
+    },
+    {
+      "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "content": "no-result"
+    },
+    {
+      "query": "🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂",
+      "content": "{\"low\": \"\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\\ud83d\\ude42\", \"high\": \"\"}"
+    },
+    {
+      "query": "🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂🙂",
+      "content": "no-result"
+    }
+  ],
+  "selection": [
+    {
+      "missing": false,
+      "method": "VECTOR",
+      "expected": [
+        "a",
+        "z",
+        "shared"
+      ]
+    },
+    {
+      "missing": false,
+      "method": "WEIGHT",
+      "expected": [
+        "a",
+        "shared",
+        "b",
+        "c",
+        "e"
+      ]
+    },
+    {
+      "missing": true,
+      "method": "VECTOR",
+      "expected": [
+        "a",
+        "shared",
+        "b",
+        "c",
+        "e"
+      ]
+    },
+    {
+      "missing": true,
+      "method": "WEIGHT",
+      "expected": [
+        "a",
+        "shared",
+        "b",
+        "c",
+        "e"
+      ]
+    }
+  ],
+  "polling": [
+    {
+      "groups": [
+        [
+          "a"
+        ],
+        [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        [
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m"
+        ],
+        [
+          "n",
+          "o"
+        ]
+      ],
+      "related": 0,
+      "expected": []
+    },
+    {
+      "groups": [
+        [
+          "a"
+        ],
+        [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        [
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m"
+        ],
+        [
+          "n",
+          "o"
+        ]
+      ],
+      "related": 1,
+      "expected": [
+        "a",
+        "b",
+        "h",
+        "n"
+      ]
+    },
+    {
+      "groups": [
+        [
+          "a"
+        ],
+        [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        [
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m"
+        ],
+        [
+          "n",
+          "o"
+        ]
+      ],
+      "related": 2,
+      "expected": [
+        "a",
+        "b",
+        "c",
+        "h",
+        "n",
+        "d"
+      ]
+    },
+    {
+      "groups": [
+        [
+          "a"
+        ],
+        [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        [
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m"
+        ],
+        [
+          "n",
+          "o"
+        ]
+      ],
+      "related": 4,
+      "expected": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "h",
+        "i",
+        "n",
+        "e",
+        "f",
+        "g"
+      ]
+    },
+    {
+      "groups": [
+        [
+          "a"
+        ],
+        [
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        [
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m"
+        ],
+        [
+          "n",
+          "o"
+        ]
+      ],
+      "related": 6,
+      "expected": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "h",
+        "i",
+        "j",
+        "n",
+        "f",
+        "g",
+        "k",
+        "l",
+        "m"
+      ]
+    }
+  ],
+  "truncation": [
+    {
+      "limit": 0,
+      "entities": [],
+      "relations": []
+    },
+    {
+      "limit": 1,
+      "entities": [],
+      "relations": []
+    },
+    {
+      "limit": 80,
+      "entities": [
+        "C"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ]
+      ]
+    },
+    {
+      "limit": 160,
+      "entities": [
+        "C",
+        "D"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ]
+      ]
+    },
+    {
+      "limit": 10000,
+      "entities": [
+        "C",
+        "D",
+        "A",
+        "B"
+      ],
+      "relations": [
+        [
+          "B",
+          "D"
+        ],
+        [
+          "D",
+          "D"
+        ],
+        [
+          "A",
+          "B"
+        ],
+        [
+          "A",
+          "C"
+        ]
+      ]
+    }
+  ],
+  "processing": [
+    {
+      "limit": 0,
+      "chunks": [],
+      "references": [],
+      "linked": []
+    },
+    {
+      "limit": 50,
+      "chunks": [],
+      "references": [],
+      "linked": []
+    },
+    {
+      "limit": 100,
+      "chunks": [
+        "a"
+      ],
+      "references": [
+        {
+          "reference_id": "1",
+          "file_path": "doc-1"
+        }
+      ],
+      "linked": [
+        {
+          "chunk_id": "a",
+          "content": "a document evidence",
+          "file_path": "doc-1",
+          "rerank_score": 0.9,
+          "id": "DC1",
+          "reference_id": "1"
+        }
+      ]
+    },
+    {
+      "limit": 10000,
+      "chunks": [
+        "a",
+        "z"
+      ],
+      "references": [
+        {
+          "reference_id": "1",
+          "file_path": "doc-1"
+        },
+        {
+          "reference_id": "2",
+          "file_path": "doc-0"
+        }
+      ],
+      "linked": [
+        {
+          "chunk_id": "a",
+          "content": "a document evidence",
+          "file_path": "doc-1",
+          "rerank_score": 0.9,
+          "id": "DC1",
+          "reference_id": "1"
+        },
+        {
+          "chunk_id": "z",
+          "content": "z document evidence",
+          "file_path": "doc-0",
+          "rerank_score": 0.9,
+          "id": "DC2",
+          "reference_id": "2"
+        }
+      ]
+    }
+  ],
+  "normalized": [
+    {
+      "input": null,
+      "expected": []
+    },
+    {
+      "input": "Alpha; Beta, Gamma\nDelta",
+      "expected": [
+        "Alpha",
+        "Beta",
+        "Gamma",
+        "Delta"
+      ]
+    },
+    {
+      "input": [
+        "a,b",
+        " c ",
+        42,
+        ""
+      ],
+      "expected": [
+        "a,b",
+        "c"
+      ]
+    },
+    {
+      "input": {
+        "bad": true
+      },
+      "expected": []
+    }
+  ],
+  "vectorContent": {
+    "entity": "Alpha\nEvidence",
+    "relation": "research, collaboration\tAlpha\nBeta\nEvidence",
+    "chunk": "z document evidence"
+  },
+  "citations": [
+    {
+      "chunks": [
+        {
+          "chunk_id": "a",
+          "content": "a document evidence",
+          "file_path": "doc-1",
+          "reference_id": "2"
+        },
+        {
+          "chunk_id": "z",
+          "content": "z document evidence",
+          "file_path": "doc-0",
+          "reference_id": "1"
+        },
+        {
+          "chunk_id": "c",
+          "content": "c document evidence",
+          "file_path": "doc-0",
+          "reference_id": "1"
+        }
+      ],
+      "references": [
+        {
+          "reference_id": "1",
+          "file_path": "doc-0"
+        },
+        {
+          "reference_id": "2",
+          "file_path": "doc-1"
+        }
+      ]
+    },
+    {
+      "chunks": [
+        {
+          "chunk_id": "z",
+          "content": "z document evidence",
+          "file_path": "doc-0",
+          "reference_id": "1"
+        },
+        {
+          "chunk_id": "a",
+          "content": "a document evidence",
+          "file_path": "doc-1",
+          "reference_id": "2"
+        }
+      ],
+      "references": [
+        {
+          "reference_id": "1",
+          "file_path": "doc-0"
+        },
+        {
+          "reference_id": "2",
+          "file_path": "doc-1"
+        }
+      ]
+    },
+    {
+      "chunks": [],
+      "references": []
+    }
+  ]
+}
