@@ -85,6 +85,15 @@ export class ModelConfigStore {
     }
     return result;
   }
+  /** Final index publication and config replacement share this queue, preventing a space switch race. */
+  withRevision<T>(revision: number, work: () => Promise<T>): Promise<T> {
+    const result = this.tail.then(async () => {
+      this.available();
+      if (this.current.revision !== revision) throw new ModelError('CONFIG_CHANGED', '配置已变化，请手动重试', 409);
+      return work();
+    });
+    this.tail = result.then(() => {}, () => {}); return result;
+  }
   save(input: unknown) {
     if (this.closing) return Promise.reject(new ModelError('CONFIG_UNAVAILABLE', '配置正在关闭', 503));
     const work = this.tail.then(async () => {

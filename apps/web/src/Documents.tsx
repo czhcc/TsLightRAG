@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApiErrorSchema, DocumentDetailSchema, DocumentListSchema, ImportResultSchema } from '@tslightrag/contracts';
 import type { z } from 'zod';
-const labels: Record<string, string> = { queued: '排队中', parsing: '本地解析', chunking: '文本分块', awaiting_configuration: '待配置模型', awaiting_indexing: '待建立索引（S06）', failed: '失败', cancelled: '已取消', interrupted: '已中断', processed: '已索引' };
+const labels: Record<string, string> = { queued: '排队中', extracting: '实体关系抽取', embedding: '生成向量', committing: '提交索引', parsing: '本地解析', chunking: '文本分块', awaiting_configuration: '待配置模型', awaiting_indexing: '待建立索引（需重试）', failed: '失败', cancelled: '已取消', interrupted: '已中断', processed: '已索引' };
 async function request(path: string, signal: AbortSignal, init: RequestInit = {}) {
   const response = await fetch(`/api/v1${path}`, { ...init, signal, headers: { Accept: 'application/json', ...init.headers } });
   if (!response.ok) {
@@ -41,7 +41,7 @@ export function Documents() {
     setMessage(result.deduplicated ? '相同内容已存在，未新建任务' : '原文和任务已持久保存，已接受导入');
   };
   return <section aria-label="文档管理">
-    <h2>导入文档</h2><p>原始文件和解析均保留在本机。当前完成解析与分块；图谱索引将在 S06 接入。</p>
+    <h2>导入文档</h2><p>原始文件和解析均保留在本机。文档在本地解析与分块，使用所配置的模型建立知识图谱与向量索引。</p>
     <fieldset disabled={busy}><legend>上传本地文件</legend>
       <label>选择文件<input type="file" accept=".txt,.md,.markdown,.html,.htm,.csv,.json,.pdf,.docx,.xlsx,.pptx" onChange={(e) => {
         const file = e.target.files?.[0]; if (!file) return;

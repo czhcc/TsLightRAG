@@ -11,7 +11,7 @@
 - 分析来源：<https://github.com/HKUDS/LightRAG>。
 - 固定上游提交：`aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 上游提交时间：2026-10-14T22:55:37+08:00；源码版本字段为 `1.5.8`，API 版本字段为 `0347`。以提交 SHA 为分析基准，不以会变化的默认分支或版本字段单独定位。
-- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块和 S05 文档/持久化任务已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md) 和 [S05 验证记录](S05_VALIDATION.md)。索引、图谱算法和其他业务接口仍为**待实施约定**，不能以基座通过代替功能验收。
+- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务和 S06 抽取/合并/三类索引已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md) 、[S05](S05_VALIDATION.md) 和 [S06 验证记录](S06_VALIDATION.md)。删除重建、检索与生成等仍为**待实施约定**，完整 G01–G12 门槛尚未通过。
 - 配套文档：[LightRAG代码转移实施步骤](LightRAG代码转移实施步骤.md)。
 
 ## 2. 用户要求与迁移边界
@@ -233,7 +233,7 @@ S02 当前实现使用同进程原生 `flock`，Linux 内核负责互斥与进�
 
 ### 5.3 任务、失败与删除
 
-- 状态：`queued → parsing → chunking → extracting → embedding → committing → processed`；任意执行阶段可到 `failed`，取消到 `cancelled`，缺配置到 `awaiting_configuration`，重启遗留执行态标为 `interrupted`。S05 新增 `awaiting_indexing`，明确表示本地解析/分块完成、等待 S06 索引，不将其当作 processed。
+- 状态：`queued → parsing → chunking → extracting → embedding → committing → processed`；任意执行阶段可到 `failed`，取消到 `cancelled`，缺配置到 `awaiting_configuration`，重启遗留执行态标为 `interrupted`。S05 的 `awaiting_indexing` 为历史停靠态，S06 已接通索引；旧停靠任务仍需人工重试，不自动收费重跑。
 - HTTP 网络错误/429/部分 5xx 采用有上限的退避重试；401/403、schema 或维度错误不盲目重试。文档级失败/取消/中断只允许显式重试，避免重启产生不受控模型费用。
 - 支持没有模型配置时启动；文档可解析，但不把未配置 embedding/文本模型的任务标记为已索引。任务配置预检和 UI 给出具体缺项。
 - 删除、清空、重建和索引发布共用写入门；查询仍读已提交快照。删除先建立候选状态，撤销该文档贡献，重算仍被其他文档引用的实体/关系，再原子发布。
@@ -331,7 +331,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 
 这里的 GraphRAG 指 LightRAG 自身的图谱增强 RAG。固定版本的主要查询链路是实体/关系双层检索与来源块融合，不等于另一个项目 Microsoft GraphRAG 的 Leiden 社区检测、社区报告和全局 map-reduce。不能因名称含 global 就声称移植了社区算法，也不把它们强加进本次范围。
 
-下表均为**必须实现并验证，当前尚未实现**。仅画出图谱、创建图存储、提供 mode 选项，均不能证明这些算法已经移植。
+下表均为**必须实现并验证**；S06 已实现 G01 抽取和 G02 合并/摘要基础，并执行部分辅助规则参考对照，完整 G01/G02（含删除重建）及 G03–G12 尚未验收。仅画出图谱、创建图存储、提供 mode 选项，均不能证明这些算法已经移植。
 
 | 编号 | 必须保留的算法 | 固定 SHA 源码依据 | 最低对照断言 |
 |---|---|---|---|

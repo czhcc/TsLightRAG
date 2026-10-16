@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-export async function controlledDocuments(dataDir: string, checkpoint: 'before-parse' | 'after-parse' | 'before-final') {
+export async function controlledDocuments(dataDir: string, checkpoint: 'before-parse' | 'after-parse' | 'before-final' | 'before-index-final') {
   const child = spawn(process.execPath, [fileURLToPath(new URL('../fixtures/documents-process.mjs', import.meta.url)), dataDir, checkpoint], { env: {}, stdio: ['pipe', 'pipe', 'pipe'] });
   let output = ''; let errors = ''; child.stdout.on('data', (b: Buffer) => { output += b.toString(); }); child.stderr.on('data', (b: Buffer) => { errors += b.toString(); });
   const exit = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve, reject) => { child.once('exit', (code, signal) => { resolve({ code, signal }); }); child.once('error', reject); });

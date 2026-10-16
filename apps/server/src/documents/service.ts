@@ -1,3 +1,5 @@
+import { Indexer } from '../indexing/indexer.js';
+import { ModelError } from '../models/errors.js';
 import { randomUUID } from 'node:crypto';
 import { ImportTextSchema } from '@tslightrag/contracts';
 import type { DocumentRecord, JobRecord } from '@tslightrag/contracts';
@@ -11,18 +13,19 @@ import { JsonSchema } from '../storage/kv.js';
 import type { WorkspaceDraft } from '../storage/state.js';
 import { DocumentError, DocumentFiles, digest } from './files.js';
 
-export interface DocumentServiceOptions { hook?: (point: 'before-parse' | 'after-parse' | 'before-final', job: JobRecord, signal: AbortSignal) => Promise<void> }
+export interface DocumentServiceOptions { hook?: (point: 'before-parse' | 'after-parse' | 'before-final' | 'before-index-final', job: JobRecord, signal: AbortSignal) => Promise<void> }
 const executing = new Set(['queued', 'parsing', 'chunking', 'extracting', 'embedding', 'committing']);
 const retryable = new Set(['failed', 'cancelled', 'interrupted', 'awaiting_configuration', 'awaiting_indexing']);
 const now = () => new Date().toISOString();
 export class DocumentService {
+  private readonly indexer: Indexer;
   private closing = false;
   private broken = false;
   private admission: Promise<void> = Promise.resolve();
   private active = new Map<string, { controller: AbortController; done: Promise<void> }>();
   private scheduled = false;
   private constructor(private readonly storage: SnapshotStore, private readonly config: ModelConfigStore,
-    readonly files: DocumentFiles, private readonly options: DocumentServiceOptions) {}
+    readonly files: DocumentFiles, private readonly options: DocumentServiceOptions) { this.indexer = new Indexer(storage, config); }
   static async open(storage: SnapshotStore, config: ModelConfigStore, options: DocumentServiceOptions = {}) {
     const files = new DocumentFiles(storage.dataDir); await files.initialize();
     const service = new DocumentService(storage, config, files, options);
@@ -162,6 +165,7 @@ export class DocumentService {
   private async run(id: string, signal: AbortSignal) {
     let phases: Promise<void> = Promise.resolve();
     try {
+      const capturedConfig = this.config.capture();
       await this.storage.transact((draft) => { const job = draft.jobs.get(id)!;
         if (job.cancelRequested || job.status !== 'queued') return;
         this.update(draft, job, { status: 'parsing', phase: 'parsing' }); });
@@ -193,19 +197,32 @@ export class DocumentService {
         }
         const changed = this.config.capture().revision !== current.configRevision;
         const missing = current.preparation?.missingRoles.length;
-        const status = missing || changed ? 'awaiting_configuration' : 'awaiting_indexing';
+        const status = missing || changed ? 'awaiting_configuration' : 'extracting';
         this.update(draft, current, { status, phase: status, result,
           warnings: [...prepared.document.warnings.map(({ code, message }) => ({ code, message })),
-            { code: changed ? 'CONFIG_CHANGED' : missing ? 'MODELS_REQUIRED' : 'INDEXER_PENDING', message: changed ? '配置已变化，手动重试以捕获新版本' : missing ? '本地解析完成，配置模型后手动重试' : '本地解析完成，索引构建将在 S06 接入' }], error: null });
+            ...(changed || missing ? [{ code: changed ? 'CONFIG_CHANGED' : 'MODELS_REQUIRED', message: changed ? '配置已变化，手动重试以捕获新版本' : '本地解析完成，配置模型后手动重试' }] : [])], error: null });
       });
       });
+      if (this.job(id).status !== 'extracting') return;
+      const guard = () => {
+        signal.throwIfAborted();
+        const current = this.job(id);
+        if (current.cancelRequested || this.closing) throw new DocumentError('CANCELLED', '任务已取消', 409);
+        if (capturedConfig.revision !== job.configRevision || this.config.capture().revision !== job.configRevision) throw new DocumentError('CONFIG_CHANGED', '配置已变化，手动重试以捕获新版本', 409);
+      };
+      guard();
+      const contributions = await this.indexer.prepare(prepared.chunks, capturedConfig, signal);
+      await this.indexer.publish(prepared.chunks, doc, prepared.document.text, contributions, capturedConfig, signal, async (phase) => {
+        guard(); await this.storage.transact((draft) => { this.update(draft, draft.jobs.get(id)!, { status: phase, phase }); });
+        if (phase === 'committing') await this.options.hook?.('before-index-final', this.job(id), signal);
+      }, (draft) => { this.update(draft, draft.jobs.get(id)!, { status: 'processed', phase: 'processed', error: null }); }, guard);
     } catch (error) {
       await phases.catch(() => {});
       if (!this.storage.healthy) return;
       await this.storage.transact((draft) => {
         const current = draft.jobs.get(id); if (!current || !executing.has(current.status)) return;
         const cancelled = current.cancelRequested; const interrupted = this.closing;
-        const safe = error instanceof ParserError || error instanceof DocumentError;
+        const safe = error instanceof ParserError || error instanceof ModelError;
         this.update(draft, current, { status: cancelled ? 'cancelled' : interrupted ? 'interrupted' : 'failed', phase: cancelled ? 'cancelled' : interrupted ? 'interrupted' : 'failed',
           errorCode: cancelled ? 'CANCELLED' : interrupted ? 'INTERRUPTED' : safe ? error.code : 'TASK_FAILED',
           error: cancelled ? null : interrupted ? '服务退出中断任务；请手动重试' : safe ? error.message : '文档任务执行失败，请检查后手动重试' });

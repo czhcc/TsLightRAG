@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { App } from './App.js';
 import type { ApplicationApi } from './api/client.js';
 
-const health = { status: 'ok', stage: 'S05', usable: false, models: { configured: false, missingRoles: ['query', 'embedding'] }, storage: { initialized: true, status: 'ready', generation: 'g-test', revision: 0, corpusRevision: 0 }, jobs: { available: true } } as const;
+const health = { status: 'ok', stage: 'S06', usable: false, models: { configured: false, missingRoles: ['query', 'embedding'] }, storage: { initialized: true, status: 'ready', generation: 'g-test', revision: 0, corpusRevision: 0 }, jobs: { available: true } } as const;
 const settings = { revision: 0, profiles: [], editingAvailable: false, bindings: { query: null, extract: null, keyword: null, embedding: null, rerank: null } };
 function fakeApi(): ApplicationApi {
   return { health: vi.fn().mockResolvedValue(health), models: vi.fn().mockResolvedValue(settings), saveModels: vi.fn(), testModel: vi.fn() };

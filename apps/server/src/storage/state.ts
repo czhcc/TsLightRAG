@@ -1,3 +1,5 @@
+import { LedgerSchema, entityId, hash } from '../indexing/extraction.js';
+import { edgeId } from './graph.js';
 import { DocumentSchema, JobSchema, IdSchema } from '@tslightrag/contracts';
 import { z } from 'zod';
 import { MemoryKV, JsonSchema } from './kv.js';
@@ -16,11 +18,11 @@ const KvFileSchema = z.strictObject({
   fullDocs: rows, textChunks: rows, extractions: rows, fullEntities: rows,
   fullRelations: rows, entityChunks: rows, relationChunks: rows, caches: rows,
 });
-export const StoredDocumentSchema = DocumentSchema.extend({ content: z.string().optional() });
+export const StoredDocumentSchema = DocumentSchema.extend({ content: z.string().optional(), chunkIds: z.array(IdSchema).optional() });
 export const ChunkSchema = z.strictObject({
   id: IdSchema, docId: IdSchema, docVersion: z.number().int().positive(),
   order: z.number().int().nonnegative(), content: z.string().min(1), tokens: z.number().int().positive(),
-  location: z.string().optional(),
+  location: z.string().optional(), indexVersion: z.literal('s06-json-v1').optional(),
 });
 const StatusFileSchema = z.strictObject({
   documents: z.array(z.tuple([IdSchema, DocumentSchema])), jobs: z.array(z.tuple([IdSchema, JobSchema])),
@@ -80,7 +82,7 @@ export class WorkspaceDraft {
     sameKeys(this.documents.entries().map(([id]) => id), [...docs.keys()], 'document status');
     for (const [id, doc] of docs) {
       const status = this.documents.get(id);
-      const metadata = { ...doc }; delete metadata.content;
+      const metadata = { ...doc }; delete metadata.content; delete metadata.chunkIds;
       if (JSON.stringify(status) !== JSON.stringify(DocumentSchema.parse(metadata))) throw new Error('Document status mismatch');
     }
     for (const [id, job] of this.jobs.entries()) {
@@ -100,6 +102,8 @@ export class WorkspaceDraft {
       if (chunk.id !== id || !doc || doc.version !== chunk.docVersion || doc.status !== 'processed') throw new Error('Chunk document reference mismatch');
       return [id, chunk];
     }));
+    for (const [id, chunk] of chunks) if (chunk.indexVersion && !this.kv.extractions.get(id)) throw new Error('Indexed chunk extraction missing');
+    for (const doc of docs.values()) if (doc.chunkIds) sameKeys(doc.chunkIds, [...chunks.values()].filter((c) => c.docId === doc.id).map((c) => c.id), 'document chunks');
     const docEntities = new Map<string, Set<string>>(); const docRelations = new Map<string, Set<string>>();
     for (const [id, doc] of docs) {
       if (doc.status === 'processed') {
@@ -108,6 +112,17 @@ export class WorkspaceDraft {
       }
     }
     for (const [id] of this.kv.extractions.entries()) if (!chunks.has(id)) throw new Error('Extraction chunk missing');
+    for (const [id, value] of this.kv.extractions.entries()) if (value && typeof value === 'object' && 'version' in value) {
+      const ledger = LedgerSchema.parse(value); const chunk = chunks.get(id)!;
+      if (ledger.contentHash !== hash(chunk.content)) throw new Error('Extraction content identity mismatch');
+      const names = new Set(ledger.contribution.entities.map((e) => e.name));
+      for (const e of ledger.contribution.entities) if (!this.graph.getNode(entityId(e.name))?.sourceChunkIds.includes(id)) throw new Error('Missing entity contribution anchor');
+      for (const r of ledger.contribution.relationships) {
+        if (!names.has(r.source) || !names.has(r.target) || !this.graph.getEdge(entityId(r.source), entityId(r.target))?.sourceChunkIds.includes(id)) throw new Error('Missing relation contribution anchor');
+      }
+      for (const node of this.graph.serialize().nodes) if (node.sourceChunkIds.includes(id) && !ledger.contribution.entities.some((e) => entityId(e.name) === node.id)) throw new Error('Untracked entity contribution');
+      for (const edge of this.graph.serialize().edges) if (edge.sourceChunkIds.includes(id) && !ledger.contribution.relationships.some((r) => edgeId(entityId(r.source), entityId(r.target)) === edge.id)) throw new Error('Untracked relation contribution');
+    }
     const graph = this.graph.serialize();
     const entityChunks = new Map<string, Set<string>>(); const relationChunks = new Map<string, Set<string>>();
     for (const node of graph.nodes) {

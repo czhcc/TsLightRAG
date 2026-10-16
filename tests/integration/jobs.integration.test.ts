@@ -14,12 +14,12 @@ it('retains a diagnosable parser failure; explicit repeated retry creates only o
   const repeated = ImportResultSchema.parse(await (await retry()).json()); expect(repeated.job.id).toBe(second.id);
   expect((await fetch(`${service.address}/api/v1/documents/${result.document.id}/retry`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status).toBe(400);
 }));
-it('configured models park at the explicit S06 boundary without any model charges or fake processed state', async () => withService(async (service) => {
+it('configured model failure is explicit and never marks a document processed', async () => withService(async (service) => {
   const model = await startFakeModel((_r, res) => { res.writeHead(500).end('must not be called'); });
   try {
     const saved = await fetch(`${service.address}/api/v1/settings/models`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0, profiles: [textProfile(model.url), embeddingProfile(model.url)], bindings: { ...bindings, rerank: null } }) }); expect(saved.status).toBe(200);
     const { result } = await importText(service.address, '已配置模型的本地文档'); const job = await waitJob(service.address, result.job.id);
-    expect(job.status).toBe('awaiting_indexing'); expect(job.configRevision).toBe(1); expect(job.warnings?.some((w) => w.code === 'INDEXER_PENDING')).toBe(true); expect(model.requests).toHaveLength(0);
+    expect(job.status).toBe('failed'); expect(job.configRevision).toBe(1); expect(job.errorCode).toBe('MODEL_UNAVAILABLE'); expect(model.requests.length).toBeGreaterThan(0);
   } finally { await model.stop(); }
 }));
 it('cancels parked work idempotently and manual retry captures new configuration version', async () => withService(async (service) => {

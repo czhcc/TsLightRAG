@@ -50,3 +50,19 @@
 ## S05 来源状态
 
 `apps/server/src/documents/`、Worker 阶段通知、文档/任务契约与存储校验、`apps/web/src/Documents.tsx` 以及新导入/任务/取消/重启测试均为新编写，依据本仓库方案实现。未复制上游 pipeline/router/UI/提示词或夹具，无新增第三方依赖。`awaiting_indexing` 是目标端为明确 S05/S06 边界增加的状态，不宣称全部上游任务/API 兼容；GraphRAG 算法及参考验收仍待后续阶段。
+
+## S06 来源状态
+
+本阶段首次实际复用上游提示词。固定 SHA 仍为 `aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`，MIT 版权及许可全文保留在 [third_party/LightRAG/LICENSE](../third_party/LightRAG/LICENSE)。
+
+| 目标文件 | 上游来源 | 复用与修改 |
+|---|---|---|
+| `apps/server/src/indexing/prompts.ts` | `lightrag/prompt.py` 的 JSON system/user/continue/examples、summarize_entity_descriptions、keywords_extraction | 六个模板值原样保留，新增 TS 模板渲染与版本常量；关键词模板暂供 S08 使用 |
+| `indexing/extraction.ts` | `operate.py::extract_entities`、`_process_json_extraction_result` | 依据算法新写 TS；严格 schema、单完整围栏、1 次模型格式修复/1 轮 gleaning；NFKC/trim/空白折叠的目标端名称规则；类型小写及非法类型拒绝；无无效行静默丢弃 |
+| `indexing/merge.ts`、`summary.ts` | `_merge_nodes_then_upsert`、`_merge_edges_then_upsert`、`_combine_descriptions_dedup`、`_handle_entity_relation_summary` | 依据来源去重/权重/描述去重与摘要分组规则新写 TS；新来源 strength 累加并按独立证据数保底，模型预算及无进展失败保护 |
+| `scripts/reference/s06.py` 与 `tests/fixtures/graph/s06-*` | 固定 SHA 的 `utils.py` 四个规范化/清洗辅助函数、`operate.py` 描述去重函数及权重分支四条原始 AST 语句 | 单独 Python 验证执行，没有导入完整 LightRAG 服务、没有改写参考算法；输入为本仓库人工夹具，输出由 Python 生成，不是 TS 自产期望值 |
+| `indexing/indexer.ts`、贡献校验、任务/浏览器/故障测试 | 本仓库方案 | 新写 TS 文件存储与任务集成；原子提交、有效缓存、配置版本与取消检查，不复制上游异步存储接口 |
+
+差异与限制：目标端以 NFKC/trim/空白折叠规范化名称，保留大小写及语言，不复现上游全部 CJK 标点/引号/短数字过滤及容错 JSON 修复；同名实体不作语义消歧。非法/悬空/自关系整体失败，避免上游跳过坏行造成空成功。标准上游 JSON 关系默认强度为 1，目标端额外允许显式非负 `strength`（≤1000）；不要求模型输出此扩展。描述以确定的块顺序合并，类型同票采用确定规则，不承诺上游 timestamp/同长度顺序完全相同。摘要使用固定中文、500 tokens/8 描述阈值/最多 8192 输入 tokens，并进一步受所配置文本模型上下文约束；不做静默裁剪。
+
+Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权重分支，完整抽取/摘要路径及删除重建的 G01/G02 参考门槛仍待 S07/S11；G03–G12 尚未实施，不据此宣称所有 GraphRAG 算法已完成。S06 未新增 npm 依赖，Python 仅为参考验证工具，不进入应用业务运行路径。

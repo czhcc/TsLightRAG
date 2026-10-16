@@ -1,0 +1,27 @@
+{
+  "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "scope": "G01 common name samples; G02 exact description dedup and source-weight branch only; no full gate claim",
+  "sourceHashes": {
+    "utils.py": "8c49d4b0150fdfc3343d85770a46c0c49da5b6c6a81c09eb5ca10a997c8dcdbe",
+    "operate.py": "176585e3f686574ab98657b666982302ce47d58229baacb529ef601bd6799326"
+  },
+  "inputHash": "06c4bd8e6d5badf88980250109cf148db54c7e5e0942365f51bf1e8dcbc7bf79",
+  "names": [
+    "Alpha",
+    "Alpha",
+    "Beta",
+    "概念"
+  ],
+  "descriptions": [
+    "Alpha develops graph systems.",
+    "Alpha & Beta",
+    "New fact."
+  ],
+  "storedDescriptionCount": 2,
+  "weights": [
+    2.0,
+    5.0,
+    3.2,
+    2.0
+  ]
+}

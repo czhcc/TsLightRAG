@@ -1,0 +1,10 @@
+{
+  "names": ["Alpha", " Ａlpha ", "Beta", "概念"],
+  "descriptions": {"stored": ["Alpha develops graph systems.", "Alpha develops graph systems.", "Alpha &amp; Beta\u007f"], "incoming": ["Alpha develops graph systems.", "New fact.", "\u0001"]},
+  "weights": [
+    {"storedSources": [], "storedWeights": [], "incoming": [{"source_id":"c1","weight":2}], "sources":["c1"]},
+    {"storedSources": ["c1"], "storedWeights": [2], "incoming": [{"source_id":"c1","weight":2},{"source_id":"c2","weight":3}], "sources":["c1","c2"]},
+    {"storedSources": [], "storedWeights": [], "incoming": [{"source_id":"c1","weight":0.2},{"source_id":"c2","weight":3}], "sources":["c1","c2"]},
+    {"storedSources": [], "storedWeights": [], "incoming": [{"source_id":"c1","weight":0.2},{"source_id":"c2","weight":0.2}], "sources":["c1","c2"]}
+  ]
+}
