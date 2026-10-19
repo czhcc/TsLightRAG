@@ -1,0 +1,111 @@
+{
+  "change": "document and enable pnpm install/build/start alongside npm",
+  "recordedAt": "2026-10-19T07:23:34.349546+00:00",
+  "targetParent": "f0be3bfa601ca8cc0cd0c2772a38685683a2b47c",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "pnpm": "10.34.7",
+    "platform": "Linux x64 / overlayfs"
+  },
+  "validationLocation": "isolated tracked-source copy under ignored .tools; original node_modules and data preserved",
+  "commands": [
+    {
+      "command": "pnpm import",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run start --host 0.0.0.0 --port 0 --data-dir <temporary>",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run start --config examples/startup.json --port 0 --data-dir <temporary>",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run storage:inspect --data-dir <temporary>",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vitest run tests/integration/health.integration.test.ts tests/integration/network-access.integration.test.ts --reporter=dot",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "packageVersions": {
+    "npmUniquePairs": 443,
+    "pnpmUniquePairs": 443,
+    "added": [],
+    "removed": [],
+    "same": true
+  },
+  "hashes": {
+    "packageLockSha256": "c5735a0652e9cd394edb40c8b129808eb38aa0385adf89421b3087ed8ee241eb",
+    "pnpmLockSha256": "62f504ed15d0b231412171db2e48bc6c380dc5845ee8a9f54a10d93bb114049a"
+  },
+  "frozenInstallKeptLockUnchanged": true,
+  "startup": {
+    "passed": true,
+    "pnpm": "10.34.7",
+    "frozenInstall": true,
+    "typecheck": true,
+    "lint": true,
+    "build": true,
+    "wildcardStart": true,
+    "cliArgumentsWithoutSeparator": true,
+    "startupConfig": true,
+    "httpHealth": true,
+    "staticPage": true,
+    "sameOriginSave": true,
+    "settingsPersistAfterRestart": true,
+    "generationRetained": true,
+    "maintenanceArgumentForwarding": true,
+    "originalDataDirTouched": false
+  },
+  "existingHttpTests": {
+    "files": 2,
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "expectedWarnings": [
+    "Root packageManager stays npm; explicit pnpm CLI warns but continues via workspace packageManagerStrict=false",
+    "Nested npm commands warn about pnpm-specific environment config; pinned npm 11.9.0 exits 0"
+  ],
+  "environmentCorrection": "Initial pnpm import attempted a store in unavailable home; workspace now keeps pnpm store/cache/state in ignored .cache/pnpm. No permission escalation used.",
+  "ciAdded": {
+    "file": ".github/workflows/platforms.yml",
+    "job": "pnpm",
+    "remoteRunVerified": false
+  },
+  "notRun": [
+    "native Windows/macOS pnpm flow",
+    "pnpm dev/watch process",
+    "full base/E2E suite under pnpm"
+  ],
+  "npmDefaultPreserved": true,
+  "applicationSourcesChanged": false
+}

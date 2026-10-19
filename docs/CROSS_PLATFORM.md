@@ -24,6 +24,17 @@ npm.cmd start
 
 浏览器访问 `http://127.0.0.1:9621`。无需 WSL，也无需为业务配置环境变量。模型设置、导入和问答步骤见 [操作指南](OPERATIONS.md)；外部模型调用可能发送正文/问题并计费。
 
+也可用 pnpm 10.34.7（当前仅在 Linux 实际验证 pnpm 流程），Windows PowerShell 命令为：
+
+```powershell
+npm.cmd install --global pnpm@10.34.7
+pnpm.cmd install --frozen-lockfile
+pnpm.cmd run build
+pnpm.cmd run start --host 0.0.0.0 --port 9621 --data-dir ./data
+```
+
+pnpm 参数无需额外 `--`；默认仅本机访问时使用 `pnpm.cmd run start`。Corepack 与双锁文件说明见 [pnpm 操作说明](OPERATIONS.md#pnpm-安装构建与启动)。
+
 锁库随包提供 Node 24 的 Windows/macOS/Linux x64、arm64 预编译模块，正常加载时不需要本机 C++/make/Python。若预编译包与系统/Node ABI 不匹配，安装器会尝试 node-gyp；该回退才需要 Python 和平台编译工具（Windows 为 Visual Studio C++ Build Tools）。不匹配时应保留安装错误诊断，不能手动关闭锁来启动。不要跨系统复制 node_modules，分别运行 npm ci。
 
 macOS/Linux 使用 README 的 npm 命令。Python 源码参考验证是独立开发工具，不是业务入口；当前参考准备流程仍以已验收的 Linux 环境为准。

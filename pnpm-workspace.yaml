@@ -1,0 +1,18 @@
+packages:
+  - apps/server
+  - apps/web
+  - internal/contracts
+
+# Keep npm as the default package manager while supporting explicit pnpm use.
+packageManagerStrict: false
+managePackageManagerVersions: false
+linkWorkspacePackages: true
+nodeLinker: hoisted
+storeDir: .cache/pnpm/store
+cacheDir: .cache/pnpm/cache
+stateDir: .cache/pnpm/state
+
+# Match the native/tool build scripts already used by npm ci.
+onlyBuiltDependencies:
+  - esbuild
+  - fs-ext-extra-prebuilt

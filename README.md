@@ -48,6 +48,36 @@ npm run dev
 
 开发命令先构建共享契约，再启动服务端文件监听及 Vite。服务端端口为 `9621`，Vite 端口为 `5174`，通过同源代理访问后端。端口被占用时明确失败；退出后应确认两个端口均已释放；本云 runner 曾需向本次 concurrently supervisor 发送 SIGTERM，详见 [操作指南](docs/OPERATIONS.md)。npm 缓存在仓库的 `.cache/npm`，无需向用户 home 写入缓存。
 
+### 使用 pnpm
+
+也可使用 **pnpm 10.34.7**，Node/npm 版本仍按上述要求。先安装 pnpm，然后在仓库根目录执行：
+
+```bash
+npm install --global pnpm@10.34.7
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm run start
+```
+
+通过主机 IP 访问：
+
+```bash
+pnpm run start --host 0.0.0.0 --port 9621 --data-dir ./data
+```
+
+使用启动配置或开发模式：
+
+```bash
+pnpm run start --config examples/startup.json
+pnpm run dev
+```
+
+**pnpm 的脚本参数直接跟在脚本名后，不要照搬 npm 的额外 `--`。** Windows PowerShell 可使用 `pnpm.cmd`。已有服务需先停止；start 不自动构建，源码更新后先执行 `pnpm run build`。
+
+`pnpm-workspace.yaml` 配置工作区、兼容现有脚本的 hoisted 布局，以及 esbuild/锁库的安装脚本许可；`pnpm-lock.yaml` 从 npm 锁导入，不更换依赖版本。npm 仍是项目默认管理器，现有脚本内部会调用 npm，所以 pnpm 路径也需要 npm。构建中可能看到 pnpm 管理器提示或 npm 对 pnpm 配置项的 warn；本次固定版本实测不影响构建。若出现 “WARN This project is configured to use npm” 可继续；若 Corepack 在运行前拒绝，可使用 `npx --yes pnpm@10.34.7` 替代命令中的 `pnpm`，不要修改 packageManager 字段。
+
+同一个 checkout 选择一种安装方式，避免交替运行 npm ci 和 pnpm install；切换时先停止服务，移除 node_modules 后按所选锁文件重新安装，保留 data。更新依赖时先用 npm 更新 package-lock.json，再执行 `pnpm import` 并审查两份锁文件；pnpm 缓存位于被忽略的 `.cache/pnpm/`。更多命令见 [操作指南](docs/OPERATIONS.md#pnpm-安装构建与启动)。
+
 完整配置、首次导入→检索与引用→删除→重启、数据传输范围及可复制的备份恢复步骤见 [操作指南](docs/OPERATIONS.md)。无密钥字段示例见 [examples/models.json](examples/models.json)，仅供对照界面配置，不能作为启动文件或直接覆盖内部 app.json。
 
 ## 测试与检查

@@ -6,6 +6,21 @@ on:
 permissions:
   contents: read
 jobs:
+  pnpm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: npm install --global npm@11.9.0 pnpm@10.34.7
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm run build
+      - run: pnpm run start --help
+      - run: pnpm exec vitest run tests/integration/health.integration.test.ts tests/integration/network-access.integration.test.ts
   platform:
     strategy:
       fail-fast: false

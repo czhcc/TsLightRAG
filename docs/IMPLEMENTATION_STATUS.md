@@ -20,6 +20,10 @@
 | S11 | 已完成（本地验收；发布/新任务恢复未验证） | 472 基础测试 + 10 E2E；核心覆盖率行 98.17%/分支 83.51%；G01–G12 共同夹具对照及明确适配、实际安装/开发/生产验证 |
 | S12 | 已完成（源码交付范围） | 顶层 MIT/LightRAG 归属、180 个已安装生产依赖及 PDF.js 资源许可；无密钥示例、操作/备份恢复指南和最终门槛审查 |
 
+## pnpm 使用支持
+
+新增 pnpm 10.34.7 workspace 配置及从 npm 锁导入的 pnpm-lock.yaml，保留 npm 为默认管理器。两份锁的依赖名称/版本集合相同；独立目录冻结安装、typecheck/lint/build、实际启动/配置文件/同源保存/重启/维护命令和 14 项现有 HTTP 测试通过。README、操作指南与 Windows 说明已补命令，pnpm 参数不加额外 `--`；Windows/macOS 的 pnpm 流程尚未实测。详见 [pnpm 验证记录](reference/pnpm-validation.json)。
+
 ## 后续主机 IP 访问
 
 CLI/启动 JSON 支持显式 IPv4/IPv6 和通配监听；HTTP Host 校验跟随实际启动选项，数字 IP 可用，同源及 DNS Host 保护保留。默认仍为 loopback，无登录认证。源码更新后须重新 build，命令与边界见 [操作指南](OPERATIONS.md#通过主机-ip-访问)，实际验证见 [机器记录](reference/network-access-validation.json)。

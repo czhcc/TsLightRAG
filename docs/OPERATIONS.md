@@ -2,6 +2,21 @@
 
 本指南面向本地磁盘、单用户、单写者；Windows/macOS/Linux 适配与验证状态见 [跨平台说明](CROSS_PLATFORM.md)。先按 [README](../README.md) 安装 Node 24.19.0/npm 11.9.0 并执行 `npm ci && npm run build`。预编译锁模块可正常加载时无需本地编译工具。不需要配置业务环境变量或个人模型密钥才能启动和运行离线测试。安装时 node-gyp 缓存、headers 路径属于构建配置；受限 home 的云环境可用 `npm_config_devdir="$PWD/.cache/node-gyp" npm ci`，有本机 headers 时按平台配置 npm 的构建选项。
 
+## pnpm 安装、构建与启动
+
+可选择 pnpm **10.34.7**，仍需 Node 24.19.0/npm 11.9.0（构建脚本内部使用 npm）。仓库已有 pnpm workspace 和从 npm 导入的锁；使用全局 pnpm CLI 或 npx 直接运行，保持 package.json 中默认 npm 设置：
+
+```bash
+npm install --global pnpm@10.34.7
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm run start --host 127.0.0.1 --port 9621 --data-dir ./data
+```
+
+主机 IP 访问改为 `pnpm run start --host 0.0.0.0 --port 9621 --data-dir ./data`，配置文件为 `pnpm run start --config examples/startup.json`，开发模式为 `pnpm run dev`。参数不加 npm 风格的额外 `--`；维护命令同理：`pnpm run storage:inspect --data-dir ./data`。Windows PowerShell 可写成 pnpm.cmd。
+
+若 Corepack 因默认 npm 拦截 pnpm，可把 pnpm 替换为 `npx --yes pnpm@10.34.7`，例如 `npx --yes pnpm@10.34.7 run build`。直接 pnpm CLI 的 “WARN This project is configured to use npm” 是可继续的提示。不要混用两种管理器的 node_modules；切换安装方式时停止服务并移除 node_modules，再按对应锁安装，保留整个 dataDir。依赖更新时先用 npm 更新 package-lock.json，再执行 `pnpm import` 并审查 pnpm-lock.yaml；不是每次使用都重新 import 锁。内部 npm 命令可能提示 pnpm 配置相关的 warn，本次固定版本的安装和构建均退出 0。
+
 ## 启动与配置示例
 
 在仓库根目录执行：
