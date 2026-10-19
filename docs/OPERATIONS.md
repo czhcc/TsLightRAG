@@ -1,6 +1,6 @@
 # 安装、使用与备份恢复
 
-本指南面向 Linux 本地磁盘、单用户、单写者。先按 [README](../README.md) 安装 Node 24.19.0/npm 11.9.0、原生构建工具并执行 `npm ci && npm run build`。不需要配置业务环境变量或个人模型密钥才能启动和运行离线测试。安装时 node-gyp 缓存、headers 路径属于构建配置；受限 home 的云环境可用 `npm_config_devdir="$PWD/.cache/node-gyp" npm ci`，有本机 headers 时按平台配置 npm 的构建选项。
+本指南面向本地磁盘、单用户、单写者；Windows/macOS/Linux 适配与验证状态见 [跨平台说明](CROSS_PLATFORM.md)。先按 [README](../README.md) 安装 Node 24.19.0/npm 11.9.0 并执行 `npm ci && npm run build`。预编译锁模块可正常加载时无需本地编译工具。不需要配置业务环境变量或个人模型密钥才能启动和运行离线测试。安装时 node-gyp 缓存、headers 路径属于构建配置；受限 home 的云环境可用 `npm_config_devdir="$PWD/.cache/node-gyp" npm ci`，有本机 headers 时按平台配置 npm 的构建选项。
 
 ## 启动与配置示例
 
@@ -31,9 +31,11 @@ npm start -- --config examples/startup.json
 
 解析、分块、快照和检索索引位于本机，不把原始二进制交给远程解析器。索引会把正文块、抽取提示、实体/关系描述发给 extract/query/embedding，必要时发送摘要和修复/补充请求；查询会发送问题、关键词、候选证据、图上下文、所提供历史与指令到绑定的模型，重排接收问题及候选正文。检索预览也可能调用关键词/embedding/重排。全部传输经服务端执行，调用费用取决于配置的服务；“本地解析”不意味着模型推理离线。
 
-`<dataDir>/config/app.json` 与 `config/versions/` 是权限受限明文（目录 0700、文件 0600），包含候选和仍被活动快照引用的旧凭据。备份同样敏感。模型配置不通过 `.env`，浏览器不持久保存 key；不要把个人地址、密钥、文档或备份提交到 Git。默认 `data/`、`.tools/`、`.cache/`、`.env*` 和测试/构建产物已忽略；自定义目录若放仓库内，应自行加入 `.git/info/exclude`，或置于仓库外。
+`<dataDir>/config/app.json` 与 `config/versions/` 是权限受限明文（POSIX 目录 0700/文件 0600，Windows 当前账号专属 ACL），包含候选和仍被活动快照引用的旧凭据。备份同样敏感。模型配置不通过 `.env`，浏览器不持久保存 key；不要把个人地址、密钥、文档或备份提交到 Git。默认 `data/`、`.tools/`、`.cache/`、`.env*` 和测试/构建产物已忽略；自定义目录若放仓库内，应自行加入 `.git/info/exclude`，或置于仓库外。
 
 全量图谱、KV 和向量进入内存，向量检索线性扫描；并发和快照序列化增加 RAM/磁盘成本，无大规模性能承诺。当前单文件 20 MiB、正文 200 万字符，ZIP 解包 100 MiB/10,000 项；最多 1000 文档、5000 任务、2 活动任务、10 活动/排队任务，原文和关联解析产物各 256 MiB，单快照 namespace 文件 256 MiB。历史代、旧配置和未知文件不自动 GC，实际磁盘可超过这些限额，需自行监测。扫描件/OCR、加密文件和复杂版面精确还原不支持。
+
+Windows 的文件内容同步仍执行，但 Node 不提供可用的目录 fsync；当前不声明 Windows 目录元数据已持久落盘。断电保证和 POSIX 不同，细节见跨平台说明。下面的 `cp -a`/`test` 示例适用于 POSIX shell；原生 Windows 在停止写入后使用 [Windows 备份命令](CROSS_PLATFORM.md#windows-备份与还原)。
 
 ## 完整备份与还原
 

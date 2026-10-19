@@ -1,11 +1,11 @@
 import { randomUUID, createHash } from 'node:crypto';
-import { constants } from 'node:fs';
-import { chmod, lstat, open, rename, rm, link } from 'node:fs/promises';
+import { lstat, rename, rm, link } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { ModelSettingsSchema, SaveModelsSchema, TestModelSchema } from '@tslightrag/contracts';
 import type { ModelProfileInput, ModelSettings } from '@tslightrag/contracts';
-import { directory, syncDirectory, writeNew, readRegular } from '../storage/io.js';
+import { directory, syncDirectory, writeNew, readRegular, openRegular } from '../storage/io.js';
+import { protectConfigurationDirectory } from './permissions.js';
 import type { SnapshotStore, SnapshotView } from '../storage/snapshot.js';
 import { modelUrl } from './url.js';
 import { ModelError } from './errors.js';
@@ -47,15 +47,15 @@ export class ModelConfigStore {
     private readonly storage: SnapshotStore, private readonly hook?: (point: 'before-rename' | 'after-rename') => Promise<void>) {}
   static async open(dataDir: string, storage: SnapshotStore, options: { hook?: (point: 'before-rename' | 'after-rename') => Promise<void> } = {}) {
     if (!storage.healthy) throw new ModelError('CONFIG_UNAVAILABLE', '存储锁不可用', 503);
-    const dir = join(dataDir, 'config'); await directory(dir); await chmod(dir, 0o700);
+    const dir = join(dataDir, 'config'); await directory(dir); await protectConfigurationDirectory(dir);
     const path = join(dir, 'app.json'); let config = structuredClone(empty);
     try {
       const fileStat = await lstat(path);
       if (fileStat.isSymbolicLink()) throw new Error('Symlink');
-      const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+      const handle = await openRegular(path);
       try {
         const stat = await handle.stat();
-        if (!stat.isFile() || stat.size > 1024 * 1024 || (stat.mode & 0o077) !== 0) throw new Error();
+        if (!stat.isFile() || stat.size > 1024 * 1024 || (process.platform !== 'win32' && (stat.mode & 0o077) !== 0)) throw new Error();
         config = validate(ConfigSchema.parse(JSON.parse(await handle.readFile('utf8'))));
       } finally { await handle.close(); }
     } catch (error) {
@@ -63,12 +63,13 @@ export class ModelConfigStore {
     }
     const store = new ModelConfigStore(dir, config, storage, options.hook);
     store.versions.set(config.revision, structuredClone(config));
-    await directory(join(dir, 'versions')); await chmod(join(dir, 'versions'), 0o700);
+    await directory(join(dir, 'versions'));
+    if (process.platform !== 'win32') await protectConfigurationDirectory(join(dir, 'versions'));
     const refs = new Set([storage.capture().indexBinding?.configRevision, ...storage.capture().jobs().filter((j) => ['queued','parsing','chunking','extracting','embedding','committing'].includes(j.status)).map((j) => j.configRevision)]);
     for (const revision of refs) if (revision !== undefined && revision !== config.revision) {
       try {
         const path = join(dir, 'versions', `${String(revision)}.json`);
-        const stat = await lstat(path); if (stat.isSymbolicLink() || (stat.mode & 0o077)) throw new Error();
+        const stat = await lstat(path); if (stat.isSymbolicLink() || (process.platform !== 'win32' && (stat.mode & 0o077))) throw new Error();
         const old = ConfigSchema.parse(JSON.parse(await readRegular(path)));
         if (old.revision !== revision) throw new Error(); store.versions.set(revision, old);
       } catch { throw new ModelError('CONFIG_REFERENCE_INVALID', '活动索引或任务引用的配置版本缺失或损坏', 503); }

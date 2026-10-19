@@ -1,18 +1,19 @@
 import { constants } from 'node:fs';
-import { open } from 'node:fs/promises';
 import { join } from 'node:path';
-import fsExt from 'fs-ext';
+import { flockSync } from 'fs-ext-extra-prebuilt';
+import { openRegular } from './io.js';
 
 export class WriterLock {
   private released = false;
-  private constructor(private readonly handle: Awaited<ReturnType<typeof open>>) {}
+  private constructor(private readonly handle: Awaited<ReturnType<typeof openRegular>>) {}
   get held() { return !this.released; }
   static async acquire(root: string) {
-    if (process.platform !== 'linux') throw new Error('S02 file storage requires Linux local filesystem');
-    const handle = await open(join(root, 'locks/writer/lease'), constants.O_RDWR | constants.O_CREAT | constants.O_NOFOLLOW, 0o600);
+    // POSIX flock / Windows LockFileEx, held on the same persistent lease file.
+    // Keeping flock on Linux also excludes older TsLightRAG writers.
+    const handle = await openRegular(join(root, 'locks/writer/lease'), constants.O_RDWR | constants.O_CREAT);
     try {
       if (!(await handle.stat()).isFile()) throw new Error('Invalid writer lock file');
-      try { fsExt.flockSync(handle.fd, 'exnb'); }
+      try { flockSync(handle.fd, 'exnb'); }
       catch (error) {
         if (['EAGAIN', 'EWOULDBLOCK'].includes((error as NodeJS.ErrnoException).code ?? '')) {
           throw new Error('STORAGE_LOCKED: another writer owns this data directory', { cause: error });

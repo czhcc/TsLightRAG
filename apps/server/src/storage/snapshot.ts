@@ -115,8 +115,7 @@ export class SnapshotStore {
       await rename(temporary, join(this.paths.workspace, 'CURRENT'));
       published = true;
       await this.hook?.('after-current');
-      await syncDirectory(this.paths.workspace);
-      durabilityConfirmed = true;
+      durabilityConfirmed = await syncDirectory(this.paths.workspace);
       this.current = next;
       await this.hook?.('after-current-sync');
       return { generation: manifest.generation, revision: manifest.revision, corpusRevision: manifest.corpusRevision, published: true as const };

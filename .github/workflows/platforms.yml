@@ -1,0 +1,31 @@
+name: Platform storage and application
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  platform:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@11.9.0
+      - run: npm ci --foreground-scripts
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - name: Native lock, restart, crash checkpoints, credentials and recovery
+        run: npx vitest run tests/integration/writer-lock.integration.test.ts tests/integration/platform-storage.integration.test.ts tests/integration/snapshot-crash.integration.test.ts tests/integration/config-crash.integration.test.ts --testTimeout=60000
+      - run: npx playwright install chromium
+      - name: Browser configuration, import, query, references, deletion and restart
+        run: npx playwright test tests/e2e/application.spec.ts

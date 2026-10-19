@@ -23,8 +23,34 @@ export async function layout(dataDir: string) {
   return { root, workspace: join(root, 'workspace/default'), generations: join(root, 'workspace/default/generations') };
 }
 export async function syncDirectory(path: string) {
+  // Node cannot fsync directory handles on Windows. Still validate the path;
+  // file fsync + same-volume rename provide process-crash recovery, not a
+  // confirmed directory flush/power-loss guarantee on this platform.
+  if (process.platform === 'win32') {
+    const stat = await lstat(path);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('Invalid storage directory');
+    return false;
+  }
   const handle = await open(path, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
   try { await handle.sync(); } finally { await handle.close(); }
+  return true;
+}
+export async function openRegular(path: string, flags = constants.O_RDONLY) {
+  // O_NOFOLLOW is unavailable on Windows. Check reparse/symlink entries and
+  // compare the opened identity on all platforms; never truncate before this.
+  try {
+    const entry = await lstat(path);
+    if (!entry.isFile() || entry.isSymbolicLink()) throw new Error('Invalid storage file or symlink');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || !(flags & constants.O_CREAT)) throw error;
+  }
+  const handle = await open(path, flags | (constants.O_NOFOLLOW ?? 0), 0o600);
+  try {
+    const [entry, opened] = await Promise.all([lstat(path), handle.stat()]);
+    if (!entry.isFile() || entry.isSymbolicLink() || !opened.isFile()
+      || entry.dev !== opened.dev || entry.ino !== opened.ino) throw new Error('Storage file identity changed or symlink');
+    return handle;
+  } catch (error) { await handle.close(); throw error; }
 }
 export async function writeNew(path: string, contents: string) {
   if (Buffer.byteLength(contents, 'utf8') > 256 * 1024 * 1024) throw new Error('Storage namespace exceeds 256 MiB');
@@ -32,7 +58,7 @@ export async function writeNew(path: string, contents: string) {
   try { await handle.writeFile(contents, 'utf8'); await handle.sync(); } finally { await handle.close(); }
 }
 export async function readRegular(path: string) {
-  const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+  const handle = await openRegular(path);
   try {
     const stat = await handle.stat();
     if (!stat.isFile() || stat.size > 256 * 1024 * 1024) throw new Error('Invalid or oversized storage file');

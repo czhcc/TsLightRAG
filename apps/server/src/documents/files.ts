@@ -5,7 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { ParsedDocumentSchema, SourceLocationSchema, IdSchema } from '@tslightrag/contracts';
 import type { DocumentRecord, JobRecord } from '@tslightrag/contracts';
-import { directory, syncDirectory } from '../storage/io.js';
+import { directory, syncDirectory, openRegular } from '../storage/io.js';
 import { ModelError } from '../models/errors.js';
 import type { TextChunk } from '../core/chunker.js';
 export const digest = (data: Uint8Array | string) => createHash('sha256').update(data).digest('hex');
@@ -21,7 +21,7 @@ export class DocumentFiles {
   constructor(private readonly root: string) {}
   async initialize() { for (const dir of ['documents', 'staging']) await directory(join(this.root, dir)); }
   private async read(path: string, cap: number) {
-    const handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    const handle = await openRegular(path);
     try { const stat = await handle.stat(); if (!stat.isFile() || stat.size > cap) throw new Error(); return await handle.readFile(); }
     finally { await handle.close(); }
   }

@@ -92,7 +92,7 @@ it.each(['after-current', 'after-current-sync'] as CommitPoint[])('reports publi
     armed = true;
     const error = await store.transact((draft) => { draft.kv.caches.set('key', 'published'); }).catch((error: unknown) => error);
     expect(error).toBeInstanceOf(PublishedCommitError);
-    expect(error).toMatchObject({ published: true, durabilityConfirmed: point === 'after-current-sync' });
+    expect(error).toMatchObject({ published: true, durabilityConfirmed: process.platform !== 'win32' && point === 'after-current-sync' });
     expect(store.healthy).toBe(false); expect(() => store.capture()).toThrow('fenced');
     await expect(store.transact(() => {})).rejects.toThrow('fenced');
     await store.close(); store = await SnapshotStore.open(directory.path);

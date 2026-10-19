@@ -1,0 +1,164 @@
+{
+  "change": "cross-platform kernel writer lock and filesystem compatibility",
+  "recordedAt": "2026-10-19T06:39:54.602699+00:00",
+  "targetParent": "dcb6eec8ed76abef9a94d308fc8775280516b7cb",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "filesystem": "overlayfs",
+    "browser": "/usr/bin/chromium"
+  },
+  "packageLockSha256": "c5735a0652e9cd394edb40c8b129808eb38aa0385adf89421b3087ed8ee241eb",
+  "lock": {
+    "package": "fs-ext-extra-prebuilt",
+    "version": "2.2.14",
+    "license": "MIT",
+    "sourceGitHead": "43f4655ab079ae4e9399bf0e3c00c65925c66f6e",
+    "linuxBackend": "flock",
+    "macosBackend": "flock",
+    "windowsBackend": "LockFileEx",
+    "localLoadedModule": "binaries/fs-ext-linux-x64-node-24.0.0.node",
+    "oldLinuxFlockInteroperability": "both directions passed",
+    "stalePidOrHeartbeatTakeover": false,
+    "nativeModuleSource": "prebuilt"
+  },
+  "commands": [
+    {
+      "command": "npm ci --foreground-scripts",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run --coverage --reporter=json --outputFile=.tools/platform-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run tests/integration/platform-storage.integration.test.ts tests/integration/writer-lock.integration.test.ts apps/server/src/models/config.test.ts --reporter=dot",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs --write",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "base": {
+      "files": 72,
+      "passed": 477,
+      "failed": 0,
+      "skipped": 0,
+      "unitContractComponent": 267,
+      "integration": 210,
+      "protocolSubsetOfUnit": 36
+    },
+    "e2e": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "coreCoverage": {
+      "lines": {
+        "total": 835,
+        "covered": 816,
+        "skipped": 0,
+        "pct": 97.72
+      },
+      "statements": {
+        "total": 1406,
+        "covered": 1319,
+        "skipped": 0,
+        "pct": 93.81
+      },
+      "functions": {
+        "total": 322,
+        "covered": 313,
+        "skipped": 0,
+        "pct": 97.2
+      },
+      "branches": {
+        "total": 768,
+        "covered": 641,
+        "skipped": 0,
+        "pct": 83.46
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "validation": {
+    "coldInstallUsedPrebuiltWithoutCompiling": true,
+    "sameProcessWriterExclusion": true,
+    "separateDirectoryAllowed": true,
+    "processKillReleasesKernelLock": true,
+    "forgedOrAgedMetadataCannotStealLock": true,
+    "oldAndNewLinuxWritersMutuallyExclusive": true,
+    "currentGenerationNotResetOnCorruption": true,
+    "explicitRecoveryRequired": true,
+    "modelCredentialsPersistedAndPubliclyMasked": true,
+    "unicodeAndQuotePath": true,
+    "renameFailurePreservesOldState": true,
+    "publicationFailureFencesWriter": true,
+    "windowsDirectoryFlushNotClaimed": true
+  },
+  "ci": {
+    "file": ".github/workflows/platforms.yml",
+    "platforms": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-latest"
+    ],
+    "executedRemote": false,
+    "windowsRealAclAssertionsIncluded": true,
+    "linuxOnlyLegacyFlockTestSkippedOnOtherPlatforms": true
+  },
+  "licenses": {
+    "installedProductionPackages": 180,
+    "absentOptionalPackages": 9,
+    "newPackageSupplementalSourceRecorded": true
+  },
+  "corrections": [
+    "Initial new test fixture bound a nonexistent rerank profile; fixed fixture to rerank=null, no business assertions weakened."
+  ],
+  "notRun": [
+    "native Windows build/run/ACL/crash/browser tests",
+    "native macOS build/run/crash/browser tests",
+    "physical power loss",
+    "NFS/SMB/network volumes",
+    "real model providers",
+    "Windows robocopy examples",
+    "remote CI workflow execution"
+  ],
+  "schemaChanged": false,
+  "graphAlgorithmsChanged": false,
+  "originalDataDirModified": false,
+  "committedPersonalCredentials": false
+}

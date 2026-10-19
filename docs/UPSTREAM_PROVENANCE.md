@@ -129,3 +129,7 @@ TS 补充抽取描述改为按 Unicode code point 保留较长、等长保留首
 ## S12 许可交付
 
 顶层 MIT 保留 LightRAG Team 版权并为本仓库贡献保留 TsLightRAG contributors 归属。新增 [NOTICE](../NOTICE.md)、实际安装生产依赖清单与完整许可文本，保留 PDF.js 各类资源的独立许可；npm 遗漏原文的补充来源在 NOTICE 逐项说明。S12 未改写业务算法、提示词、API 或索引 schema，没有新增 npm 依赖；健康功能阶段仍为 S11。源码交付门槛和实际操作验证见 [S12 记录](S12_VALIDATION.md)。未来分发原生二进制/预装依赖的额外归属核对单独执行。
+
+## 后续跨平台变更
+
+移除 fs-ext 2.1.1 / @types/fs-ext，改用 fs-ext-extra-prebuilt 2.2.14（MIT，WordPress Playground team、继承 Matt Sergeant 的 fs-ext 来源）；nan 随依赖更新为 2.30.0。锁库包内附预编译模块与原生源码，许可证遗漏从 npm gitHead `43f4655ab079ae4e9399bf0e3c00c65925c66f6e` 的 LICENSE.txt 补充，见 [NOTICE](../NOTICE.md)。本仓库新写平台文件校验、Windows ACL 适配及测试，未改上游图谱算法、提示词或快照格式。Linux 继续 flock 避免与旧版锁域分离；Windows 使用包内 LockFileEx。实际证据和目录同步差异见 [跨平台说明](CROSS_PLATFORM.md)，Windows/macOS 实机尚待 CI。

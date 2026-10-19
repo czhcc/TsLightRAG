@@ -1,6 +1,6 @@
 {
   "scope": "installed production dependencies; Linux x64 onboarding installation",
-  "packageLockSha256": "f3701c273720794207741d9d9280a688f9dce9aada8dd4071a28d061c41135a7",
+  "packageLockSha256": "c5735a0652e9cd394edb40c8b129808eb38aa0385adf89421b3087ed8ee241eb",
   "packages": [
     {
       "path": "node_modules/@fastify/accept-negotiator",
@@ -855,13 +855,13 @@
       ]
     },
     {
-      "path": "node_modules/fs-ext",
-      "name": "fs-ext",
-      "version": "2.1.1",
+      "path": "node_modules/fs-ext-extra-prebuilt",
+      "name": "fs-ext-extra-prebuilt",
+      "version": "2.2.14",
       "license": "MIT",
       "texts": [
         {
-          "source": "node_modules/fs-ext/LICENSE.txt",
+          "source": "node_modules/fs-ext-extra-prebuilt/LICENSE.txt",
           "sha256": "cb5aedb296c5246d1f22e9099f925a65146f9f0d6b4eebba97fd27a6cdbbab2d"
         }
       ]
@@ -1493,7 +1493,7 @@
     {
       "path": "node_modules/nan",
       "name": "nan",
-      "version": "2.29.0",
+      "version": "2.30.0",
       "license": "MIT",
       "texts": [
         {

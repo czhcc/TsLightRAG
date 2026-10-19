@@ -12,7 +12,7 @@ export function storageProcess(dataDir: string, mode: 'hold' | 'crash' | 'config
   });
   return { child,
     wait: async (event: 'ready' | 'checkpoint') => {
-      const deadline = Date.now() + 8000;
+      const deadline = Date.now() + (process.platform === 'win32' ? 40_000 : 8000);
       while (Date.now() < deadline) {
         if (output.includes(`"event":"${event}"`)) return;
         if (child.exitCode !== null || child.signalCode !== null) throw new Error(`Fixture exited: ${errors}`);

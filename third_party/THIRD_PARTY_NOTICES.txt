@@ -1952,10 +1952,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-fs-ext@2.1.1 (MIT)
-node_modules/fs-ext
+fs-ext-extra-prebuilt@2.2.14 (MIT)
+node_modules/fs-ext-extra-prebuilt
 
---- node_modules/fs-ext/LICENSE.txt ---
+--- node_modules/fs-ext-extra-prebuilt/LICENSE.txt ---
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -3543,7 +3543,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-nan@2.29.0 (MIT)
+nan@2.30.0 (MIT)
 node_modules/nan
 
 --- node_modules/nan/LICENSE.md ---

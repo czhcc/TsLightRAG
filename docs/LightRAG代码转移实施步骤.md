@@ -389,6 +389,8 @@ npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
 | A16 | 冷安装与浏览器闭环 | lockfile 安装、构建、真实 UI/API、模型配置和持久化全链路 | S10/S11/S12 |
 | A17 | 核心图谱算法保真 | G01–G12 有 TS 实现及参考执行证据，默认 VECTOR、WEIGHT 配额、排序、融合、权重与来源均对照；不以图谱界面替代算法 | S06/S07/S08/S09/S11 |
 
+跨平台后续适配已加入 Windows LockFileEx、POSIX flock、配置 ACL 和三平台 CI；Linux 本地回归与待验证项见 [跨平台说明](CROSS_PLATFORM.md)。此后续变更不改写 S02/S11/S12 的历史平台验收结论。
+
 ## 17. 推进和变更规则
 
 - 当前 S01–S12 已完成本地范围与源码交付审查，见 [S12 记录](S12_VALIDATION.md)；G01–G12 以共同夹具和明确适配通过，不以页面闭环替代算法参考，也不宣称真实模型结果或整个 Python 服务等价。

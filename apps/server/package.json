@@ -9,7 +9,7 @@
     "@tslightrag/contracts": "0.1.0",
     "csv-parse": "7.0.3",
     "fastify": "5.12.7",
-    "fs-ext": "2.1.1",
+    "fs-ext-extra-prebuilt": "2.2.14",
     "js-tiktoken": "1.0.21",
     "parse5": "8.0.1",
     "pdfjs-dist": "6.4.299",

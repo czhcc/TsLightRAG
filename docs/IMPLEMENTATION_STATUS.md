@@ -20,6 +20,10 @@
 | S11 | 已完成（本地验收；发布/新任务恢复未验证） | 472 基础测试 + 10 E2E；核心覆盖率行 98.17%/分支 83.51%；G01–G12 共同夹具对照及明确适配、实际安装/开发/生产验证 |
 | S12 | 已完成（源码交付范围） | 顶层 MIT/LightRAG 归属、180 个已安装生产依赖及 PDF.js 资源许可；无密钥示例、操作/备份恢复指南和最终门槛审查 |
 
+## 后续跨平台适配
+
+文件锁更换为带 Windows/macOS/Linux 预编译模块的 fs-ext-extra-prebuilt 2.2.14，移除 fs-ext/@types/fs-ext；Windows 使用 LockFileEx，POSIX 继续 flock，因此 Linux 旧版和新版仍互斥。适配 Windows 目录同步差异及配置 ACL，补文件身份/链接校验和三平台 CI。实际回归结果与实机待验证边界见 [跨平台记录](CROSS_PLATFORM.md)；不将 CI 文件存在当作 Windows/macOS 实测通过。
+
 ## S12 交付审查
 
 - 完成顶层 MIT、LightRAG Team 版权和第三方归属；生成 180 个已安装生产依赖及 PDF.js CMap/字体/ICC/WASM 原文与 hash 清单，记录 9 个未安装的可选平台包。`node scripts/licenses.mjs` 可离线核对；源码许可不替代未来预装依赖/原生二进制分发审查。

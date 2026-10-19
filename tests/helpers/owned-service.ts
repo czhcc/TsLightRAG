@@ -28,7 +28,7 @@ export async function startService(args: string[] = [], env: NodeJS.ProcessEnv =
     }
   }
   try {
-    const deadline = Date.now() + 10_000;
+    const deadline = Date.now() + (process.platform === 'win32' ? 40_000 : 10_000);
     while (Date.now() < deadline) {
       if (child.exitCode !== null || child.signalCode !== null) throw new Error(`Service exited: ${errors}`);
       const line = output.split('\n').find((item) => item.startsWith('{'));

@@ -12,6 +12,7 @@ const supplemental = {
   'js-tiktoken': 'third_party/supplemental/js-tiktoken-LICENSE',
   saxes: 'third_party/supplemental/saxes-LICENSE',
   'abstract-logging': 'third_party/supplemental/abstract-logging-LICENSE',
+  'fs-ext-extra-prebuilt': 'third_party/supplemental/fs-ext-extra-prebuilt-LICENSE.txt',
 };
 const packages = [], absentOptional = [];
 let notices = 'TsLightRAG — installed production dependency notices\n\n'

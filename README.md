@@ -10,7 +10,7 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 使用 Node.js **24.19.0** 与 npm **11.9.0**（版本约束见 `.node-version` 和 `package.json`），在仓库根目录执行：
 
-当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 用于安装时编译及可选源码参考验证，不参与应用运行、文档解析或模型调用。
+文件锁已适配 Windows、macOS、Linux，使用 `fs-ext-extra-prebuilt@2.2.14` 的 Windows LockFileEx / POSIX flock，常见 x64/arm64 + Node 24 使用随包预编译模块，无需为锁库本地编译。找不到可加载的预编译模块时，安装器会尝试 node-gyp，届时才需要平台编译工具和 Python。Python 不参与应用运行、文档解析或模型调用。当前实际回归平台为 Linux；Windows/macOS 实机结果待三平台 CI 验证，详见 [跨平台说明](docs/CROSS_PLATFORM.md)。
 
 ```bash
 git clone https://github.com/czhcc/TsLightRAG.git
@@ -66,7 +66,7 @@ S11 验证结果：**472 项测试和 10 项浏览器 E2E 通过**，无失败�
 
 “测试连接”使用未保存的候选设置发送示例文本，可能计费，不修改索引或保存配置。“保存配置”只保存；版本冲突时重新加载再编辑。密钥留空表示保留，勾选清除表示删除；修改地址后须重新输入或清除旧密钥。保存后密码框清空，GET 只返回 hasApiKey，浏览器不持久保存密钥。
 
-配置在本机以权限受限明文保存（目录 0700、文件 0600），不是加密保险库；不要提交 data/。活动快照及在途任务所需的旧凭据版本保留在 `config/versions/`，清除候选密钥不会清除这些版本；配置历史目前不自动回收。允许显式配置 localhost/LAN 模型，拒绝 metadata/link-local 和自动重定向，保留 HTTPS 证书校验。当前已验证本地协议夹具，未验证外部真实提供商。
+配置在本机以权限受限明文保存（POSIX 目录 0700/文件 0600，Windows 配置树应用当前账号专属 ACL），不是加密保险库；不要提交 data/。活动快照及在途任务所需的旧凭据版本保留在 `config/versions/`，清除候选密钥不会清除这些版本；配置历史目前不自动回收。允许显式配置 localhost/LAN 模型，拒绝 metadata/link-local 和自动重定向，保留 HTTPS 证书校验。当前已验证本地协议夹具，未验证外部真实提供商。
 
 ## 本地解析与分块
 
@@ -200,11 +200,12 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [S09 验证记录](docs/S09_VALIDATION.md)：真实生成、NDJSON、停止/断连、缓存身份/失效与 Python 提示传递参考。
 - [S10 验证记录](docs/S10_VALIDATION.md)：模型/文档/查询/图谱界面闭环、安全渲染、共享删除与重启验证。
 - [S11 完整验收报告](docs/VALIDATION_REPORT.md)：分类测试、覆盖率、G01–G12 参考对照、故障恢复和可复用运行配置。
+- [跨平台说明](docs/CROSS_PLATFORM.md)：原生 Windows 安装、内核锁、ACL、持久化差异和验证边界。
 - [操作指南](docs/OPERATIONS.md)：配置示例、首次使用、费用/数据边界、完整备份及损坏恢复。
 - [S12 交付记录](docs/S12_VALIDATION.md)：最终门槛、许可和源码范围核对。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 **S01–S12 本地范围及源码交付审查**，见 [S12 记录](docs/S12_VALIDATION.md)。G01–G12 的共同夹具最低断言已按明确适配通过；真实供应商、非 Linux、云发布和新任务恢复仍未验证。
+当前已完成源码分析、方案文档和 **S01–S12 本地范围及源码交付审查**，见 [S12 记录](docs/S12_VALIDATION.md)。G01–G12 的共同夹具最低断言已按明确适配通过；真实供应商、Windows/macOS 实机、云发布和新任务恢复仍未验证；跨平台适配及 CI 入口见 [跨平台说明](docs/CROSS_PLATFORM.md)。
 
 ## 首版不包含
 
