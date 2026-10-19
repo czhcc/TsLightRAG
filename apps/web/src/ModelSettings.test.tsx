@@ -3,10 +3,36 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, it, vi } from 'vitest';
 import { ModelSettingsEditor } from './ModelSettings.js';
-import { ModelSettingsSchema } from '@tslightrag/contracts';
+import { IdSchema, ModelSettingsSchema } from '@tslightrag/contracts';
 import { textProfile, embeddingProfile, rerankProfile, bindings } from '../../../tests/helpers/model-profiles.js';
 import type { ApplicationApi } from './api/client.js';
-afterEach(cleanup);
+import type { SaveModels } from '@tslightrag/contracts';
+import { webcrypto } from 'node:crypto';
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it('adds distinct text, embedding and rerank profiles and saves bindings without crypto.randomUUID', async () => {
+  vi.stubGlobal('crypto', { getRandomValues: webcrypto.getRandomValues.bind(webcrypto) });
+  expect(crypto.randomUUID).toBeUndefined();
+  const initial = ModelSettingsSchema.parse({ profiles: [], revision: 0, editingAvailable: true,
+    bindings: { query: null, extract: null, keyword: null, embedding: null, rerank: null } });
+  const api: ApplicationApi = { health: vi.fn(), models: vi.fn(), testModel: vi.fn(),
+    saveModels: vi.fn().mockImplementation(async (input: SaveModels) => ModelSettingsSchema.parse({
+      revision: 1, editingAvailable: true, bindings: input.bindings,
+      profiles: input.profiles.map(({ apiKey, ...profile }) => ({ ...profile, hasApiKey: Boolean(apiKey) })),
+    })) };
+  const onSaved = vi.fn();
+  render(<ModelSettingsEditor initial={initial} api={api} onSaved={onSaved} />);
+  for (const name of ['文本模型', '文本模型', '向量模型', '重排模型']) {
+    await userEvent.click(screen.getByRole('button', { name: `添加${name}` }));
+  }
+  await userEvent.click(screen.getByRole('button', { name: '保存配置' }));
+  expect(await screen.findByText('模型配置已保存')).toBeTruthy();
+  const saved = vi.mocked(api.saveModels).mock.calls[0]![0];
+  expect(saved.profiles).toHaveLength(4);
+  expect(new Set(saved.profiles.map(p => p.id)).size).toBe(4);
+  for (const profile of saved.profiles) expect(IdSchema.safeParse(profile.id).success).toBe(true);
+  expect(saved.bindings).toMatchObject({ query: saved.profiles[0]!.id, embedding: saved.profiles[2]!.id, rerank: saved.profiles[3]!.id });
+  expect(onSaved).toHaveBeenCalledOnce();
+});
 it('tests independent unsaved endpoints, preserves omitted keys, clears explicitly and reloads conflicts', async () => {
   const profiles = [textProfile('http://127.0.0.1:8001/v1'), embeddingProfile('http://127.0.0.1:8002/v1'), rerankProfile('http://127.0.0.1:8003/rank')].map(p => {
     const { apiKey, ...rest } = p; return { ...rest, hasApiKey: Boolean(apiKey) };

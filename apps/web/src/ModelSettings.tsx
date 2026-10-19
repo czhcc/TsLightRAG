@@ -22,7 +22,11 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
     setMessage('');
   }
   function add(kind: ModelProfileInput['kind']) {
-    const id = `${kind}-${crypto.randomUUID()}`;
+    // getRandomValues is also available on HTTP IP origins, unlike randomUUID.
+    // Profile IDs are opaque identifiers; retain 128 random bits without needing
+    // a secure-context-only API or falling back to Math.random.
+    const random = crypto.getRandomValues(new Uint8Array(16));
+    const id = `${kind}-${Array.from(random, byte => byte.toString(16).padStart(2, '0')).join('')}`;
     const profile = ModelProfileInputSchema.parse({ id, kind, name: labels[kind],
       protocol: kind === 'rerank' ? 'cohere-compatible' : 'openai-compatible',
       endpoint: 'http://127.0.0.1:8000/v1', model: 'your-model', timeoutMs: 30000, maxConcurrency: 2,

@@ -48,6 +48,8 @@ Windows PowerShell 可将 `npm` 写成 `npm.cmd`。先正常停止使用此 data
 
 应用没有登录认证；网络上的可访问客户端可以配置模型、查询和操作文档，因此仅开放给受信任的网络/客户端。
 
+HTTP 主机 IP 通常不属于浏览器安全上下文，可能没有 crypto.randomUUID。模型设置页已改用 HTTP 下可用的 crypto.getRandomValues 生成随机标识，原有配置继续保留。若添加模型仍报 `crypto.randomUUID is not a function`，请拉取修复、重新 build、重启服务并刷新页面，避免继续运行已打开页面中的旧脚本。
+
 ## 首次完整使用
 
 1. 在模型页保存 query/embedding；按需测试三个不同地址。测试通过只证明该次协议请求，不代表抽取或生成质量。

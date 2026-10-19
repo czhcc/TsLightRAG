@@ -43,3 +43,31 @@ test('production UI and same-origin settings writes work through an IP on wildca
     await expect(page.getByText('已保存模型：0 · 当前配置版本：1')).toBeVisible();
   } finally { await service.stop(); }
 });
+
+test('adds and persists all model kinds when crypto.randomUUID is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    // Match the API surface of an HTTP IP origin without bypassing runner proxy policy.
+    Object.defineProperty(window.crypto, 'randomUUID', { value: undefined, configurable: true });
+  });
+  const service = await startService(['--host', '0.0.0.0']);
+  const address = `http://127.0.0.1:${new URL(service.address).port}`;
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  try {
+    await page.goto(`${address}/settings/models`);
+    expect(await page.evaluate(() => typeof crypto.randomUUID)).toBe('undefined');
+    for (const name of ['文本模型', '文本模型', '向量模型', '重排模型']) {
+      await page.getByRole('button', { name: `添加${name}`, exact: true }).click();
+    }
+    await expect(page.getByRole('group', { name: '配置 4', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '保存配置', exact: true }).click();
+    await expect(page.getByText('模型配置已保存', { exact: true })).toBeVisible();
+    const saved = await (await page.request.get(`${address}/api/v1/settings/models`)).json();
+    const ids = saved.profiles.map((profile: { id: string }) => profile.id);
+    expect(new Set(ids).size).toBe(4);
+    expect(saved.bindings).toMatchObject({ query: ids[0], embedding: ids[2], rerank: ids[3] });
+    await page.reload();
+    await expect(page.getByText('已保存模型：4 · 当前配置版本：1')).toBeVisible();
+    await expect(page.getByRole('group', { name: '配置 4', exact: true })).toBeVisible();
+    expect(errors).toEqual([]);
+  } finally { await service.stop(); }
+});

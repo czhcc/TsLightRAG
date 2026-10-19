@@ -1,0 +1,86 @@
+{
+  "change": "fix add-model crash when browser crypto.randomUUID is unavailable on HTTP IP origins",
+  "recordedAt": "2026-10-19T07:39:23.400150+00:00",
+  "targetParent": "c4741d5db2d1e2284b1ed7c60a498878805eff3f",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux x64; system Chromium"
+  },
+  "implementation": "Use crypto.getRandomValues over 16 bytes for new opaque model IDs, without calling crypto.randomUUID or Math.random; existing IDs preserved",
+  "commands": [
+    {
+      "command": "npm run typecheck (final)",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint (final)",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run apps/web/src --reporter=json --outputFile=.tools/http-model-web-tests.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test tests/e2e/bootstrap.spec.ts tests/e2e/models.spec.ts --reporter=line",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run apps/web/src/ModelSettings.test.tsx --reporter=dot (final)",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test tests/e2e/bootstrap.spec.ts --grep crypto.randomUUID --reporter=json (final)",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "webSuite": {
+      "files": 8,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0
+    },
+    "selectedBrowserSuite": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0
+    },
+    "finalFocusedBrowserSubset": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    }
+  },
+  "verified": {
+    "randomUuidRemovedBeforeBrowserAppStarts": true,
+    "getRandomValuesAvailable": true,
+    "twoTextProfilesHaveDistinctIds": true,
+    "allThreeModelKindsAdded": true,
+    "idsMeetSharedContract": true,
+    "roleBindingsCorrect": true,
+    "savedViaActualServer": true,
+    "idsAndProfilesPreservedAfterReload": true,
+    "browserPageErrors": 0,
+    "existingModelProtocolAndConflictBrowserTestsPassed": true
+  },
+  "testCorrection": "Removed unsupported Testing Library ByRole exact option; final typecheck passed. Profile IDs checked against shared IdSchema rather than an implementation-specific UUID format.",
+  "notRun": [
+    "actual browser navigation to a non-loopback insecure origin beyond runner proxy",
+    "native Windows/macOS browser tests",
+    "full backend test suite this change"
+  ],
+  "dependenciesChanged": false,
+  "snapshotsOrConfigSchemaChanged": false,
+  "originalDataDirModified": false,
+  "notes": "Browser regression simulates missing randomUUID on loopback; it does not claim a real insecure-origin browser run. Browser cases overlap and are not added as separate totals."
+}
