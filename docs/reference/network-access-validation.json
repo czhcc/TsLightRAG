@@ -1,0 +1,96 @@
+{
+  "change": "explicit host IP / wildcard listening with same-origin and DNS Host protection",
+  "recordedAt": "2026-10-19T07:09:00.613227+00:00",
+  "targetParent": "c7976b6cd494988883dd7366f20ecd7c295f005d",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux x64; overlayfs; system Chromium"
+  },
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run --reporter=json --outputFile=.tools/network-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run tests/integration/network-access.integration.test.ts --reporter=dot",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test tests/e2e/bootstrap.spec.ts --reporter=line",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json (final run)",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "base": {
+      "files": 74,
+      "passed": 485,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2eFinal": {
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    }
+  },
+  "verified": {
+    "cliAndStartupJsonAcceptNetworkIpAndWildcard": true,
+    "defaultLoopbackHostIsolationPreserved": true,
+    "sameOriginIpHostHealthRequest": true,
+    "actualNonLoopbackNicDirectHttpRequest": true,
+    "foreignOriginRejected": true,
+    "crossSiteRejected": true,
+    "arbitraryDnsHostRejected": true,
+    "lookalikeDnsHostRejected": true,
+    "productionStaticPageServedUnderWildcardBinding": true,
+    "realBrowserSettingsReadSaveReloadOnLoopbackWithWildcardBinding": true
+  },
+  "browserEnvironmentCorrection": {
+    "initialAttempt": "NIC IP browser navigation returned Domain forbidden from runner proxy; application direct HTTP passed",
+    "resolution": "Kept runner proxy policy unchanged; direct node:http tests cover real NIC IP/Host/Origin, browser tests cover wildcard-listening UI/API on loopback",
+    "finalFullBrowserSuitePassed": true
+  },
+  "notRun": [
+    "external machine browser/firewall/NAT reachability",
+    "non-loopback browser navigation beyond runner proxy",
+    "native Windows/macOS execution",
+    "actual non-loopback IPv6 network execution",
+    "real model providers"
+  ],
+  "defaultHost": "127.0.0.1",
+  "wildcardHosts": [
+    "0.0.0.0",
+    "::"
+  ],
+  "authenticationAdded": false,
+  "corsWildcardAdded": false,
+  "dependenciesChanged": false,
+  "schemaChanged": false,
+  "originalDataDirModified": false
+}

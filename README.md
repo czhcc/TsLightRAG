@@ -20,7 +20,7 @@ npm run build
 npm start
 ```
 
-生产入口使用 loopback 端口 `9621`，同时提供静态 WebUI 和 `/api/v1` API。模型设置路径为 `/settings/models`。启动不要求模型 key 或业务环境变量；首次未配置模型时页面显示“服务已启动，知识库尚未就绪”；配置齐备后可导入文档并检索问答。
+生产入口默认使用 loopback 端口 `9621`，同时提供静态 WebUI 和 `/api/v1` API。模型设置路径为 `/settings/models`。启动不要求模型 key 或业务环境变量；首次未配置模型时页面显示“服务已启动，知识库尚未就绪”；配置齐备后可导入文档并检索问答。
 
 启动参数示例：
 
@@ -29,7 +29,16 @@ npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
 npm start -- --config examples/startup.json
 ```
 
-可选启动 JSON（仓库提供 [examples/startup.json](examples/startup.json)） 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置；模型配置通过界面保存在 `<dataDir>/config/app.json`。应用会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
+可选启动 JSON（仓库提供 [examples/startup.json](examples/startup.json)） 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置；模型配置通过界面保存在 `<dataDir>/config/app.json`。应用会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。默认仅 loopback 监听；可显式指定主机 IPv4/IPv6 或 `0.0.0.0` / `::`。`--port 0` 可让系统分配空闲端口。
+
+通过主机 IP 访问（先更新代码并重新构建）：
+
+```bash
+npm run build
+npm start -- --host 0.0.0.0 --port 9621 --data-dir ./data
+```
+
+其他电脑打开 `http://主机IP:9621`，并在主机防火墙放行 TCP 9621。也可用 `--host 主机的具体IP` 只监听一块网卡；`0.0.0.0` 是监听地址，浏览器应填写实际 IP。当前无登录认证，只向受信任客户端开放。直接 IP 访问保留同源校验，任意 DNS 域名仍被拒绝；这不包含反向代理/域名配置。详见 [网络访问说明](docs/OPERATIONS.md#通过主机-ip-访问)。
 
 开发模式：
 

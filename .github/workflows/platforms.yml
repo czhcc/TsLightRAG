@@ -25,7 +25,7 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - name: Native lock, restart, crash checkpoints, credentials and recovery
-        run: npx vitest run tests/integration/writer-lock.integration.test.ts tests/integration/platform-storage.integration.test.ts tests/integration/snapshot-crash.integration.test.ts tests/integration/config-crash.integration.test.ts --testTimeout=60000
+        run: npx vitest run tests/integration/writer-lock.integration.test.ts tests/integration/platform-storage.integration.test.ts tests/integration/network-access.integration.test.ts tests/integration/snapshot-crash.integration.test.ts tests/integration/config-crash.integration.test.ts --testTimeout=60000
       - run: npx playwright install chromium
       - name: Browser configuration, import, query, references, deletion and restart
-        run: npx playwright test tests/e2e/application.spec.ts
+        run: npx playwright test tests/e2e/application.spec.ts tests/e2e/bootstrap.spec.ts

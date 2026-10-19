@@ -10,11 +10,28 @@
 npm start -- --config examples/startup.json
 ```
 
-浏览器打开 `http://127.0.0.1:9621`。示例只包含 host/port/dataDir；CLI 参数优先，例如 `npm start -- --config examples/startup.json --port 9622 --data-dir ./data/demo`。不同进程必须使用不同 dataDir；不要在原数据目录下另开服务。所有相对路径按仓库根目录解释，默认数据为 `./data`。本地应用无账号系统，保持 loopback，不应直接暴露到公网。
+浏览器打开 `http://127.0.0.1:9621`。示例只包含 host/port/dataDir；CLI 参数优先，例如 `npm start -- --config examples/startup.json --port 9622 --data-dir ./data/demo`。不同进程必须使用不同 dataDir；不要在原数据目录下另开服务。所有相对路径按仓库根目录解释，默认数据为 `./data`。本地应用无账号系统，默认 loopback；需要网络访问时显式启用并限制为受信任客户端。
 
 [examples/models.json](../examples/models.json) 是无密钥的 **SaveModels 请求结构参考**，供对照模型设置字段；界面没有“导入 JSON”按钮。它不是 `--config` 文件，也不是可直接复制为 `config/app.json` 的持久格式。地址均为不可用的 `.invalid` 占位符，模型名称、contextTokens 和维度必须替换为实际服务的值；1536 仅演示。不要向占位地址测试。重排示例未绑定，按需选用；extract/keyword 为 null 时复用 query。expectedRevision 仅演示新配置版本 0，编辑已有配置须使用当前 revision。
 
 在 `/settings/models` 添加文本、向量、可选重排模型，填写独立地址、模型名和所需密钥，选择 query 和 embedding 绑定，保存。文本/向量地址为 base URL，追加 `/chat/completions`、`/embeddings`；重排为完整 endpoint。候选测试会发送示例并可能计费；保存本身不调用模型。无需通过手工修改内部 JSON 绕过版本校验。密钥省略保留、清除删除；修改地址必须重新输入或明确清除旧密钥。
+
+## 通过主机 IP 访问
+
+旧版 CLI 和 HTTP Host 都仅支持 loopback。更新源码后必须重新构建，`npm start` 本身不会编译，否则 dist 仍会报“仅允许 loopback”：
+
+```bash
+npm run build
+npm start -- --host 0.0.0.0 --port 9621 --data-dir ./data
+```
+
+Windows PowerShell 可将 `npm` 写成 `npm.cmd`。先正常停止使用此 dataDir 的旧服务，避免第二写者冲突。也可以绑定 `--host 192.168.1.20` 这样的实际网卡 IP；`--host ::` 用于 IPv6 通配监听。启动 JSON 的 host 字段支持相同规则，CLI 优先。不要把网卡 IP 占位值直接照抄为自己的地址。
+
+其他电脑访问 `http://服务器实际IP:9621`，IPv6 使用 `http://[IPv6地址]:9621`。0.0.0.0/:: 是监听通配地址，不是分享给其他电脑的地址；主机防火墙需允许 TCP 9621，客户端到主机还需要网络可达。
+
+默认 loopback 隔离保持不变；显式通配监听允许以数字 IP 作为 HTTP Host（包含 NAT 转发的 IP），指定网卡监听则接受该 IP。任意 DNS 名称继续拒绝，避免关闭原有 Host 保护；Origin 仍必须与访问地址完全同源，cross-site 请求继续拒绝。这次不支持用域名/HTTPS 反向代理绕过校验，不增加 CORS 通配规则。开发 Vite 仍默认只在本机 5174 提供服务，网络访问建议使用上述生产入口。
+
+应用没有登录认证；网络上的可访问客户端可以配置模型、查询和操作文档，因此仅开放给受信任的网络/客户端。
 
 ## 首次完整使用
 

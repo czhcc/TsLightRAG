@@ -19,8 +19,9 @@ import { ModelError } from './models/errors.js';
 import { webDist } from './paths.js';
 import { PublishedCommitError } from './storage/snapshot.js';
 import type { SnapshotStore } from './storage/snapshot.js';
+import { allowsRequestHost } from './network-access.js';
 
-export async function buildApp(options: { storage: SnapshotStore; staticDir?: string; documentOptions?: DocumentServiceOptions }) {
+export async function buildApp(options: { storage: SnapshotStore; staticDir?: string; documentOptions?: DocumentServiceOptions; listenHost?: string }) {
   const models = new ModelClient();
   const config = await ModelConfigStore.open(options.storage.dataDir, options.storage);
   const documents = await DocumentService.open(options.storage, config, {...options.documentOptions,client:models});
@@ -39,9 +40,9 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   });
   app.addHook('onRequest', async (request, reply) => {
     const hostname = request.hostname;
-    if (!['127.0.0.1', '[::1]', 'localhost'].includes(hostname)) {
+    if (!allowsRequestHost(hostname, options.listenHost)) {
       return reply.code(403).send(ApiErrorSchema.parse({
-        code: 'INVALID_HOST', message: '仅允许本机访问', requestId: request.id,
+        code: 'INVALID_HOST', message: '请求 Host 不在监听地址允许的范围内；请使用服务器 IP 访问', requestId: request.id,
       }));
     }
     const origin = request.headers.origin;

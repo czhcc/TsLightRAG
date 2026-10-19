@@ -14,12 +14,17 @@ describe('CLI configuration', () => {
       await writeFile(join(directory.path, 'startup.json'), JSON.stringify({ host: '::1', port: 9876, dataDir: 'existing-data' }));
       expect(await parseStartup(['--config', 'startup.json'], directory.path)).toEqual({ host: '::1', port: 9876, dataDir: join(directory.path, 'existing-data') });
       expect(await parseStartup(['--config', 'startup.json', '--port', '0', '--host', '127.0.0.1', '--data-dir', 'new-data'], directory.path)).toEqual({ host: '127.0.0.1', port: 0, dataDir: join(directory.path, 'new-data') });
+      await writeFile(join(directory.path, 'network.json'), JSON.stringify({ host: '0.0.0.0' }));
+      expect((await parseStartup(['--config', 'network.json'], directory.path))?.host).toBe('0.0.0.0');
     } finally { await directory.cleanup(); }
   });
   it.each([
-    ['--host', '0.0.0.0'], ['--host', 'example.com'], ['--port', '-1'], ['--port', '65536'],
+    ['--host', '999.0.0.1'], ['--host', 'example.com'], ['--port', '-1'], ['--port', '65536'],
     ['--port', '1.5'], ['--port', ''], ['--port', '123abc'], ['--unknown'], ['positional'],
   ])('rejects invalid arguments %j', async (...args) => { await expect(parseStartup(args)).rejects.toThrow(); });
+  it.each(['0.0.0.0', '192.168.1.20', '::', '2001:db8::20'])('supports explicit network listening at %s', async host => {
+    expect((await parseStartup(['--host', host]))?.host).toBe(host);
+  });
   it('sanitizes malformed or missing config and disallows unknown fields', async () => {
     const directory = await temporaryDirectory();
     try {

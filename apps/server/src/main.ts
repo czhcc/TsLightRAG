@@ -10,7 +10,7 @@ try {
     const storage = await SnapshotStore.open(options.dataDir);
     let app;
     try {
-      app = await buildApp({ storage });
+      app = await buildApp({ storage, listenHost: options.host });
       await app.listen({ host: options.host, port: options.port });
     } catch (error) {
       if (app) await app.close();
