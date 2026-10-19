@@ -1,0 +1,52 @@
+{
+  "expectedRevision": 0,
+  "profiles": [
+    {
+      "id": "text",
+      "name": "文本模型示例",
+      "kind": "text",
+      "protocol": "openai-compatible",
+      "endpoint": "https://text.example.invalid/v1",
+      "model": "replace-with-text-model",
+      "timeoutMs": 60000,
+      "maxConcurrency": 2,
+      "maxRetries": 0,
+      "contextTokens": 32768,
+      "maxOutputTokens": 2048,
+      "tokenizer": "cl100k_base"
+    },
+    {
+      "id": "embedding",
+      "name": "向量模型示例",
+      "kind": "embedding",
+      "protocol": "openai-compatible",
+      "endpoint": "https://embedding.example.invalid/v1",
+      "model": "replace-with-embedding-model",
+      "timeoutMs": 60000,
+      "maxConcurrency": 2,
+      "maxRetries": 0,
+      "dimensions": 1536,
+      "operatorRevision": 0
+    },
+    {
+      "id": "rerank",
+      "name": "可选重排示例",
+      "kind": "rerank",
+      "protocol": "cohere-compatible",
+      "endpoint": "https://rerank.example.invalid/v1/rerank",
+      "model": "replace-with-rerank-model",
+      "timeoutMs": 60000,
+      "maxConcurrency": 2,
+      "maxRetries": 0,
+      "topN": 10,
+      "failurePolicy": "fail"
+    }
+  ],
+  "bindings": {
+    "query": "text",
+    "extract": null,
+    "keyword": null,
+    "embedding": "embedding",
+    "rerank": null
+  }
+}

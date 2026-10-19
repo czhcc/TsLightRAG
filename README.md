@@ -2,9 +2,9 @@
 
 TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计的 TypeScript 文档知识库项目，面向本地文档解析、知识图谱索引和带来源引用的检索增强问答。
 
-项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
+项目移植 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S01–S11 已完成本地范围，S12 交付审查待执行。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；五模式检索、重排、带引用回答、NDJSON 流式生成、停止与受限缓存均已接入。S10 已补图谱浏览、来源追溯、文档拖放/过滤和安全 Markdown。
+> **当前状态：S01–S12 已完成本地范围及源码交付审查。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；五模式检索、重排、带引用回答、NDJSON 流式生成、停止与受限缓存均已接入。S10 已补图谱浏览、来源追溯、文档拖放/过滤和安全 Markdown。
 
 ## 快速开始
 
@@ -13,6 +13,8 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 当前支持 Linux 本地文件系统。安装内核文件锁绑定 `fs-ext` 需要 C++ 编译器、make、Python 3 和匹配的 Node headers；Python 用于安装时编译及可选源码参考验证，不参与应用运行、文档解析或模型调用。
 
 ```bash
+git clone https://github.com/czhcc/TsLightRAG.git
+cd TsLightRAG
 npm ci
 npm run build
 npm start
@@ -24,10 +26,10 @@ npm start
 
 ```bash
 npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data
-npm start -- --config ./startup.json
+npm start -- --config examples/startup.json
 ```
 
-可选 `startup.json` 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置；模型配置通过界面保存在 `<dataDir>/config/app.json`。S02 会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
+可选启动 JSON（仓库提供 [examples/startup.json](examples/startup.json)） 只接受 `host`、`port`、`dataDir`，例如 `{"port":9621,"dataDir":"./data"}`。优先级为 CLI > 启动配置文件 > 默认值；相对路径按仓库根目录解析。`--config` 是启动配置；模型配置通过界面保存在 `<dataDir>/config/app.json`。应用会在 dataDir 初始化空快照或校验并恢复已有数据，不会自动清空已有库。服务仅允许 loopback 监听，`--port 0` 可让系统分配空闲端口。
 
 开发模式：
 
@@ -35,7 +37,9 @@ npm start -- --config ./startup.json
 npm run dev
 ```
 
-开发命令先构建共享契约，再启动服务端文件监听及 Vite。服务端端口为 `9621`，Vite 端口为 `5174`，通过同源代理访问后端。端口被占用时明确失败；停止命令会关闭其子进程。npm 缓存在仓库的 `.cache/npm`，无需向用户 home 写入缓存。
+开发命令先构建共享契约，再启动服务端文件监听及 Vite。服务端端口为 `9621`，Vite 端口为 `5174`，通过同源代理访问后端。端口被占用时明确失败；退出后应确认两个端口均已释放；本云 runner 曾需向本次 concurrently supervisor 发送 SIGTERM，详见 [操作指南](docs/OPERATIONS.md)。npm 缓存在仓库的 `.cache/npm`，无需向用户 home 写入缓存。
+
+完整配置、首次导入→检索与引用→删除→重启、数据传输范围及可复制的备份恢复步骤见 [操作指南](docs/OPERATIONS.md)。无密钥字段示例见 [examples/models.json](examples/models.json)，仅供对照界面配置，不能作为启动文件或直接覆盖内部 app.json。
 
 ## 测试与检查
 
@@ -58,7 +62,7 @@ S11 验证结果：**472 项测试和 10 项浏览器 E2E 通过**，无失败�
 
 打开模型设置，分别添加文本、向量及可选重排 profile，填写地址和模型名称，并选择 query/extract/keyword/embedding/rerank 角色。extract/keyword 默认复用 query。
 
-文本与向量填写 base URL（例如 `https://provider.example/v1`），服务端追加 `/chat/completions` 或 `/embeddings`；重排填写完整 endpoint。向量须填写实际维度；同名模型更换权重时增加 operatorRevision。非空索引继续使用自己的活动模型版本；保存候选后，到文档页“索引维护”重建三类向量并切换。
+文本与向量填写 base URL（例如 `https://text.example.invalid/v1`），服务端追加 `/chat/completions` 或 `/embeddings`；重排填写完整 endpoint。向量须填写实际维度；同名模型更换权重时增加 operatorRevision。非空索引继续使用自己的活动模型版本；保存候选后，到文档页“索引维护”重建三类向量并切换。
 
 “测试连接”使用未保存的候选设置发送示例文本，可能计费，不修改索引或保存配置。“保存配置”只保存；版本冲突时重新加载再编辑。密钥留空表示保留，勾选清除表示删除；修改地址后须重新输入或清除旧密钥。保存后密码框清空，GET 只返回 hasApiKey，浏览器不持久保存密钥。
 
@@ -139,7 +143,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 
 本地解析不代表全部推理离线。使用外部模型时，解析后的文本片段、问题和检索上下文会发送到用户配置的模型接口；原始二进制文件不发送给远程解析服务。
 
-## 计划功能
+## 首版功能
 
 | 模块 | 范围 |
 |---|---|
@@ -169,7 +173,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 
 ## 技术路线
 
-| 层次 | 计划选型 |
+| 层次 | 当前选型 |
 |---|---|
 | 运行时与语言 | Node.js 24 LTS、TypeScript strict、ESM |
 | 服务端 | Fastify、运行时 schema 校验、本地解析 Worker |
@@ -178,7 +182,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 | 模型接口 | OpenAI-compatible 文本/embedding，标准 Cohere/Jina-compatible rerank |
 | 测试 | Vitest、Testing Library、Playwright、本地 HTTP 假模型和源码参考对照 |
 
-S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。模型 HTTP 适配器使用 Node 内置 HTTP(S)；PDF.js、受限 OOXML/ZIP/XML、Markdown/HTML/CSV 解析与 js-tiktoken 已锁定；图谱界面库将在对应阶段引入。
+S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，依赖由 `package-lock.json` 固定。模型 HTTP 适配器使用 Node 内置 HTTP(S)；PDF.js、受限 OOXML/ZIP/XML、Markdown/HTML/CSV 解析与 js-tiktoken 已锁定；图谱使用有限 SVG，不引入图谱界面库。
 
 ## 文档与实施进度
 
@@ -196,16 +200,11 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [S09 验证记录](docs/S09_VALIDATION.md)：真实生成、NDJSON、停止/断连、缓存身份/失效与 Python 提示传递参考。
 - [S10 验证记录](docs/S10_VALIDATION.md)：模型/文档/查询/图谱界面闭环、安全渲染、共享删除与重启验证。
 - [S11 完整验收报告](docs/VALIDATION_REPORT.md)：分类测试、覆盖率、G01–G12 参考对照、故障恢复和可复用运行配置。
+- [操作指南](docs/OPERATIONS.md)：配置示例、首次使用、费用/数据边界、完整备份及损坏恢复。
+- [S12 交付记录](docs/S12_VALIDATION.md)：最终门槛、许可和源码范围核对。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 S01–S11 的本地范围。下一步是 **S12：最终许可、文档和交付审查**。G01–G12 的共同夹具最低断言已按明确适配通过；真实供应商、非 Linux、云发布和新任务恢复仍未验证。
-
-获取当前仓库：
-
-```bash
-git clone https://github.com/czhcc/TsLightRAG.git
-cd TsLightRAG
-```
+当前已完成源码分析、方案文档和 **S01–S12 本地范围及源码交付审查**，见 [S12 记录](docs/S12_VALIDATION.md)。G01–G12 的共同夹具最低断言已按明确适配通过；真实供应商、非 Linux、云发布和新任务恢复仍未验证。
 
 ## 首版不包含
 
@@ -221,4 +220,4 @@ cd TsLightRAG
 
 本项目的设计与迁移依据来自 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG)，分析基准为提交 [`aaebfe1`](https://github.com/HKUDS/LightRAG/tree/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a)。感谢 LightRAG 团队及贡献者。
 
-上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。S06/S08 已复用上游 JSON 抽取/补充、摘要、关键词与回答上下文提示词，并依据相关合并算法实现 TypeScript 版本；适用版权与 MIT 全文保留在 [third_party/LightRAG/LICENSE](third_party/LightRAG/LICENSE)。逐文件来源、修改及参考验证范围见 [上游来源清单](docs/UPSTREAM_PROVENANCE.md)。根项目的完整许可交付审查仍在 S12。
+上游采用 MIT License，版权声明为 `Copyright (c) 2025 LightRAG Team`。S06/S08 已复用上游 JSON 抽取/补充、摘要、关键词与回答上下文提示词，并依据相关合并算法实现 TypeScript 版本；适用版权与 MIT 全文保留在 [third_party/LightRAG/LICENSE](third_party/LightRAG/LICENSE)。逐文件来源、修改及参考验证范围见 [上游来源清单](docs/UPSTREAM_PROVENANCE.md)。顶层 [LICENSE](LICENSE) 采用 MIT 并保留上游版权；各库和 PDF.js 资源按自身许可归属，见 [NOTICE](NOTICE.md) 及完整第三方许可文本。

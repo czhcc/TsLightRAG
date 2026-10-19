@@ -125,3 +125,7 @@ Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权�
 S11 的独立 Python tiktoken 使用 npm 锁定包内的同一 cl100k_base 词表，不联网拉词表、不从 TS 获取期望计数/图谱输出。Python/numpy/json-repair/tiktoken 仅验证工具，其版本与命令见 scripts/reference/requirements.txt/README.md；不加入应用业务依赖。新增 `@vitest/coverage-v8@5.0.4`（MIT）仅开发验证；分发依赖时保留其及传递依赖许可。
 
 TS 补充抽取描述改为按 Unicode code point 保留较长、等长保留首次，依据完整上游 `extract_entities` 的已执行规则修正；缓存策略身份同步更新，贡献 schema 保持兼容。G01–G12 的本地共同夹具对照、适配差异和外部未验证项统一见 [完整验收报告](VALIDATION_REPORT.md)，不再将 S06/S07 的窄辅助函数证据单独当成完整算法通过。
+
+## S12 许可交付
+
+顶层 MIT 保留 LightRAG Team 版权并为本仓库贡献保留 TsLightRAG contributors 归属。新增 [NOTICE](../NOTICE.md)、实际安装生产依赖清单与完整许可文本，保留 PDF.js 各类资源的独立许可；npm 遗漏原文的补充来源在 NOTICE 逐项说明。S12 未改写业务算法、提示词、API 或索引 schema，没有新增 npm 依赖；健康功能阶段仍为 S11。源码交付门槛和实际操作验证见 [S12 记录](S12_VALIDATION.md)。未来分发原生二进制/预装依赖的额外归属核对单独执行。

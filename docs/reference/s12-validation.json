@@ -1,0 +1,132 @@
+{
+  "stage": "S12",
+  "status": "local source delivery acceptance passed; external validations remain unverified",
+  "recordedAt": "2026-10-19T05:50:59.294686+00:00",
+  "targetParent": "1dc9aadd0e51ef94be796024cdf0009b946f08d6",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "filesystem": "overlayfs",
+    "browser": "/usr/bin/chromium"
+  },
+  "packageLockSha256": "f3701c273720794207741d9d9280a688f9dce9aada8dd4071a28d061c41135a7",
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run --reporter=json --outputFile=.tools/s12-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs --write",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/licenses.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node .tools/s12-operations.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "source/manifest/privacy/ignore audit",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "base": {
+      "files": 71,
+      "passed": 472,
+      "failed": 0,
+      "skipped": 0,
+      "unitContractComponent": 267,
+      "integration": 205,
+      "protocolSubsetOfUnit": 36
+    },
+    "e2e": {
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    }
+  },
+  "operations": {
+    "stage": "S12",
+    "passed": true,
+    "exampleSchemas": true,
+    "emptyEnvironmentStartup": true,
+    "syntheticDocumentPersisted": true,
+    "byteIdenticalOfflineBackup": true,
+    "restoredDocumentAndStatus": true,
+    "liveWriterRejected": true,
+    "corruptPointerRejected": true,
+    "explicitGenerationValidated": true,
+    "unconfirmedRecoveryRejected": true,
+    "confirmedRecoveryAndPointerBackup": true,
+    "personalKeysUsed": false,
+    "originalDataDirTouched": false
+  },
+  "licenses": {
+    "installedProductionPackages": 180,
+    "absentOptionalPackages": 9,
+    "pdfjsAssetNoticesIncluded": true,
+    "binaryRedistributionAudited": false
+  },
+  "sourceAudit": {
+    "allFourOwnManifestsPrivate": true,
+    "externalDatabaseDrivers": false,
+    "remoteFileParser": false,
+    "pythonBusinessEntrypoint": false,
+    "sdkPublishConfiguration": false,
+    "commonCredentialPatternMatches": 0,
+    "runtimeFilesIncluded": 0,
+    "testOnlyAndSkipMatches": 0,
+    "syntheticFixturesRetained": true,
+    "localMarkdownLinksValid": true
+  },
+  "inheritedEvidence": {
+    "report": "docs/VALIDATION_REPORT.md",
+    "stage": "S11",
+    "coreCoverageLines": 98.17,
+    "coreCoverageBranches": 83.51,
+    "coverageRerunThisStage": false,
+    "coldInstallRerunThisStage": false,
+    "pythonReferenceRegeneratedThisStage": false,
+    "G01toG12": "passed minimum common-fixture comparisons with declared adaptations"
+  },
+  "notRun": [
+    "real provider compatibility",
+    "real answer quality and actual costs",
+    "non-Linux/NFS",
+    "physical power loss",
+    "large-scale performance",
+    "cloud draft publish",
+    "fresh task restoration",
+    "binary/container/preinstalled dependency distribution license audit"
+  ],
+  "businessRuntimeStage": "S11",
+  "changes": "documentation, license notices and offline inventory verification only; no application or dependency changes",
+  "operationsVerificationScriptSha256": "48d882df30e4f6b43e62bfac6bbf1b2edcc16a8e390bee6f97e7e40e612f4744",
+  "formattingCorrection": "Initial diff check found trailing spaces in upstream license texts; generated aggregate now removes only trailing whitespace, retains original source SHA256; final check passed."
+}

@@ -11,7 +11,7 @@
 - 分析来源：<https://github.com/HKUDS/LightRAG>。
 - 固定上游提交：`aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 上游提交时间：2026-10-14T22:55:37+08:00；源码版本字段为 `1.5.8`，API 版本字段为 `0347`。以提交 SHA 为分析基准，不以会变化的默认分支或版本字段单独定位。
-- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；S10 已接入图谱浏览与完整页面闭环，见 [S10 验证记录](S10_VALIDATION.md)；S11 已完成本地总体验收和 G01–G12 最低共同夹具对照（按明确适配），见 [完整报告](VALIDATION_REPORT.md)；S12 最终交付审查及外部未验证项保留。
+- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；S10 已接入图谱浏览与完整页面闭环，见 [S10 验证记录](S10_VALIDATION.md)；S11 已完成本地总体验收和 G01–G12 最低共同夹具对照（按明确适配），见 [完整报告](VALIDATION_REPORT.md)；S12 已完成源码交付审查，见 [S12 记录](S12_VALIDATION.md)；外部未验证项继续保留。
 - 配套文档：[LightRAG代码转移实施步骤](LightRAG代码转移实施步骤.md)。
 
 ## 2. 用户要求与迁移边界
@@ -418,7 +418,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 10. 无外部数据库、远程解析器、Python 运行依赖、对外 SDK；保留 MIT 来源与许可，Git 无密钥/原始数据/运行缓存。
 11. G01–G12 对应的 TS 算法实现和源码参考验收齐全，尤其默认 VECTOR 与 WEIGHT 块选择、local/global 排序和三路融合；不可用“有图”“支持五模式”替代核心算法保真门槛。
 
-S01 已验证开发启动 `npm run dev`，以及生产构建后 `npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data` 对应的入口；当前可使用模型编辑/保存、候选协议测试、内部九格式 Worker 解析/分块和页面能力矩阵，见 S03/S04 验证记录；S05 已接通上传及持久化任务，见 S05 记录。S11 仍需重新执行完整业务验收，不以这些启动结果替代存储、模型或算法验证。
+S01 已验证开发启动 `npm run dev`，以及生产构建后 `npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data` 对应的入口；当前可使用模型编辑/保存、候选协议测试、内部九格式 Worker 解析/分块和页面能力矩阵，见 S03/S04 验证记录；S05 已接通上传及持久化任务，见 S05 记录。S11 已重新执行完整本地业务验收，S12 已完成源码交付审查；证据和限制见 [完整报告](VALIDATION_REPORT.md) 及 [S12 记录](S12_VALIDATION.md)，不以启动结果替代存储、模型或算法验证。
 
 ## 11. 许可、风险与后续决策
 

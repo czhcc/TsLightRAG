@@ -1,5 +1,7 @@
 # S11 本地完整验收报告
 
+> 后续 S12 源码许可、操作指南和交付补充见 [S12 记录](S12_VALIDATION.md)；本报告保留 S11 当次命令、覆盖率和算法参考证据。
+
 日期：2026-10-19（Asia/Shanghai）。目标基于 S10 提交 `4cc451d0fc0a0f29af6b21082b95519b85b9c0d4`；本阶段的源文件、锁文件与 runner 结果摘要见 [机器记录](reference/s11-validation.json)。固定上游：`HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 
 ## 验收范围与环境
