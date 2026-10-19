@@ -1,0 +1,4 @@
+# Validation only; never imported by the TypeScript application.
+numpy==2.3.5
+json-repair==0.58.6
+tiktoken==0.12.0

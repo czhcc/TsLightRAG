@@ -194,7 +194,7 @@ export const ApiErrorSchema = z.strictObject({
 });
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S10'), usable: z.boolean(),
+  status: z.literal('ok'), stage: z.literal('S11'), usable: z.boolean(),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),

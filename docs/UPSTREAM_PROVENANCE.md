@@ -117,3 +117,11 @@ Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权�
 | 文档拖放/过滤、模型维护入口、查询引用跳转、S10 组件/API/全链路测试 | 本仓库实施方案 | 新写 TS/React 集成，不复制上游页面、测试期望或模型效果 |
 
 新增 `react-markdown@10.1.0`（MIT）用于 Markdown AST→React 元素；不启用 rehypeRaw，不自动加载图片。其传递依赖及版本以 lockfile 为准，打包分发时保留各自许可。原提示词和算法来源声明继续有效。S10 验证不补充 G01–G12 的独立源码参考验收。
+
+## S11 来源与验收
+
+固定提交不变。`scripts/reference/s11.py` 编译并执行原 `operate.py` 的完整 `extract_entities`、JSON 解析、node/edge merge、summary、`rebuild_knowledge_from_chunks` 及其 cache read/parse/single-item rebuild、`naive_query`，并加载所需 `utils.py`、`chunk_schema.py`、`prompt.py` 的原完整定义和常量。AST 函数体和比较/控制流未改写；模型/缓存传输、内存存储、锁和日志为验证端口。具体原函数/hash/实际调用名记录在 `tests/fixtures/graph/s11-python-reference.json`，原始输入为本仓库人工夹具 `s11-input.json`。来源派生内容继续适用 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)。
+
+S11 的独立 Python tiktoken 使用 npm 锁定包内的同一 cl100k_base 词表，不联网拉词表、不从 TS 获取期望计数/图谱输出。Python/numpy/json-repair/tiktoken 仅验证工具，其版本与命令见 scripts/reference/requirements.txt/README.md；不加入应用业务依赖。新增 `@vitest/coverage-v8@5.0.4`（MIT）仅开发验证；分发依赖时保留其及传递依赖许可。
+
+TS 补充抽取描述改为按 Unicode code point 保留较长、等长保留首次，依据完整上游 `extract_entities` 的已执行规则修正；缓存策略身份同步更新，贡献 schema 保持兼容。G01–G12 的本地共同夹具对照、适配差异和外部未验证项统一见 [完整验收报告](VALIDATION_REPORT.md)，不再将 S06/S07 的窄辅助函数证据单独当成完整算法通过。

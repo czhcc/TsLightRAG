@@ -7,6 +7,8 @@ import { ModelError } from '../models/errors.js';
 import { countTokens } from '../core/tokenizer.js';
 import { prompts, render, PROMPT_VERSION } from './prompts.js';
 
+// Cache identity changes independently of the persisted contribution schema.
+export const EXTRACTION_CACHE_POLICY = 'gleaning-longest-v2';
 export const EXTRACTION_VERSION = `${PROMPT_VERSION}-nfkc-v1-glean1-repair1`;
 const field = z.string().trim().min(1).max(20_000);
 const name = z.string().trim().min(1).max(512);
@@ -54,10 +56,17 @@ export function combineExtractions(rounds: Extraction[]): Extraction {
   const entities = new Map<string, Extraction['entities'][number]>();
   const relationships = new Map<string, Extraction['relationships'][number]>();
   for (const round of rounds) {
-    for (const e of round.entities) entities.set(e.name, e); // Gleaned corrections replace the same source contribution.
+    // Pinned upstream keeps the longer description; equal lengths preserve the first.
+    // Count Unicode code points to match Python len rather than UTF-16 code units.
+    const longer = (next: string, previous: string) => Array.from(next).length > Array.from(previous).length;
+    for (const e of round.entities) {
+      const old = entities.get(e.name);
+      if (!old || longer(e.description, old.description)) entities.set(e.name, e);
+    }
     for (const r of round.relationships) {
       const [source, target] = [r.source, r.target].sort();
-      relationships.set(JSON.stringify([source, target]), { ...r, source: source!, target: target! });
+      const key = JSON.stringify([source, target]); const old = relationships.get(key);
+      if (!old || longer(r.description, old.description)) relationships.set(key, { ...r, source: source!, target: target! });
     }
   }
   for (const r of relationships.values()) if (!entities.has(r.source) || !entities.has(r.target)) throw new ModelError('EXTRACTION_ENDPOINT', '关系端点缺少实体贡献');

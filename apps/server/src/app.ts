@@ -73,7 +73,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const captured = config.capture();
     const missingRoles = (['query', 'embedding'] as const).filter((role) => !boundProfile(captured, role));
     return HealthSchema.parse({
-      status: 'ok', stage: 'S10', usable: missingRoles.length === 0,
+      status: 'ok', stage: 'S11', usable: missingRoles.length === 0,
       models: { configured: missingRoles.length === 0, missingRoles },
       storage: { initialized: true, status: 'ready', generation: snapshot.generation,
         revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: true },

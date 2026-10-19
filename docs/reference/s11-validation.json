@@ -1,0 +1,1135 @@
+{
+  "stage": "S11",
+  "status": "local acceptance passed with declared adaptations; S12 pending",
+  "recordedAt": "2026-10-19T11:55:47.084323+08:00",
+  "targetParent": "4cc451d0fc0a0f29af6b21082b95519b85b9c0d4",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "typescript": "6.0.3",
+    "system": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "filesystem": "overlayfs",
+    "browser": "/usr/bin/chromium",
+    "python": "3.12.14"
+  },
+  "commands": [
+    {
+      "command": "npm_config_devdir=/workspace/TsLightRAG/.cache/node-gyp npm ci",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:unit -- --reporter=json --outputFile=.tools/s11-unit.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:protocol -- --reporter=json --outputFile=.tools/s11-protocol.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:integration -- --reporter=json --outputFile=.tools/s11-integration.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:coverage -- --reporter=json --outputFile=.tools/s11-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "PLAYWRIGHT_JSON_OUTPUT_FILE=.tools/s11-playwright.json npm run test:e2e -- --reporter=json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:reference",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run tests/integration/full-algorithm-reference.integration.test.ts --reporter=json --outputFile=.tools/s11-reference-final-tests.json",
+      "exitCode": 0
+    },
+    {
+      "command": "bash .tools/s11-review-install.sh",
+      "exitCode": 0
+    },
+    {
+      "command": "HTTP assertions for production and Vite proxy/module",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "longRunningCommands": [
+    {
+      "command": "npm run dev",
+      "outcome": "real API, proxy, transformed React module and settings HTML verified; outer terminal interrupted; owned supervisor SIGTERM closed both children"
+    },
+    {
+      "command": "npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data",
+      "outcome": "retained managed service; S11 health/UI/API verified with original data generation preserved"
+    }
+  ],
+  "results": {
+    "unit": {
+      "files": 35,
+      "total": 267,
+      "passed": 267,
+      "failed": 0,
+      "skipped": 0
+    },
+    "protocol": {
+      "files": 3,
+      "total": 36,
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0
+    },
+    "integration": {
+      "files": 36,
+      "total": 205,
+      "passed": 205,
+      "failed": 0,
+      "skipped": 0
+    },
+    "vitest": {
+      "files": 71,
+      "total": 472,
+      "passed": 472,
+      "failed": 0,
+      "skipped": 0
+    },
+    "reference-final-tests": {
+      "files": 1,
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0
+    },
+    "playwright": {
+      "expected": 10,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0
+    }
+  },
+  "classificationNote": "protocol tests are included in unit; coverage run contains unit and integration. Counts overlap and must not be added.",
+  "coverage": {
+    "scope": [
+      "apps/server/src/storage",
+      "apps/server/src/indexing",
+      "apps/server/src/retrieval"
+    ],
+    "thresholds": {
+      "lines": 85,
+      "branches": 80
+    },
+    "total": {
+      "lines": {
+        "total": 821,
+        "covered": 806,
+        "skipped": 0,
+        "pct": 98.17
+      },
+      "statements": {
+        "total": 1389,
+        "covered": 1307,
+        "skipped": 0,
+        "pct": 94.09
+      },
+      "functions": {
+        "total": 321,
+        "covered": 312,
+        "skipped": 0,
+        "pct": 97.19
+      },
+      "branches": {
+        "total": 746,
+        "covered": 623,
+        "skipped": 0,
+        "pct": 83.51
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "perFile": {
+      "apps/server/src/indexing/extraction.ts": {
+        "lines": {
+          "total": 59,
+          "covered": 59,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 18,
+          "covered": 18,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 92,
+          "covered": 89,
+          "skipped": 0,
+          "pct": 96.73
+        },
+        "branches": {
+          "total": 54,
+          "covered": 48,
+          "skipped": 0,
+          "pct": 88.88
+        }
+      },
+      "apps/server/src/indexing/indexer.ts": {
+        "lines": {
+          "total": 57,
+          "covered": 57,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 30,
+          "covered": 30,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 107,
+          "covered": 104,
+          "skipped": 0,
+          "pct": 97.19
+        },
+        "branches": {
+          "total": 32,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 84.37
+        }
+      },
+      "apps/server/src/indexing/maintenance.ts": {
+        "lines": {
+          "total": 82,
+          "covered": 79,
+          "skipped": 0,
+          "pct": 96.34
+        },
+        "functions": {
+          "total": 29,
+          "covered": 28,
+          "skipped": 0,
+          "pct": 96.55
+        },
+        "statements": {
+          "total": 174,
+          "covered": 163,
+          "skipped": 0,
+          "pct": 93.67
+        },
+        "branches": {
+          "total": 83,
+          "covered": 64,
+          "skipped": 0,
+          "pct": 77.1
+        }
+      },
+      "apps/server/src/indexing/merge.ts": {
+        "lines": {
+          "total": 28,
+          "covered": 28,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 9,
+          "covered": 6,
+          "skipped": 0,
+          "pct": 66.66
+        },
+        "statements": {
+          "total": 42,
+          "covered": 39,
+          "skipped": 0,
+          "pct": 92.85
+        },
+        "branches": {
+          "total": 30,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 90
+        }
+      },
+      "apps/server/src/indexing/prompts.ts": {
+        "lines": {
+          "total": 3,
+          "covered": 3,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 2,
+          "covered": 2,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 4,
+          "covered": 4,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 2,
+          "covered": 1,
+          "skipped": 0,
+          "pct": 50
+        }
+      },
+      "apps/server/src/indexing/summary.ts": {
+        "lines": {
+          "total": 25,
+          "covered": 25,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 3,
+          "covered": 3,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 42,
+          "covered": 38,
+          "skipped": 0,
+          "pct": 90.47
+        },
+        "branches": {
+          "total": 31,
+          "covered": 26,
+          "skipped": 0,
+          "pct": 83.87
+        }
+      },
+      "apps/server/src/retrieval/algorithms.ts": {
+        "lines": {
+          "total": 46,
+          "covered": 46,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 25,
+          "covered": 25,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 121,
+          "covered": 118,
+          "skipped": 0,
+          "pct": 97.52
+        },
+        "branches": {
+          "total": 69,
+          "covered": 63,
+          "skipped": 0,
+          "pct": 91.3
+        }
+      },
+      "apps/server/src/retrieval/context.ts": {
+        "lines": {
+          "total": 31,
+          "covered": 31,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 20,
+          "covered": 20,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 68,
+          "covered": 65,
+          "skipped": 0,
+          "pct": 95.58
+        },
+        "branches": {
+          "total": 18,
+          "covered": 12,
+          "skipped": 0,
+          "pct": 66.66
+        }
+      },
+      "apps/server/src/retrieval/prompts.ts": {
+        "lines": {
+          "total": 1,
+          "covered": 1,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 1,
+          "covered": 1,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "apps/server/src/retrieval/service.ts": {
+        "lines": {
+          "total": 78,
+          "covered": 78,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 34,
+          "covered": 33,
+          "skipped": 0,
+          "pct": 97.05
+        },
+        "statements": {
+          "total": 162,
+          "covered": 153,
+          "skipped": 0,
+          "pct": 94.44
+        },
+        "branches": {
+          "total": 120,
+          "covered": 105,
+          "skipped": 0,
+          "pct": 87.5
+        }
+      },
+      "apps/server/src/storage/disk.ts": {
+        "lines": {
+          "total": 46,
+          "covered": 45,
+          "skipped": 0,
+          "pct": 97.82
+        },
+        "functions": {
+          "total": 10,
+          "covered": 10,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 58,
+          "covered": 54,
+          "skipped": 0,
+          "pct": 93.1
+        },
+        "branches": {
+          "total": 21,
+          "covered": 18,
+          "skipped": 0,
+          "pct": 85.71
+        }
+      },
+      "apps/server/src/storage/graph.ts": {
+        "lines": {
+          "total": 58,
+          "covered": 58,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 27,
+          "covered": 27,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 78,
+          "covered": 78,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 50,
+          "covered": 45,
+          "skipped": 0,
+          "pct": 90
+        }
+      },
+      "apps/server/src/storage/io.ts": {
+        "lines": {
+          "total": 25,
+          "covered": 25,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 5,
+          "covered": 5,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 36,
+          "covered": 34,
+          "skipped": 0,
+          "pct": 94.44
+        },
+        "branches": {
+          "total": 14,
+          "covered": 12,
+          "skipped": 0,
+          "pct": 85.71
+        }
+      },
+      "apps/server/src/storage/kv.ts": {
+        "lines": {
+          "total": 17,
+          "covered": 17,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 11,
+          "covered": 11,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 20,
+          "covered": 20,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 5,
+          "covered": 5,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "apps/server/src/storage/maintenance.ts": {
+        "lines": {
+          "total": 9,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 0
+        },
+        "functions": {
+          "total": 1,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 0
+        },
+        "statements": {
+          "total": 9,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 0
+        },
+        "branches": {
+          "total": 8,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 0
+        }
+      },
+      "apps/server/src/storage/recovery.ts": {
+        "lines": {
+          "total": 15,
+          "covered": 14,
+          "skipped": 0,
+          "pct": 93.33
+        },
+        "functions": {
+          "total": 2,
+          "covered": 2,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 18,
+          "covered": 17,
+          "skipped": 0,
+          "pct": 94.44
+        },
+        "branches": {
+          "total": 8,
+          "covered": 4,
+          "skipped": 0,
+          "pct": 50
+        }
+      },
+      "apps/server/src/storage/snapshot.ts": {
+        "lines": {
+          "total": 86,
+          "covered": 86,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 45,
+          "covered": 44,
+          "skipped": 0,
+          "pct": 97.77
+        },
+        "statements": {
+          "total": 107,
+          "covered": 106,
+          "skipped": 0,
+          "pct": 99.06
+        },
+        "branches": {
+          "total": 41,
+          "covered": 38,
+          "skipped": 0,
+          "pct": 92.68
+        }
+      },
+      "apps/server/src/storage/state.ts": {
+        "lines": {
+          "total": 91,
+          "covered": 91,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 32,
+          "covered": 30,
+          "skipped": 0,
+          "pct": 93.75
+        },
+        "statements": {
+          "total": 162,
+          "covered": 144,
+          "skipped": 0,
+          "pct": 88.88
+        },
+        "branches": {
+          "total": 92,
+          "covered": 75,
+          "skipped": 0,
+          "pct": 81.52
+        }
+      },
+      "apps/server/src/storage/vectors.ts": {
+        "lines": {
+          "total": 45,
+          "covered": 45,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 14,
+          "covered": 14,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 64,
+          "covered": 60,
+          "skipped": 0,
+          "pct": 93.75
+        },
+        "branches": {
+          "total": 58,
+          "covered": 48,
+          "skipped": 0,
+          "pct": 82.75
+        }
+      },
+      "apps/server/src/storage/writer-lock.ts": {
+        "lines": {
+          "total": 19,
+          "covered": 18,
+          "skipped": 0,
+          "pct": 94.73
+        },
+        "functions": {
+          "total": 4,
+          "covered": 4,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 24,
+          "covered": 20,
+          "skipped": 0,
+          "pct": 83.33
+        },
+        "branches": {
+          "total": 10,
+          "covered": 5,
+          "skipped": 0,
+          "pct": 50
+        }
+      }
+    }
+  },
+  "selectedScenarioFiles": {
+    "config-crash.integration.test.ts": {
+      "passed": 2,
+      "failed": 0
+    },
+    "delete-crash.integration.test.ts": {
+      "passed": 5,
+      "failed": 0
+    },
+    "embedding-switch-crash.integration.test.ts": {
+      "passed": 2,
+      "failed": 0
+    },
+    "full-algorithm-reference.integration.test.ts": {
+      "passed": 17,
+      "failed": 0
+    },
+    "index-restart.integration.test.ts": {
+      "passed": 2,
+      "failed": 0
+    },
+    "jobs-restart.integration.test.ts": {
+      "passed": 6,
+      "failed": 0
+    },
+    "snapshot-crash.integration.test.ts": {
+      "passed": 10,
+      "failed": 0
+    },
+    "writer-lock.integration.test.ts": {
+      "passed": 3,
+      "failed": 0
+    },
+    "parser-no-network.test.ts": {
+      "passed": 4,
+      "failed": 0
+    },
+    "parser-security.test.ts": {
+      "passed": 13,
+      "failed": 0
+    }
+  },
+  "references": {
+    "s06": {
+      "sha256": "4a20c4e2f1c11da3d3941e6f7591151016c7d240c90d8d3a8ac5af3e5cebf488",
+      "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a"
+    },
+    "s07": {
+      "sha256": "7e8f866ffe51310ba2e46a514ee4bee3354f3e890e20968ccf7baabdfd3e522b",
+      "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a"
+    },
+    "s08": {
+      "sha256": "faf43385367d74dd08b5ac3e0d3489ec648ae4c0e339e63e9c2c0a087ea1f96b",
+      "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a"
+    },
+    "s09": {
+      "sha256": "7cab878474eb97360506913763c971c560fc0b48b5a8183f795b8fdf517c4996",
+      "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a"
+    },
+    "s11": {
+      "sha256": "cf926308c64e24aa9e70e4bed21e5a1e9a9d8ca49cd8a5d59cad8d1b1d4d22f9",
+      "upstream": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a"
+    }
+  },
+  "referenceScope": {
+    "G01": "full extraction/gleaning functions on standard JSON shared cases",
+    "G02": "full node/edge merge and summary with independent BPE plus historical strength branches",
+    "G03-G10": "32 complete source retrieval/source selection combinations plus fallback, quota, truncation, VDB content and reference cases",
+    "G11": "full rebuild entrypoint/cache readers/parsers; remaining source sets are explicit storage fixture inputs; TS deletion API/vectors/new queries are compared",
+    "G12": "six kg_query message/context cases plus full naive_query evidence/empty cases"
+  },
+  "gateResult": {
+    "G01": "passed on shared fixtures with documented adaptations",
+    "G02": "passed on shared fixtures with documented adaptations",
+    "G03": "passed on shared fixtures with documented adaptations",
+    "G04": "passed on shared fixtures with documented adaptations",
+    "G05": "passed on shared fixtures with documented adaptations",
+    "G06": "passed on shared fixtures with documented adaptations",
+    "G07": "passed on shared fixtures with documented adaptations",
+    "G08": "passed on shared fixtures with documented adaptations",
+    "G09": "passed on shared fixtures with documented adaptations",
+    "G10": "passed on shared fixtures with documented adaptations",
+    "G11": "passed on shared fixtures with documented adaptations",
+    "G12": "passed on shared fixtures with documented adaptations"
+  },
+  "defectsFixed": [
+    "shorter/equal gleaning descriptions overwrote original evidence; now longer only and Unicode codepoint length, with cache identity update",
+    "integration diagnostics assumed pre-existing .tools; test creates its own output directory"
+  ],
+  "initialFailures": [
+    "independent extraction comparison failed on shorter/equal gleaning until implementation fix",
+    "reference manifest key order was nondeterministic; canonical JSON encoding restored byte reproducibility",
+    "outer terminal SIGINT did not reach dev supervisor; early production start correctly refused STORAGE_LOCKED; explicit SIGTERM to owned supervisor closed both ports"
+  ],
+  "runtimeSmoke": {
+    "/": {
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    "/graph": {
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    "/query": {
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    "/settings/models": {
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    "/api/v1/health": {
+      "status": 200,
+      "type": "application/json; charset=utf-8",
+      "health": {
+        "status": "ok",
+        "stage": "S11",
+        "usable": false,
+        "models": {
+          "configured": false,
+          "missingRoles": [
+            "query",
+            "embedding"
+          ]
+        },
+        "storage": {
+          "initialized": true,
+          "status": "ready",
+          "generation": "g-def186cf-8fd8-4a9d-acce-fd4acf12c9bc",
+          "revision": 0,
+          "corpusRevision": 0
+        },
+        "jobs": {
+          "available": true
+        }
+      }
+    },
+    "/api/v1/parsers/capabilities": {
+      "status": 200,
+      "type": "application/json; charset=utf-8",
+      "formats": 9
+    },
+    "/api/v1/graph": {
+      "status": 200,
+      "type": "application/json; charset=utf-8",
+      "nodeCount": 0
+    },
+    "originalDataGenerationPreserved": true,
+    "startupStage": "S11"
+  },
+  "developmentSmoke": {
+    "9621/api/v1/health": {
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "stage": "S11"
+    },
+    "5174/api/v1/health": {
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "stage": "S11"
+    },
+    "5174/src/main.tsx": {
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    "5174/settings/models": {
+      "status": 200,
+      "contentType": "text/html"
+    }
+  },
+  "developmentShutdown": {
+    "parentPid": 21245,
+    "signal": "SIGTERM",
+    "portsClosed": {
+      "9621": true,
+      "5174": true
+    },
+    "terminalInterruptForwarded": false
+  },
+  "environment": {
+    "fieldsSaved": [
+      "install_script",
+      "start_skill"
+    ],
+    "persistence": "confirmed saved draft",
+    "installScriptExecuted": true,
+    "configurationCopy": "docs/reference/s11-environment.json",
+    "publication": "not performed by agent; user review/save/publish required",
+    "freshTaskRestore": "not run"
+  },
+  "unrun": [
+    {
+      "check": "real external model provider compatibility and generation quality",
+      "reason": "outside deterministic local acceptance; no provider selected or real key used"
+    },
+    {
+      "check": "non-Linux/NFS and physical power-loss",
+      "reason": "outside supported local Linux filesystem evidence"
+    },
+    {
+      "check": "environment publication and fresh-task restore",
+      "reason": "user-controlled product actions; draft save is not publication"
+    },
+    {
+      "check": "S12 final licensing/documentation/delivery review",
+      "reason": "next stage"
+    }
+  ],
+  "sourceHashes": {
+    "apps/server/src/app.ts": "1112aa53ea34b1611d9042c08f75ac439237f6191b11cfddc06e9a06b8f1af54",
+    "apps/server/src/cli.test.ts": "29453b910c2c48466aaad80bcba3e0bcaa5869338dfd7c1f7b29fdfa3adfb3e0",
+    "apps/server/src/cli.ts": "93f4dbc350a130f87b32b7a7502f292db62a7cae5ac1d5c020325f04921c5c31",
+    "apps/server/src/core/chunker.test.ts": "150cacabe065de2c5a75b7fda92c90d7563fdf152b6112a2a1cb5fb740d908d0",
+    "apps/server/src/core/chunker.ts": "0ce18756756175779f52dea1e4023ca17546332b8a8adef983f80cf061ea41e2",
+    "apps/server/src/core/tokenizer.ts": "44aa800106f251a6384e857d87c884f3f719305a3e85ad80a422a082b063ba88",
+    "apps/server/src/documents/cleanup.ts": "23e32ce0866eb4eacd543c3920fdd8bee1cfbf1f55ed9886785dc614b9e450aa",
+    "apps/server/src/documents/files.ts": "3d405f4a9a5efd86208e7b33da7077501d37d271ce589f9a7b5427d97c53ce04",
+    "apps/server/src/documents/service.ts": "af8bb8e60e3deb74a7335e3c9f6850174f092109a4c52b7087d2370bdf4e51b6",
+    "apps/server/src/generation/cache.test.ts": "dd7cbee41e0b5a4d7048acdcf8f0c89326af27e5b819ee449f4fc3cd86792df1",
+    "apps/server/src/generation/cache.ts": "a099e56411f4eadaea801789f72998e49c3d0641ae65317edad47e1c2270dc73",
+    "apps/server/src/generation/generation.test.ts": "043e161007be95280abd1c642b72dc3bcad89ad88179b549ae4ff7503d815642",
+    "apps/server/src/generation/ndjson.ts": "c8a22d175da97b6c3534d1b0a34fb916fd8666709659b9a3bea63547f934432d",
+    "apps/server/src/generation/reference.test.ts": "eaa32bddf76a536c32f2e12c7c28a452c855c173743667086497361fc7447f52",
+    "apps/server/src/generation/service.ts": "356db217e5ea85687d3588a15820993335066b25ff26cb5c49219421deab94aa",
+    "apps/server/src/graph/browse.ts": "d9073b5b14e7cf4b9c7aeec726b2ce7ba85efd9d8b4b7efd93e0001faf900529",
+    "apps/server/src/indexing/contributions.test.ts": "c0b537e24b469e1d2515497cde4561d8f3b4a5840c800dbaeba913b1464d6aa5",
+    "apps/server/src/indexing/extraction.test.ts": "fc9d4030a30be4f5377ee17c9865cfb3ebec998b2a69b5b07d2a6c4ac64dbc66",
+    "apps/server/src/indexing/extraction.ts": "b919c660dd7935f1343c74edc1fba1cad8ac161dd3ea4a514a3118f4bdb9d547",
+    "apps/server/src/indexing/indexer.ts": "743fa474ce70b182bfb973caae039f2f65eb16a9f9384eca180f590b7df5cea8",
+    "apps/server/src/indexing/maintenance-reference.test.ts": "bb254f9929f2de54358f7ecef6d82c0955542bb4d2251bd53bc680380abd0e6f",
+    "apps/server/src/indexing/maintenance.ts": "fce947e57d1cbb169fa75eaf0cc2d18602e65fb886247f710f42f70a243d1233",
+    "apps/server/src/indexing/merge.test.ts": "fefeae94b72bca95ae5b95706b3bb2ecd3a81661fd31559b740dfac3830969e0",
+    "apps/server/src/indexing/merge.ts": "5e736b7ccfb52febcaa72a9f76a0d70cd7e8eb298564981e26305c8acfb3fd00",
+    "apps/server/src/indexing/prompts.ts": "f51a446234366fd107f949e82e39eeb23a48e8f9c6fd1ba7eb30c7eece21f29e",
+    "apps/server/src/indexing/reference.test.ts": "ca3219a7de92fcc27ff21723d507f94439026986da6c25847e4d0e6fb05c2c5b",
+    "apps/server/src/indexing/summary.test.ts": "921c30c06df91337fe2d68927401ad5c6af4203659ab46f94a380ff891ac777f",
+    "apps/server/src/indexing/summary.ts": "f03bf3b18a1b9ff01a97b0e51f9e484a731b15a1e71a5a64bc73ead452d97429",
+    "apps/server/src/main.ts": "59e37d6e5bec8c0d7f4ae196e66f3cf02b5a48d300052b85444893e2c988f3f6",
+    "apps/server/src/models/chat.protocol.test.ts": "3c0a2b674f65e3ade292fb7e437a4467b13adbf1f616ad57b50b9fd2b7cf8f82",
+    "apps/server/src/models/client.ts": "61f4d7fff76269fe772e8d5721d31cb9bd2fa3234288055632e16a92e16cce05",
+    "apps/server/src/models/config.test.ts": "812559274dfc1e5e42dd7a049e9552b82789105a221733c5ddb9a8263619136b",
+    "apps/server/src/models/config.ts": "e888d72adcb65903aa33641c4a95f1852a1483f5006387a60f3da5f9ec6ad624",
+    "apps/server/src/models/embedding.protocol.test.ts": "9e30bf849f2f45b9292320c61967a3eddfb8b208ad3e3405dfe2842393930ee0",
+    "apps/server/src/models/errors.ts": "e4da2b34f17bd066de1ac587a53a9c73fad5e8acbb814135f4c9798b42ca8bd6",
+    "apps/server/src/models/http.ts": "5d1a0a56402bdfdf3dfb0755c9e0d008a3c5f600709fa70010777e8d0b41ea2a",
+    "apps/server/src/models/model-url.test.ts": "dd691153c73b934cba1c92217fee5dd70a7c2925648465f10e7b0b90263430c5",
+    "apps/server/src/models/rerank.protocol.test.ts": "48a1254f1fa5e4359eed2ab3a4ba9ffd0cc42ad1a0d25d9339790ab85b939e06",
+    "apps/server/src/models/url.ts": "c9ec575a70017e1be2a8ad35a5fdedbc4773c1fdea6e40669122c61673cec294",
+    "apps/server/src/parsers/archive.ts": "8ae037fe44f98329577c824eea423e97249c29a4d1ca7a2f3cbb1bbac48108fa",
+    "apps/server/src/parsers/common.ts": "7a93cea4d35ccfc1739a5f9f5540ae663dd5ad0f8160cce2a18610ec2e08a8f2",
+    "apps/server/src/parsers/formats.test.ts": "50e0ba48d0f95a10b14e8d2eeccdc9a5e54fd67a60b75c1dba301a1a420a7639",
+    "apps/server/src/parsers/index.ts": "ff76cb622835bfb5c5248757a94f87ecd2a4974d5c3931e75f283577c07586e1",
+    "apps/server/src/parsers/network.ts": "a1754c3e8af3434c215a6bf0ff76675d0f7e817a336274790809cfb37c2ebaab",
+    "apps/server/src/parsers/office.ts": "ac695345fbcd8248ba57c528a96ba5632295f30e6471cfa6f8f9cc58b4cd0d64",
+    "apps/server/src/parsers/parser-no-network.test.ts": "ad84dd56107776837e8fbd46df8735ec205cf238d1acff0e7b4b4e196257b4e6",
+    "apps/server/src/parsers/parser-security.test.ts": "0413f34c0bc834d83d58b59aebbd744d578af9e34b8823f9fb9bb4256c51611d",
+    "apps/server/src/parsers/pdf.ts": "46cd1b279fabc45771b977c1437730164012062c3f835fc2916815615d8fa3e5",
+    "apps/server/src/parsers/text.ts": "2de66ff1a3fa13f5bf5f3372e7571e995eabf17f1973b1e73eb200cd513a17c6",
+    "apps/server/src/parsers/worker.ts": "f18aaedda8793df26165b79b93833f7f7dcc99908ba63258d77ac468e8291f84",
+    "apps/server/src/parsers/xml.ts": "99529e6777658de042dc70b8557889bb978b8d434e52e26eea92aeed05216103",
+    "apps/server/src/paths.ts": "c711aeeef5e6d8e2c9434502e7028bbd9ecf37c6bb1870df54e3f06ca8059a1b",
+    "apps/server/src/retrieval/algorithms.ts": "97c6d42b0bb80e7cc3c57f9393fe8886992cf995d7176dc4e6ba186ccdf908c4",
+    "apps/server/src/retrieval/context.ts": "00e2115592a0d0fb4824a3c4bf3926153738b7724b1abe622cec4e7dd760cdf2",
+    "apps/server/src/retrieval/keywords.test.ts": "077326ed3f8645ea2b23e7e07ec6e2c1e019a1659c61cbfad907bcbd10106712",
+    "apps/server/src/retrieval/kg-chunk-selection.test.ts": "82d7cd6b0a5467fee33bd5134115365bd871e474ba9379acb2bb659741169f2a",
+    "apps/server/src/retrieval/kg-ranking.test.ts": "cd2c37988bef73723a179561bba3214c97662677557392cee3d3c3eab010d6a9",
+    "apps/server/src/retrieval/prompts.ts": "d6899b34b413d6262816ec72aa82c5ea23e40d29c52eaa2fb2496c8196aef991",
+    "apps/server/src/retrieval/retrieval-order.test.ts": "0ebe9ffb0a4f6d773fee562bb3312f472154f284a54d8e376f2936ef8a55c3c7",
+    "apps/server/src/retrieval/service.ts": "06fba2e1ccc6f512252abde14b805e1da01b83d71ce317664b943bbaeeea3397",
+    "apps/server/src/storage/disk.ts": "f0ad43065a63e72dc325dc6c97df90b0920b5be210bffc25f6c553b9844f4176",
+    "apps/server/src/storage/graph.test.ts": "bff76f37e72f2ec47d70e849480960161349760d8f70587eda5a5d08e2b32072",
+    "apps/server/src/storage/graph.ts": "ea9571bde7cb8c727bc01aa522370436d6fb5cb84aecb95c55f6fdfb77efd4f3",
+    "apps/server/src/storage/io.ts": "07220ed7ae07ed412ddac1cddd8ceddc70a8a4f21c146507584515aaba9b9cc2",
+    "apps/server/src/storage/kv.test.ts": "9b8d446b7b407ec096939bf1168070b0c5de4a6237fde819dc0a560f1a39f742",
+    "apps/server/src/storage/kv.ts": "d39f5d7f6d3063ebcc0806cf5b793e967c98df75d02208346608799466da9982",
+    "apps/server/src/storage/maintenance.ts": "757ece21065eea3d87d4e4968cf92eab7f2424581056786cf54e14b73f5f6992",
+    "apps/server/src/storage/recovery.ts": "8eaf4fb3f2c75fa288daa38d35d0a217ea139468d15aa254c276641e973e5aba",
+    "apps/server/src/storage/snapshot.ts": "6ebfb8c5d6767c862b8e15325797fe2e66750b876ab18e5e57cdf997929b7533",
+    "apps/server/src/storage/state.ts": "a31ee5ab4d0fe1538037d1797289fbbf810110b2574e0d1a030a0ded3e4a6798",
+    "apps/server/src/storage/vectors.test.ts": "9db049cd4cec35f5dc09ced94f46d695efb5b8fb5d74e5074835434c2f46116f",
+    "apps/server/src/storage/vectors.ts": "da034400d83948e9be53ce2b865f30bea18c580d2f0b824423dedc3da3efb72a",
+    "apps/server/src/storage/writer-lock.ts": "68bde5f7e898defb900207e894190c79defc5a0b507113de25a24b8250574709",
+    "apps/web/src/App.test.tsx": "57ff94e36c6f3b2afd412b5993aee49f58d967fe99c1ddb997774f2aef742dd7",
+    "apps/web/src/App.tsx": "6a2f4deadcf5bc2b8efa1f486074f1019ccf20994cfaa8d79f86c6f704af9c49",
+    "apps/web/src/Documents.test.tsx": "1e7520804f5bb63461ceec3cc9b958ed3856871c0ccc2304271a7051513fa154",
+    "apps/web/src/Documents.tsx": "59b65d712ec1b6226fa7d44ddc03ac056109e1186052dc1bbe1bd6c9da46509b",
+    "apps/web/src/GraphViewer.test.tsx": "dd19127690f7a013cec39ad8e11c084743be96e65c1e20653ceea110ef5ee576",
+    "apps/web/src/GraphViewer.tsx": "e8f44abea4f5b6f484f12615c504910b0f1f2f3b3131c3ae88d83d6ae8b5ffb8",
+    "apps/web/src/Maintenance.tsx": "9198d11938b91e07f4f5b27739f5e0ba7478d864a2692a39e92b2403c3f5cab9",
+    "apps/web/src/ModelSettings.test.tsx": "d1c7961ff752fe30d7f7a0e065174be91799f0982e4851ac2a18bc40db17537d",
+    "apps/web/src/ModelSettings.tsx": "5cbd5194ba971aa0706fe227307c9da5bc7dfd6e135b124bbf6a95b37d99474a",
+    "apps/web/src/QueryPreview.tsx": "af406571fea4ffcb3b3ed1f039cdc90789e4889a8e3500ad1f7e4edae5d50c1e",
+    "apps/web/src/RetrievalView.test.tsx": "156885d1f0451130d94a33fb9bc8ff70ac91a96a8c021df39c7ba2ef8a1cb143",
+    "apps/web/src/SafeMarkdown.test.tsx": "905db1cc9f89dc8817429d7a630e11cecd4162cf189e90ff02a2db9b21b7fc68",
+    "apps/web/src/SafeMarkdown.tsx": "98fa94813ebfc223acecaf2e5791aaa639e8d9ba88c7b33fb6792739e8eefe22",
+    "apps/web/src/api/client.test.ts": "195983338c3d34c8603ff370971106bbd7620876057144444f4233a198164ceb",
+    "apps/web/src/api/client.ts": "89058c28b3b3909103152777876e3edc789b4ffaf84de3517d02e9ecee112b78",
+    "apps/web/src/api/ndjson.test.ts": "19a315614f3d60f605bc2a07d854fe1bbd1942a1f293dc100697884d8ebb5ef9",
+    "apps/web/src/api/ndjson.ts": "4d98c7320f499dd1090b2688569cc3a6d3cab57fa28b20f0886669999035c81a",
+    "apps/web/src/main.tsx": "2fa5f060f0676468fb5ac8ca1cb95e6fcb2ae2bc295c8f2d0370e2238f3b40e0",
+    "apps/web/src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "internal/contracts/src/contracts.test.ts": "afdd1f9730d845496417f6cc6791bbc7a71cdbcb611a7f8a4ab4648520e10874",
+    "internal/contracts/src/index.ts": "dca0828e0898cb927e4c7d6e8445841bd460d3ea2fc00e15759bf608aedd267f",
+    "internal/contracts/src/parsing.ts": "95ad8c17fe8336d8c01374ac0ba6ca17a1fd13b16128473c79781f48d72fd19d",
+    "package-lock.json": "f3701c273720794207741d9d9280a688f9dce9aada8dd4071a28d061c41135a7",
+    "package.json": "393110635963a91f4ed4954f94b89204b43d75ffaa70a36eb8ec4d7fdc611416",
+    "scripts/reference/requirements.txt": "cf86401552cf2f4e030fd31b5a04c9dceeb901f43618915ec75143b7fc3eaa26",
+    "scripts/reference/s06.py": "515fb7fa75a8b5d2a48d0e8dce2cd21823349d264b2d88d50dbcfffca3e17cd6",
+    "scripts/reference/s07.py": "928f1bff4ba68c72338a447c4b84a6501cb8d412c3d7aa3e1d9a3cea6712ce8e",
+    "scripts/reference/s08.py": "e9694507b881bd72c581030342ba0a289a77505352bd8906eeee97342a2b80dd",
+    "scripts/reference/s09.py": "66fadb28e62e3b71942f49c7ffe6cf30308e85be128e7104c00999d5d8c459f5",
+    "scripts/reference/s11.py": "f65e30aef3cbc292074ee6c4b3a1ba9eafc22e0236632e6725aea4dbc59ebd70",
+    "scripts/reference/validate.mjs": "e279f6782c4121db30aa4b5083c6c98c29e728cbc17900dc71776e9bdbc2bf62",
+    "vitest.config.ts": "c21003b13ec33dca662825595b94678569e29b366fb73bcb373d31be530ade32"
+  },
+  "algorithmEvidence": {
+    "G01": {
+      "typescript": [
+        "apps/server/src/indexing/extraction.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s11-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G02": {
+      "typescript": [
+        "apps/server/src/indexing/merge.ts",
+        "apps/server/src/indexing/summary.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s11-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G03": {
+      "typescript": [
+        "apps/server/src/retrieval/service.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G04": {
+      "typescript": [
+        "apps/server/src/retrieval/algorithms.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G05": {
+      "typescript": [
+        "apps/server/src/retrieval/algorithms.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G06": {
+      "typescript": [
+        "apps/server/src/retrieval/algorithms.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G07": {
+      "typescript": [
+        "apps/server/src/retrieval/algorithms.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G08": {
+      "typescript": [
+        "apps/server/src/retrieval/algorithms.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G09": {
+      "typescript": [
+        "apps/server/src/retrieval/context.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G10": {
+      "typescript": [
+        "apps/server/src/indexing/indexer.ts",
+        "apps/server/src/storage/vectors.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G11": {
+      "typescript": [
+        "apps/server/src/indexing/maintenance.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s11-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    },
+    "G12": {
+      "typescript": [
+        "apps/server/src/generation/service.ts",
+        "apps/server/src/retrieval/context.ts"
+      ],
+      "sourceReferences": [
+        "tests/fixtures/graph/s08-python-reference.json",
+        "tests/fixtures/graph/s09-python-reference.json",
+        "tests/fixtures/graph/s11-python-reference.json"
+      ],
+      "command": "npm run test:reference",
+      "status": "passed on shared fixtures with explicit adaptations; see docs/VALIDATION_REPORT.md"
+    }
+  }
+}

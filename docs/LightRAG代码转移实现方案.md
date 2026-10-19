@@ -11,7 +11,7 @@
 - 分析来源：<https://github.com/HKUDS/LightRAG>。
 - 固定上游提交：`aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 上游提交时间：2026-10-14T22:55:37+08:00；源码版本字段为 `1.5.8`，API 版本字段为 `0347`。以提交 SHA 为分析基准，不以会变化的默认分支或版本字段单独定位。
-- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；S10 已接入图谱浏览与完整页面闭环，见 [S10 验证记录](S10_VALIDATION.md)；S11 总体验收和完整 G01–G12 门槛尚未通过。
+- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；S10 已接入图谱浏览与完整页面闭环，见 [S10 验证记录](S10_VALIDATION.md)；S11 已完成本地总体验收和 G01–G12 最低共同夹具对照（按明确适配），见 [完整报告](VALIDATION_REPORT.md)；S12 最终交付审查及外部未验证项保留。
 - 配套文档：[LightRAG代码转移实施步骤](LightRAG代码转移实施步骤.md)。
 
 ## 2. 用户要求与迁移边界
@@ -332,7 +332,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 
 这里的 GraphRAG 指 LightRAG 自身的图谱增强 RAG。固定版本的主要查询链路是实体/关系双层检索与来源块融合，不等于另一个项目 Microsoft GraphRAG 的 Leiden 社区检测、社区报告和全局 map-reduce。不能因名称含 global 就声称移植了社区算法，也不把它们强加进本次范围。
 
-下表均为**必须实现并验证**；S06 已实现 G01 抽取和 G02 合并/摘要基础，并执行部分辅助规则参考对照，S07 已补存活贡献重建及权重参考，S08 已补 G03–G10 本阶段规则参考与回归（见 [S08 验证记录](S08_VALIDATION.md)），向量内容格式、严格 JSON、引用身份及额外预算差异明确保留；S09 已补 G12 最终提示/历史/问题与引用传递的本阶段执行参考；完整 G01/G02、G11 与 G01–G12 总验收仍待后续。仅画出图谱、创建图存储、提供 mode 选项，均不能证明这些算法已经移植。
+下表均为**必须实现并验证**；S06 已实现 G01 抽取和 G02 合并/摘要基础，并执行部分辅助规则参考对照，S07 已补存活贡献重建及权重参考，S08 已补 G03–G10 本阶段规则参考与回归（见 [S08 验证记录](S08_VALIDATION.md)），向量内容格式、严格 JSON、引用身份及额外预算差异明确保留；S09 已补 G12 最终提示/历史/问题与引用传递的本阶段执行参考；S11 已用完整抽取/合并/摘要/重建及 naive 函数执行补齐 G01/G02/G11/G12 的共同夹具最低断言；逐项结果与差异见 [完整验收报告](VALIDATION_REPORT.md)。仅画出图谱、创建图存储、提供 mode 选项，均不能证明算法对照通过。
 
 | 编号 | 必须保留的算法 | 固定 SHA 源码依据 | 最低对照断言 |
 |---|---|---|---|
@@ -375,7 +375,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 | `POST /api/v1/documents/:id/reindex` | 使用当前选定文本配置重建文档贡献 |
 | `DELETE /api/v1/documents/:id` | 创建删除任务；仅成功发布后才视为删除完成 |
 | `GET /api/v1/jobs/:id`、`POST /api/v1/jobs/:id/cancel` | 持久化任务进度和取消 |
-| `POST /api/v1/index/rebuild` | 激活新 embedding 空间前的全量重建任务 |
+| `POST /api/v1/maintenance/rebuild` | 激活新 embedding 空间前的全量重建任务 |
 | `POST /api/v1/query`、`POST /api/v1/query/stream` | 非流式 / NDJSON 问答，返回引用、模式及警告 |
 | `POST /api/v1/query/data` | 结构化召回与上下文，不执行最终回答生成 |
 | `GET /api/v1/graph`、`GET /api/v1/graph/sources` | 实体/关系搜索及一层邻居，最多 100 节点/300 边；真实来源独立分页（每页最多 20 块） |

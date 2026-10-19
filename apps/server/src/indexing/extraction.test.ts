@@ -12,9 +12,9 @@ it.each(['text '+JSON.stringify(empty), '[]', '{"entities":{},"relationships":[]
 it('defaults upstream JSON weight to one; deduplicates undirected corrected gleaning and rejects missing endpoints', () => {
   const input = kg(); const r: Record<string, unknown> = { ...input.relationships[0]! }; delete r.strength;
   expect(parseExtraction(JSON.stringify({ ...input, relationships: [r] })).relationships[0]?.strength).toBe(1);
-  const corrected = kg(); corrected.relationships[0]!.description = 'Corrected';
+  const corrected = kg(); corrected.relationships[0]!.description = 'Corrected and expanded cooperation evidence.';
   const combined = combineExtractions([parseExtraction(JSON.stringify(input)), parseExtraction(JSON.stringify(corrected))]);
-  expect(combined.relationships).toHaveLength(1); expect(combined.relationships[0]?.description).toBe('Corrected');
+  expect(combined.relationships).toHaveLength(1); expect(combined.relationships[0]?.description).toBe('Corrected and expanded cooperation evidence.');
   expect(() => combineExtractions([{ entities: [], relationships: combined.relationships }])).toThrow('端点');
 });
 it('bounded repair then exactly one gleaning round; uses upstream language and input-only instructions', async () => {
@@ -39,4 +39,12 @@ it('allows up to 200 combined records while enforcing 100 per response', async (
   const contribution = combineExtractions([first,second]); expect(contribution.entities).toHaveLength(200);
   expect(LedgerSchema.parse({version:EXTRACTION_VERSION,configRevision:1,contentHash:hash('input'),contribution}).contribution.entities).toHaveLength(200);
   expect(()=>parseExtraction(JSON.stringify(contribution))).toThrow();
+});
+
+it('preserves first equal-length Unicode descriptions and rejects shorter gleaning replacements', () => {
+  const first = parseExtraction(JSON.stringify(kg()));
+  first.entities[0]!.description = 'abc'; first.relationships[0]!.description = 'initial evidence';
+  const next = structuredClone(first); next.entities[0]!.description = '😀😀'; next.relationships[0]!.description = 'brief';
+  const combined = combineExtractions([first,next]);
+  expect(combined.entities[0]!.description).toBe('abc'); expect(combined.relationships[0]!.description).toBe('initial evidence');
 });

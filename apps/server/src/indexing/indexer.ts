@@ -7,7 +7,7 @@ import type { SnapshotStore } from '../storage/snapshot.js';
 import type { WorkspaceDraft } from '../storage/state.js';
 import { JsonSchema } from '../storage/kv.js';
 import type { TextChunk } from '../core/chunker.js';
-import { extract, LedgerSchema, EXTRACTION_VERSION, hash } from './extraction.js';
+import { extract, LedgerSchema, EXTRACTION_VERSION, EXTRACTION_CACHE_POLICY, hash } from './extraction.js';
 import { mergeContributions } from './merge.js';
 import { summarizeDescriptions } from './summary.js';
 
@@ -26,7 +26,7 @@ export class Indexer {
       const identity = { version: EXTRACTION_VERSION, contentHash: hash(chunk.content), configRevision: config.revision };
       // Revision scopes credentials and every model option without persisting a secret or its digest.
       const publicProfile = { ...profile }; delete publicProfile.apiKey;
-      const key = `extract-${hash(JSON.stringify([identity, publicProfile, chunk.docVersion, chunk.chunkerVersion, chunk.tokenizer]))}`;
+      const key = `extract-${hash(JSON.stringify([EXTRACTION_CACHE_POLICY, identity, publicProfile, chunk.docVersion, chunk.chunkerVersion, chunk.tokenizer]))}`;
       const cached = this.storage.capture().getKV('caches', key);
       const ledger = cached === undefined ? { ...identity, contribution: await extract(this.client, profile, chunk.content, signal) } : LedgerSchema.parse(cached);
       if (cached === undefined) {

@@ -40,10 +40,10 @@ export function App({ api = applicationApi }: { api?: ApplicationApi }) {
         <a href="/documents" aria-current={documentsPage ? 'page' : undefined}>文档</a>
         <a href="/settings/models" aria-current={modelsPage ? 'page' : undefined}>模型设置</a>
       </nav>
-      <p className="sidebar-note">S10 · 知识库工作台<br />应用功能正在按阶段实现。</p>
+      <p className="sidebar-note">S11 · 知识库工作台<br />应用功能正在按阶段实现。</p>
     </aside>
     <main>
-      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S10</span></header>
+      <header><span className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</span><span className="badge">开发阶段 S11</span></header>
       <h1>{modelsPage ? '模型设置' : documentsPage ? '文档管理' : queryPage ? '检索预览' : graphPage ? '知识图谱' : '让知识有据可循'}</h1>
       <p className="intro">{modelsPage ? '独立配置文本、向量和重排接口，并测试候选连接。' : '从本地文档构建知识图谱，检索证据，再生成带来源的回答。'}</p>
       {status.kind === 'loading' && <p role="status">正在检查服务状态…</p>}

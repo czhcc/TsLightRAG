@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { indexingHarness, kgHandler, reply, kg, empty } from '../helpers/indexing.js';
 import { entityId } from '../../apps/server/src/indexing/extraction.js';
@@ -22,6 +22,7 @@ it('indexes concurrent documents with exact shared graph, original contributions
       expect(vectors.rows).toHaveLength(count); expect(vectors.space.id).toMatch(/^[a-f0-9]{64}$/);
       for (const row of vectors.rows) { expect(row.contentHash).toMatch(/^[a-f0-9]{64}$/); expect(Math.hypot(...row.values)).toBeCloseTo(1,5); }
     }
+    await mkdir(new URL('../../.tools/', import.meta.url), { recursive: true });
     await writeFile(new URL('../../.tools/s06-index-intermediates.json', import.meta.url), JSON.stringify({ graph, extractions: view.entries('extractions'), anchors: { fullEntities: view.entries('fullEntities'), fullRelations: view.entries('fullRelations'), entityChunks: view.entries('entityChunks'), relationChunks: view.entries('relationChunks') }, vectors: {chunks:files['vectors-chunks.json'],entities:files['vectors-entities.json'],relations:files['vectors-relations.json']} }, null, 2));
     const requests = h.model.requests.length; const duplicate = await h.import('first document Alpha Beta');
     expect(duplicate.deduplicated).toBe(true); expect(duplicate.job.id).toBe(a.job.id); expect(h.model.requests).toHaveLength(requests);
