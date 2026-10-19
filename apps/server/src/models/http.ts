@@ -48,7 +48,8 @@ export async function* responseChunks(response: IncomingMessage) {
 export async function responseJson(response: IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
   for await (const chunk of responseChunks(response)) chunks.push(chunk);
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown; } catch { throw invalid(); }
+  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown; }
+  catch { throw invalid('模型响应不是有效 JSON；请确认 Base URL 指向模型 API，而不是网页或管理界面'); }
 }
 export class ModelTransport {
   private global = new Gate();

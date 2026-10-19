@@ -13,6 +13,68 @@ it('sends actual OpenAI request fields/auth and returns text/usage', async () =>
   expect(server.requests[0]).toMatchObject({ method: 'POST', path: '/proxy/v1/chat/completions', headers: { authorization: 'Bearer synthetic-s03-secret' },
     body: { model: 'text-model', messages, stream: false, temperature: 0, max_tokens: 2048 } });
 });
+it('accepts vLLM-compatible nullable optional message fields without treating reasoning as the answer', async () => {
+  const server = await fixture((_r, res) => { res.end(JSON.stringify({
+    choices: [{ index: 0, message: { role: 'assistant', content: 'Hello from vLLM', reasoning_content: 'private synthetic reasoning',
+      tool_calls: null, function_call: null, refusal: null }, finish_reason: 'stop', stop_reason: null, logprobs: null }], usage: null,
+  })); });
+  expect(await new ModelClient().chat(textProfile(server.url), messages)).toEqual({ text: 'Hello from vLLM', finishReason: 'stop' });
+});
+it('uses the configured output budget for connection tests instead of forcing 32 tokens', async () => {
+  const server = await fixture((request, res) => {
+    const body = request.body as { max_tokens: number };
+    res.end(JSON.stringify(body.max_tokens < 512
+      ? { choices: [{ message: { content: null, reasoning_content: 'synthetic unfinished reasoning' }, finish_reason: 'length' }] }
+      : chatReply));
+  });
+  expect(await new ModelClient().test(textProfile(server.url, { maxOutputTokens: 1024 }))).toMatchObject({ ok: true, kind: 'text' });
+  expect(server.requests[0]?.body).toMatchObject({ max_tokens: 1024, stream: false });
+  expect(server.requests).toHaveLength(1);
+});
+it('reports a budget limit for reasoning-only truncation without leaking or accepting reasoning', async () => {
+  const server = await fixture((_r, res) => res.end(JSON.stringify({
+    choices: [{ message: { content: null, reasoning_content: 'synthetic-s03-secret private reasoning' }, finish_reason: 'length' }],
+  })));
+  const result = await new ModelClient().test(textProfile(server.url, { maxOutputTokens: 16, maxRetries: 2 })).catch((error: unknown) => error);
+  expect(result).toMatchObject({ code: 'MODEL_OUTPUT_LIMIT' });
+  expect(String(result)).toContain('token'); expect(String(result)).not.toContain('synthetic-s03-secret'); expect(String(result)).not.toContain('private reasoning');
+  expect(server.requests[0]?.body).toMatchObject({ max_tokens: 16 }); expect(server.requests).toHaveLength(1);
+});
+it('warns on a nonempty connection-test answer that hits the output limit', async () => {
+  const server = await fixture((_r, res) => res.end(JSON.stringify({ choices: [{ message: { content: 'Hello' }, finish_reason: 'length' }] })));
+  expect(await new ModelClient().test(textProfile(server.url))).toMatchObject({ ok: true, message: expect.stringContaining('上限') });
+});
+it('accepts null optional tool fields on SSE frames while returning only answer deltas', async () => {
+  const server = await fixture((_r, res) => { res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    res.end('data: {"choices":[{"delta":{"content":"Hello","reasoning_content":"synthetic hidden reasoning","tool_calls":null,"function_call":null},"finish_reason":null}]}\n\n'
+      + 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n');
+  });
+  const deltas: string[] = [];
+  expect(await new ModelClient().chat(textProfile(server.url), messages, { onDelta: value => { deltas.push(value); } })).toMatchObject({ text: 'Hello' });
+  expect(deltas).toEqual(['Hello']);
+});
+it.each([
+  { choices: [{ message: { content: 'answer', function_call: { name: 'unsafe' } }, finish_reason: 'stop' }] },
+  { choices: [{ message: { content: 'answer', tool_calls: [{ id: 'call' }] }, finish_reason: 'stop' }] },
+  { choices: [{ message: { content: null, reasoning_content: 'reasoning is not an answer' }, finish_reason: 'stop' }] },
+  { choices: [{ message: { content: 'answer', refusal: 'refused' }, finish_reason: 'stop' }] },
+])('keeps rejecting active calls, refusals and reasoning-only success %#', async body => {
+  const server = await fixture((_r, res) => res.end(JSON.stringify(body)));
+  await expect(new ModelClient().test(textProfile(server.url))).rejects.toMatchObject({ code: 'INVALID_MODEL_RESPONSE' });
+  expect(server.requests).toHaveLength(1);
+});
+it('diagnoses a non-Chat-Completions response without exposing its content', async () => {
+  const server = await fixture((_r, res) => res.end(JSON.stringify({ message: { content: 'synthetic-s03-secret' }, done: true })));
+  const result = await new ModelClient().test(textProfile(server.url)).catch((error: unknown) => error);
+  expect(result).toMatchObject({ code: 'INVALID_MODEL_RESPONSE' });
+  expect(String(result)).toContain('Chat Completions'); expect(String(result)).not.toContain('synthetic-s03-secret');
+});
+it('diagnoses HTML instead of JSON without exposing the page', async () => {
+  const server = await fixture((_r, res) => res.end('<html>synthetic-s03-secret</html>'));
+  const result = await new ModelClient().test(textProfile(server.url)).catch((error: unknown) => error);
+  expect(result).toMatchObject({ code: 'INVALID_MODEL_RESPONSE' }); expect(String(result)).toContain('JSON');
+  expect(String(result)).not.toContain('synthetic-s03-secret');
+});
 it('decodes split UTF-8/CRLF/multiline SSE, empty and usage-only frames', async () => {
   const server = await fixture((_r, res) => {
     res.writeHead(200, { 'Content-Type': 'text/event-stream' });

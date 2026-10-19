@@ -46,7 +46,7 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
   return <section aria-label="模型配置入口">
     <h2>模型角色</h2>
     <p>此页编辑候选配置。活动索引的模型版本与凭据独立保留，清除候选密钥不会删除仍被索引或任务引用的旧版本。</p>
-    <p>配置保存在本机。连接测试会将示例文本发送到候选地址，可能产生费用；不会保存设置或修改索引。</p>
+    <p>配置保存在本机。连接测试会将示例文本发送到候选地址，并使用当前最大输出 token 设置，可能产生费用；不会保存设置或修改索引。</p>
     <p>密钥输入留空表示保留；切换地址后需重新输入或清除密钥。此处不在浏览器持久保存密钥。</p>
     <div className="cards">{Object.entries(labels).map(([kind, label]) => <article key={kind}>
       <h3>{label}</h3><button disabled={busy || profiles.length >= 100} onClick={() => { add(kind as ModelProfileInput['kind']); }}>添加{label}</button>

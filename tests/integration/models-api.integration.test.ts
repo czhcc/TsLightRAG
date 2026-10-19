@@ -8,6 +8,23 @@ import { textProfile, embeddingProfile, rerankProfile, bindings, chatReply } fro
 import { TestModelResultSchema, ModelSettingsSchema, HealthSchema } from '@tslightrag/contracts';
 const closers: (() => Promise<unknown>)[] = [];
 afterEach(async () => { for (const close of closers.splice(0).reverse()) await close(); });
+it('tests a vLLM-compatible candidate using its configured budget without persisting it', async () => {
+  const upstream = await startFakeModel((request, response) => {
+    const body = request.body as { max_tokens: number };
+    response.end(JSON.stringify({ choices: [{ message: { role: 'assistant', content: body.max_tokens >= 512 ? 'Hello' : null,
+      reasoning_content: 'private synthetic reasoning', tool_calls: null, function_call: null, refusal: null },
+      finish_reason: body.max_tokens >= 512 ? 'stop' : 'length' }], usage: null }));
+  }); closers.push(upstream.stop);
+  const service = await startService(); closers.push(service.stop);
+  const result = await fetch(`${service.address}/api/v1/settings/models/test`, { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0,
+      profile: textProfile(`${upstream.url}/v1`, { maxOutputTokens: 1024, model: 'synthetic-vllm-model' }) }) });
+  expect(result.status).toBe(200); expect(TestModelResultSchema.parse(await result.json())).toMatchObject({ ok: true, kind: 'text' });
+  expect(upstream.requests[0]).toMatchObject({ path: '/v1/chat/completions', body: { max_tokens: 1024, model: 'synthetic-vllm-model', stream: false } });
+  expect(upstream.requests).toHaveLength(1);
+  const current = ModelSettingsSchema.parse(await (await fetch(`${service.address}/api/v1/settings/models`)).json());
+  expect(current.revision).toBe(0); expect(current.profiles).toEqual([]);
+});
 async function setup() {
   const directory = await temporaryDirectory(); closers.push(directory.cleanup);
   const text = await startFakeModel((r, res) => {

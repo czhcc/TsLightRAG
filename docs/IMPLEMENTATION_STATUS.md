@@ -30,6 +30,10 @@ CLI/启动 JSON 支持显式 IPv4/IPv6 和通配监听；HTTP Host 校验跟随�
 
 补充修复 HTTP IP 浏览器缺少 crypto.randomUUID 时“添加模型”崩溃的问题：新增模型 ID 使用 getRandomValues 的 128 位随机值；无需 HTTPS 专属 API，已有配置 ID 不改写。新增组件及真实浏览器缺失 API 回归，覆盖三类模型、同类多个模型、角色绑定、保存和刷新。验证见 [HTTP 模型配置记录](reference/http-model-settings-validation.json)。
 
+## vLLM 兼容响应与连接测试
+
+修复连接测试忽略界面设置而固定 32 输出 token 的问题；文本测试按当前预算发送。兼容 null tool/function/usage 空字段；仍拒绝真实工具调用、拒答和无正文响应。思考耗尽预算返回 MODEL_OUTPUT_LIMIT，非 Chat Completions/非 JSON 错误有静态诊断且不泄露原响应。候选测试不保存、不自动重试格式错误，算法和存储 schema 不变。本地协议/集成与浏览器结果见 [验证记录](reference/vllm-compatibility-validation.json)；未连接用户的真实 vLLM 服务，实际触发字段仍需真实响应确认。
+
 ## 后续跨平台适配
 
 文件锁更换为带 Windows/macOS/Linux 预编译模块的 fs-ext-extra-prebuilt 2.2.14，移除 fs-ext/@types/fs-ext；Windows 使用 LockFileEx，POSIX 继续 flock，因此 Linux 旧版和新版仍互斥。适配 Windows 目录同步差异及配置 ACL，补文件身份/链接校验和三平台 CI。实际回归结果与实机待验证边界见 [跨平台记录](CROSS_PLATFORM.md)；不将 CI 文件存在当作 Windows/macOS 实测通过。

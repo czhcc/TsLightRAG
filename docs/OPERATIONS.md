@@ -31,6 +31,18 @@ npm start -- --config examples/startup.json
 
 在 `/settings/models` 添加文本、向量、可选重排模型，填写独立地址、模型名和所需密钥，选择 query 和 embedding 绑定，保存。文本/向量地址为 base URL，追加 `/chat/completions`、`/embeddings`；重排为完整 endpoint。候选测试会发送示例并可能计费；保存本身不调用模型。无需通过手工修改内部 JSON 绕过版本校验。密钥省略保留、清除删除；修改地址必须重新输入或明确清除旧密钥。
 
+### 文本模型连接测试
+
+vLLM 的 Base URL 通常以 `/v1` 结尾，程序实际发送 `POST /v1/chat/completions`；不要把完整 `/chat/completions` 路径再填进 Base URL。模型名称填写 vLLM 实际发布的 ID（可通过 `/v1/models` 查看，或核对服务端 served-model-name）。
+
+连接测试使用当前配置的最大输出 token，不再隐藏地强制为 32。思考模型可能先消耗预算生成 reasoning，而尚未输出 content；应根据模型上下文/资源限额提高输出预算，或在模型服务端调整思考模式。点击测试会实际调用模型，可能计费，不自动保存候选或修改索引。
+
+- `MODEL_OUTPUT_LIMIT`：响应以 length 结束但没有回答正文。不能把 reasoning_content 当成回答，也不应报协议测试成功。
+- `INVALID_MODEL_RESPONSE`：响应不是有效 JSON、不是 Chat Completions 结构，或没有有效正文/结束原因；提示会说明基本要求。请核对地址、模型协议和服务端响应结构。
+- 空 `tool_calls`、`function_call`、`usage` 可作为未提供值处理；实际工具调用、拒答、只有思考内容而无正文、坏格式仍不接受。非空正文达到输出上限时，连接测试通过但明确提示预算警告。
+
+错误不回显供应商原始响应、key、正文或思考内容。若继续失败，可提供删去这些内容后的字段结构及新的错误提示；真实供应商兼容结果不能由本地模拟用例替代。
+
 ## 通过主机 IP 访问
 
 旧版 CLI 和 HTTP Host 都仅支持 loopback。更新源码后必须重新构建，`npm start` 本身不会编译，否则 dist 仍会报“仅允许 loopback”：

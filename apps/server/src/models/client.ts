@@ -10,12 +10,15 @@ export type Message = { role: 'system' | 'user' | 'assistant'; content: string }
 const Usage = z.object({ prompt_tokens: z.number().int().nonnegative().optional(),
   completion_tokens: z.number().int().nonnegative().optional(), total_tokens: z.number().int().nonnegative().optional() });
 const Chat = z.object({ choices: z.array(z.object({
-  message: z.object({ content: z.string().min(1), tool_calls: z.array(z.unknown()).max(0).optional(), function_call: z.never().optional(), refusal: z.null().optional() }),
+  message: z.object({ content: z.string().min(1), tool_calls: z.array(z.unknown()).max(0).nullish(), function_call: z.null().optional(), refusal: z.null().optional() }),
   finish_reason: z.enum(['stop', 'length']),
-})).length(1), usage: Usage.optional() });
+})).length(1), usage: Usage.nullish() });
+const EmptyChat = z.object({ choices: z.array(z.object({
+  message: z.object({ content: z.string().nullish() }), finish_reason: z.literal('length'),
+})).length(1) });
 export type ChatResult = { text: string; finishReason: 'stop' | 'length'; usage?: z.infer<typeof Usage> };
 const Frame = z.object({ choices: z.array(z.object({ index: z.literal(0).optional(),
-  delta: z.object({ content: z.string().nullable().optional(), tool_calls: z.array(z.unknown()).max(0).optional(), function_call: z.never().optional(), refusal: z.null().optional() }),
+  delta: z.object({ content: z.string().nullable().optional(), tool_calls: z.array(z.unknown()).max(0).nullish(), function_call: z.null().optional(), refusal: z.null().optional() }),
   finish_reason: z.enum(['stop', 'length']).nullable().optional(),
 })).max(1), usage: Usage.nullable().optional() });
 
@@ -29,9 +32,14 @@ export class ModelClient {
       ...(options.onDelta ? { stream_options: { include_usage: true } } : {}),
     }, options.signal, async (response) => {
       if (!String(response.headers['content-type']).includes('text/event-stream')) {
-        const parsed = Chat.safeParse(await responseJson(response));
-        if (!parsed.success) throw invalid();
-        const choice = parsed.data.choices[0]; if (!choice?.message.content.trim()) throw invalid();
+        const body = await responseJson(response);
+        const empty = EmptyChat.safeParse(body);
+        if (empty.success && !empty.data.choices[0]?.message.content?.trim()) {
+          throw new ModelError('MODEL_OUTPUT_LIMIT', '模型达到最大输出 token 上限但未返回回答正文；请提高最大输出 token，或在模型服务端调整思考模式');
+        }
+        const parsed = Chat.safeParse(body);
+        if (!parsed.success) throw invalid('文本模型响应不符合 OpenAI Chat Completions 格式；需要 choices[0].message.content 为非空文本及 finish_reason 为 stop/length，请检查模型协议和 Base URL');
+        const choice = parsed.data.choices[0]; if (!choice?.message.content.trim()) throw invalid('文本模型未返回非空回答正文；思考内容不能替代正文，请检查输出 token 预算和模型设置');
         if (options.onDelta) { emitted = true; await options.onDelta(choice.message.content); }
         return { text: choice.message.content, finishReason: choice.finish_reason, ...(parsed.data.usage ? { usage: parsed.data.usage } : {}) };
       }
@@ -105,7 +113,10 @@ export class ModelClient {
     }
   }
   async test(profile: PrivateProfile, signal?: AbortSignal) {
-    if (profile.kind === 'text') await this.chat({ ...profile, maxOutputTokens: 32 }, [{ role: 'user', content: 'Reply with a short greeting. This is a connection test.' }], { ...(signal ? { signal } : {}) });
+    if (profile.kind === 'text') {
+      const result = await this.chat(profile, [{ role: 'user', content: 'Reply with a short greeting. This is a connection test.' }], { ...(signal ? { signal } : {}) });
+      if (result.finishReason === 'length') return { ok: true as const, kind: profile.kind, message: '模型协议测试通过，但回答达到最大输出 token 上限；请检查输出预算' };
+    }
     if (profile.kind === 'embedding') {
       await this.embed(profile, ['TsLightRAG connection test'], signal);
       return { ok: true as const, kind: profile.kind, message: '向量协议测试通过', dimensions: profile.dimensions };

@@ -1,0 +1,96 @@
+{
+  "change": "nullable vLLM-compatible chat responses, configured connection-test budgets and safe diagnostics",
+  "recordedAt": "2026-10-19T07:53:11.125193+00:00",
+  "targetParent": "082af737610cabd9e8f6c014478ea30dd43c9237",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux x64; system Chromium"
+  },
+  "reportedServiceFamily": "local vLLM; user endpoint and credentials not copied into repository",
+  "verifiedDefects": [
+    "Connection test overrode configured maxOutputTokens with 32",
+    "Optional null tool_calls/function_call/usage were rejected by text schema"
+  ],
+  "changes": [
+    "Connection test honors profile maxOutputTokens",
+    "Null optional controls/usage treated as absent for valid text replies and SSE frames",
+    "Real tool/function calls, refusals, reasoning-only success and malformed replies remain rejected",
+    "Empty answer with finish_reason=length yields MODEL_OUTPUT_LIMIT and no replay",
+    "Nonempty truncated test reply passes protocol validation with an explicit budget warning",
+    "Non-JSON and invalid Chat Completions errors use static diagnostics without raw response data"
+  ],
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run apps/server/src/models/chat.protocol.test.ts tests/integration/models-api.integration.test.ts apps/web/src/ModelSettings.test.tsx --reporter=dot (focused, before final added HTTP case)",
+      "exitCode": 0
+    },
+    {
+      "command": "npx vitest run --reporter=json --outputFile=.tools/vllm-vitest.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npx playwright test --reporter=json",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "base": {
+      "files": 74,
+      "passed": 498,
+      "failed": 0,
+      "skipped": 0
+    },
+    "e2e": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    }
+  },
+  "fixtures": {
+    "vllmCompatibleJsonNullableFields": true,
+    "vllmCompatibleSseNullableFields": true,
+    "syntheticReasoningNeedsMoreThan32Tokens": true,
+    "configuredBudgetSentOnActualHttpRequest": true,
+    "smallUserBudgetRespectedAndClearlyRejectedWhenEmpty": true,
+    "reasoningNotReturnedAsAnswer": true,
+    "activeFunctionToolCallsAndRefusalsRejected": true,
+    "htmlAndNativeNonChatJsonDiagnosedWithoutContents": true,
+    "candidateTestDoesNotSaveConfiguration": true,
+    "noFormatErrorReplay": true
+  },
+  "privacy": {
+    "testKeysAndReasoningSynthetic": true,
+    "rawProviderResponseEchoed": false,
+    "realUserEndpointOrKeyCommitted": false,
+    "originalDataDirModified": false
+  },
+  "notRun": [
+    "user actual vLLM service",
+    "actual trs-m6 model output",
+    "native Windows/macOS validation",
+    "real provider billing/quality"
+  ],
+  "rootCauseOfActualUserResponseConfirmed": false,
+  "notes": "No real upstream response was available. Local synthetic responses demonstrate both fixed defects; success against user service still requires retry there.",
+  "schemaChanged": false,
+  "dependenciesChanged": false,
+  "graphAlgorithmsChanged": false
+}
