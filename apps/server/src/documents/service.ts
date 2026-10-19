@@ -118,8 +118,8 @@ export class DocumentService {
       this.kick(); return { document, job, deduplicated: false };
     });
   }
-  list(offset: number, limit: number) {
-    const docs = this.storage.capture().documents().sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
+  list(offset: number, limit: number, q = '', status?: DocumentRecord['status']) {
+    const docs = this.storage.capture().documents().filter((doc) => doc.name.toLocaleLowerCase().includes(q.toLocaleLowerCase()) && (!status || doc.status === status)).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
     return { items: docs.slice(offset, offset + limit), total: docs.length, offset, limit };
   }
   detail(id: string) {

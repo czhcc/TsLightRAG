@@ -19,7 +19,7 @@ try {
     }
     const address = app.listeningOrigin;
     // One machine-readable line for owned-process startup and readiness tests.
-    process.stdout.write(`${JSON.stringify({ event: 'listening', address, dataDir: options.dataDir, stage: 'S07' })}\n`);
+    process.stdout.write(`${JSON.stringify({ event: 'listening', address, dataDir: options.dataDir, stage: 'S10' })}\n`);
     let stopping = false;
     const stop = async () => {
       if (stopping) return;

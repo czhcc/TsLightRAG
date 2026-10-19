@@ -11,7 +11,7 @@
 - 分析来源：<https://github.com/HKUDS/LightRAG>。
 - 固定上游提交：`aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
 - 上游提交时间：2026-10-14T22:55:37+08:00；源码版本字段为 `1.5.8`，API 版本字段为 `0347`。以提交 SHA 为分析基准，不以会变化的默认分支或版本字段单独定位。
-- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；完整界面联调等仍为**待实施约定**，完整 G01–G12 门槛尚未通过。
+- 当前 S01 工程、S02 存储与 S03 模型配置/HTTP 协议、S04 本地解析/分块、S05 文档/持久化任务、S06 抽取/合并/三类索引、S07 删除/重建/空间切换、S08 五模式检索/重排/上下文引用和 S09 回答/NDJSON/取消/缓存已完成，见 [S01](S01_VALIDATION.md)、[S02](S02_VALIDATION.md)、[S03](S03_VALIDATION.md)、[S04](S04_VALIDATION.md)、[S05](S05_VALIDATION.md)、[S06](S06_VALIDATION.md) 和 [S07 验证记录](S07_VALIDATION.md)。[S08 验证记录](S08_VALIDATION.md) 列出源码参考及适配差异；[S09 验证记录](S09_VALIDATION.md) 补充生成/缓存与 G12 本阶段参考；S10 已接入图谱浏览与完整页面闭环，见 [S10 验证记录](S10_VALIDATION.md)；S11 总体验收和完整 G01–G12 门槛尚未通过。
 - 配套文档：[LightRAG代码转移实施步骤](LightRAG代码转移实施步骤.md)。
 
 ## 2. 用户要求与迁移边界
@@ -119,7 +119,7 @@
 | 运行时 | Node.js 24 LTS、TypeScript strict、ESM | 当前机器已有 Node 24.19.0；统一前后端语言，支持 fetch、Web Streams、Worker |
 | 工程 | npm workspaces，提交 `package-lock.json`，CI 用 `npm ci` | 简化工具链，锁定实际依赖，避免要求额外 SDK 或全局命令 |
 | HTTP | Fastify + multipart/static + Zod schema | 文件上传、流式响应、输入校验、应用内集成测试 |
-| UI | React + Vite + TypeScript；Graphology/Sigma；Markdown 安全渲染 | 上游 UI 已是同类技术，可选择性复用；图谱库不充当服务端数据库 |
+| UI | React + Vite + TypeScript；限量 SVG 图谱；react-markdown 安全渲染 | S10 对最多 100 节点/300 边使用环形布局和可访问列表，替代初始 Graphology/Sigma 选型；选择性适配上游 Markdown，详见 S10 记录 |
 | KV/状态 | `Map` / 类型化对象 | 内存访问，以版本化 JSON 文件恢复 |
 | 向量 | `Float32Array`、归一化点积、精确 top-k | 实现默认小规模向量召回语义，不引入向量服务器或原生数据库 |
 | 图 | 无向节点表、边表和邻接 `Map` | 对应上游 `networkx.Graph` 的基础语义 |
@@ -378,7 +378,7 @@ Worker 隔离 CPU/解析故障，限制资源并可终止；防路径穿越、ZI
 | `POST /api/v1/index/rebuild` | 激活新 embedding 空间前的全量重建任务 |
 | `POST /api/v1/query`、`POST /api/v1/query/stream` | 非流式 / NDJSON 问答，返回引用、模式及警告 |
 | `POST /api/v1/query/data` | 结构化召回与上下文，不执行最终回答生成 |
-| `GET /api/v1/graph`、`GET /api/v1/graph/search` | 有节点/边数量和深度上限的子图及名称搜索 |
+| `GET /api/v1/graph`、`GET /api/v1/graph/sources` | 实体/关系搜索及一层邻居，最多 100 节点/300 边；真实来源独立分页（每页最多 20 块） |
 
 错误统一 `{ code, message, requestId, details? }`，校验 400/422、缺配置/状态冲突 409、超限 413、上游错误 502/504。流开始后用协议 error 终止，不试图改写已发出的 HTTP 状态。
 

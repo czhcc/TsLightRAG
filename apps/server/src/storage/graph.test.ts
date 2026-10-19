@@ -27,3 +27,13 @@ it('rebuilds adjacency on restore and rejects corrupt canonical IDs/duplicates',
   expect(() => MemoryGraph.restore(file)).toThrow('canonical');
   expect(() => MemoryGraph.restore({ nodes: [node('a'), node('a')], edges: [] })).toThrow('Duplicate');
 });
+
+it('caps dense graph browsing at 100 nodes and 300 edges without returning dangling endpoints', () => {
+  const graph = new MemoryGraph();
+  for (let i = 0; i < 120; i++) graph.setNode({ id: `n${i}`, name: `Node ${String(i).padStart(3, '0')}`, type: 'concept', description: 'node', sourceChunkIds: ['c'] });
+  for (let i = 0; i < 30; i++) for (let j = i + 1; j < 30; j++) graph.setEdge({ sourceId: `n${i}`, targetId: `n${j}`, description: 'relation', keywords: [], weight: 1, sourceChunkIds: ['c'] });
+  const data = graph.browse('', undefined, 100);
+  expect(data.nodes).toHaveLength(100); expect(data.totalNodes).toBe(120); expect(data.totalEdges).toBe(435); expect(data.edges).toHaveLength(300); expect(data.truncated).toBe(true);
+  const small = graph.browse('', 'n0', 2);
+  expect(small.nodes[0]!.id).toBe('n0'); expect(small.nodes).toHaveLength(2); expect(small.edges).toHaveLength(1);
+});

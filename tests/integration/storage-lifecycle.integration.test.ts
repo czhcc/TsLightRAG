@@ -18,7 +18,7 @@ it('boots the real server with storage, rejects a second process and retains dat
   try {
     service = await startService(['--data-dir', directory.path]);
     const health = HealthSchema.parse(await (await fetch(`${service.address}/api/v1/health`)).json());
-    expect(health.stage).toBe('S09'); expect(health.storage.initialized).toBe(true); expect(health.usable).toBe(false);
+    expect(health.stage).toBe('S10'); expect(health.storage.initialized).toBe(true); expect(health.usable).toBe(false);
     await expect(startService(['--data-dir', directory.path])).rejects.toThrow('STORAGE_LOCKED');
     expect(await service.stop()).toBe(0); service = undefined;
     const reopened = await SnapshotStore.open(directory.path);

@@ -118,6 +118,11 @@ export type DocumentRecord = z.infer<typeof DocumentSchema>;
 export type JobRecord = z.infer<typeof JobSchema>;
 export const ImportTextSchema = z.strictObject({ name: z.string().min(1).max(255), text: z.string().min(1).max(2_000_000) });
 export const ImportResultSchema = z.strictObject({ document: DocumentSchema, job: JobSchema, deduplicated: z.boolean() });
+export const DocumentListQuerySchema = z.strictObject({
+  offset: z.coerce.number().int().min(0).max(1_000_000).default(0),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  q: z.string().trim().max(255).default(''), status: DocumentStatusSchema.optional(),
+});
 export const DocumentListSchema = z.strictObject({ items: z.array(DocumentSchema), total: z.number().int().nonnegative(),
   offset: z.number().int().nonnegative(), limit: z.number().int().positive() });
 export const DocumentDetailSchema = z.strictObject({ document: DocumentSchema, job: JobSchema.nullable() });
@@ -138,6 +143,22 @@ export const RelationSchema = z.strictObject({
   id: IdSchema, sourceId: IdSchema, targetId: IdSchema, description: text,
   keywords: z.array(z.string().min(1).max(200)).max(100),
   weight: z.number().finite().nonnegative(), sourceChunkIds: z.array(IdSchema).min(1).max(10_000),
+});
+export const GraphQuerySchema = z.strictObject({
+  q: z.string().trim().max(500).default(''), nodeId: IdSchema.optional(), kind: z.enum(['nodes', 'edges']).default('nodes'),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+export const GraphDataSchema = z.strictObject({
+  nodes: z.array(EntitySchema.omit({ sourceChunkIds: true }).extend({ sourceCount: z.number().int().positive() })).max(100),
+  edges: z.array(RelationSchema.omit({ sourceChunkIds: true }).extend({ sourceCount: z.number().int().positive() })).max(300),
+  totalNodes: z.number().int().nonnegative(), totalEdges: z.number().int().nonnegative(),
+  matchedNodes: z.number().int().nonnegative(), truncated: z.boolean(), corpusRevision: z.number().int().nonnegative(),
+});
+export type GraphData = z.infer<typeof GraphDataSchema>;
+export const GraphSourcesQuerySchema = z.strictObject({
+  id: IdSchema, kind: z.enum(['node', 'edge']),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+  limit: z.coerce.number().int().min(1).max(20).default(10),
 });
 export const QueryModeSchema = z.enum(['naive', 'local', 'global', 'hybrid', 'mix']);
 export const QuerySchema = z.strictObject({
@@ -173,7 +194,7 @@ export const ApiErrorSchema = z.strictObject({
 });
 
 export const HealthSchema = z.strictObject({
-  status: z.literal('ok'), stage: z.literal('S09'), usable: z.boolean(),
+  status: z.literal('ok'), stage: z.literal('S10'), usable: z.boolean(),
   models: z.strictObject({ configured: z.boolean(), missingRoles: z.array(ModelRoleSchema) }),
   storage: z.strictObject({ initialized: z.literal(true), status: z.literal('ready'),
     generation: z.string().min(1), revision: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative() }),
@@ -188,6 +209,11 @@ export const ChunkSchema = z.strictObject({
   order: z.number().int().nonnegative(), content: z.string().min(1), tokens: z.number().int().positive(),
   location: z.string().optional(), indexVersion: z.literal('s06-json-v1').optional(),
 });
+export const GraphSourcesSchema = z.strictObject({
+  items: z.array(z.strictObject({ chunk: ChunkSchema, fileName: z.string(), documentVersion: z.number().int().positive() })).max(20),
+  total: z.number().int().nonnegative(), offset: z.number().int().nonnegative(), corpusRevision: z.number().int().nonnegative(),
+});
+export type GraphSources = z.infer<typeof GraphSourcesSchema>;
 export const QueryDataSchema = z.strictObject({
   mode: QueryModeSchema, status: z.enum(['success', 'empty']),
   context: z.string(), prompt: z.string(), content: z.string(),

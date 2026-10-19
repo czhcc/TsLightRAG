@@ -4,7 +4,7 @@ TsLightRAG 是基于 [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) 设计�
 
 项目计划保留 LightRAG 的核心图谱增强检索算法，使用本地文件持久化的内存存储，并通过 Web 界面配置文本、向量和重排模型。
 
-> **当前状态：S01–S09 已完成。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；五模式检索、重排、带引用回答、NDJSON 流式生成、停止与受限缓存均已接入。
+> **当前状态：S01–S10 已完成。** 支持本地存储、模型配置、九格式文档导入与解析、分块、持久化任务、取消/重试和重启恢复。已接入实体关系抽取、共享贡献合并、三类索引、删除/重新索引及向量空间切换；五模式检索、重排、带引用回答、NDJSON 流式生成、停止与受限缓存均已接入。S10 已补图谱浏览、来源追溯、文档拖放/过滤和安全 Markdown。
 
 ## 快速开始
 
@@ -48,7 +48,7 @@ npm run test:e2e
 
 `npm test` 先构建再执行单元、契约、HTTP 集成和界面测试。E2E 使用真实服务和 Chromium；优先使用 `/usr/bin/chromium`，否则先执行 `npx playwright install chromium` 安装匹配版本。基础测试无需真实模型密钥。
 
-S09 验证结果：**445 项测试和 9 项浏览器 E2E 通过**，无失败或跳过；包含九格式真实夹具、本地解析/禁网/安全/分块、模型协议，以及 10 个快照和 2 个配置真实 SIGKILL 边界。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S09 验证记录](docs/S09_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
+S10 验证结果：**454 项测试和 10 项浏览器 E2E 通过**，无失败或跳过；包含九格式真实夹具、本地解析/禁网/安全/分块、模型协议，以及 10 个快照和 2 个配置真实 SIGKILL 边界。详见 [实施状态](docs/IMPLEMENTATION_STATUS.md) 和 [S10 验证记录](docs/S10_VALIDATION.md)。[S01 记录](docs/S01_VALIDATION.md) 保留当时的 71 项测试与接口状态。
 
 ## 配置模型
 
@@ -91,6 +91,12 @@ S07 已完成删除、重新索引、完整向量重建与空间切换；S08/S09
 `POST /api/v1/query/data` 接收查询与选项；onlyNeedContext/onlyNeedPrompt 可预览检索上下文或待生成提示词。`POST /api/v1/query` 返回非流式回答，`POST /api/v1/query/stream` 提供 NDJSON。关键词、向量、回答与可选重排会访问配置地址，可能计费。查询固定使用所读索引的活动向量模型；尚未激活的候选不参与搜索旧库。
 
 来源块默认只在图关联集合中做 VECTOR 排序，mix 另外召回全文本向量库。引用仅来自最终预算保留的证据，同名文档分别关联。完整成功回答按语料/模型/空间/历史/预算等隔离缓存；取消、失败、截断和警告结果不写回答缓存。查询缓存有容量/15 分钟 TTL，重启清空，删除/重建使旧回答失效。无证据时不调用回答模型。实现范围、Python 参考与适配差异见 S08/S09 验证记录；不保证与 Python 原版生成相同向量或自然语言结果。
+
+## 图谱浏览与来源
+
+打开 `/graph`，按实体名称或关系描述/关键词/端点名称搜索。每次最多显示 100 个节点、300 条关系；实体和关系列表可查看属性与真实来源，选择实体后可展开一层邻居（替换当前视图）。来源分页显示文档版本、文本块及可用原始位置，可跳转到对应文档。删除文档后刷新图谱查看存活贡献；若语料在查看来源期间变化，页面会要求刷新。
+
+图谱使用 SVG 环形布局，不提供手工编辑、拖拽、缩放或无限全图加载。回答支持安全 Markdown，原始 HTML 和图片不加载，外部链接需用户主动打开。文档页支持单文件拖放及服务端名称/状态过滤。
 
 ## 删除、重新索引与向量切换
 
@@ -163,7 +169,7 @@ npm run storage:recover -- --data-dir ./data --generation <generation-id> --conf
 |---|---|
 | 运行时与语言 | Node.js 24 LTS、TypeScript strict、ESM |
 | 服务端 | Fastify、运行时 schema 校验、本地解析 Worker |
-| WebUI | React、Vite、Graphology/Sigma |
+| WebUI | React、Vite、有数量上限的 SVG 图谱 |
 | 存储 | 内存 Map、Float32 向量、邻接图，本地版本化文件快照 |
 | 模型接口 | OpenAI-compatible 文本/embedding，标准 Cohere/Jina-compatible rerank |
 | 测试 | Vitest、Testing Library、Playwright、本地 HTTP 假模型和源码参考对照 |
@@ -184,9 +190,10 @@ S01 已锁定 Node/npm、TypeScript、Fastify、React/Vite 和测试工具链，
 - [S07 验证记录](docs/S07_VALIDATION.md)：删除/重建、活动模型绑定、版本替换、并发与文件释放。
 - [S08 验证记录](docs/S08_VALIDATION.md)：五模式检索、来源选择、重排、预算、引用、Python 参考和浏览器验证。
 - [S09 验证记录](docs/S09_VALIDATION.md)：真实生成、NDJSON、停止/断连、缓存身份/失效与 Python 提示传递参考。
+- [S10 验证记录](docs/S10_VALIDATION.md)：模型/文档/查询/图谱界面闭环、安全渲染、共享删除与重启验证。
 - [上游来源清单](docs/UPSTREAM_PROVENANCE.md)：分析基准和代码来源。
 
-当前已完成源码分析、方案文档和 S01–S09。下一步是 **S10：模型、文档、查询与图谱界面联调**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
+当前已完成源码分析、方案文档和 S01–S10。下一步是 **S11：完整业务、故障恢复与算法参考验收**。G01–G12 图谱算法仍待完整实现及参考对照验证，存储完成不代表算法保真验收完成。
 
 获取当前仓库：
 

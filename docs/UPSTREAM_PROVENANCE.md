@@ -105,3 +105,15 @@ Python 参考结果仅覆盖共同名称样例、精确描述去重和来源权�
 | `scripts/reference/s09.py`、`tests/fixtures/graph/s09-python-reference.json` | 固定源码完整 kg_query、_answer_cache_kv、EffectiveUserPrompt/resolve_user_prompt、hash/identity 序列化、原 rag_response | AST 独立执行；固定上下文及记录模型为端口、缓存关闭。六例覆盖最终提示/历史/问题和 debug/空上下文；实际 HTTP 模型接收另由 TS 集成验证 |
 
 目标回答缓存包含 history（上游对有 history 的回答绕过缓存），并要求成功完整终态交付、stop、无警告和当前语料/配置一致；关键词/embedding 有效子结果可独立复用。空检索不调用回答模型，未知引用警告而不补造来源；引用以文档 ID/版本关联。S08 既有格式/预算适配差异继续有效。详见 [S09 验证记录](S09_VALIDATION.md)，不宣称与上游全部 HTTP API、缓存行为或模型质量一致，G01–G12 总验收仍在后续阶段。
+
+## S10 来源状态
+
+固定 SHA 仍为 `aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a`。
+
+| 目标文件 | 上游来源 | 复用及适配 |
+|---|---|---|
+| `apps/web/src/SafeMarkdown.tsx` | `lightrag_webui/src/components/customization/CustomizedMarkdown.tsx` | 选择性适配 ReactMarkdown 的 skipHtml、链接 target/rel 模式；去除 Tailwind、cn、dir、variant 及 GFM 插件；另将图片转文字、非 HTTP(S)/锚点链接转文字。适用 [LightRAG MIT 许可](../third_party/LightRAG/LICENSE)，文件内保留版权归属 |
+| `GraphViewer.tsx`、图谱 API/契约与快照浏览接口 | 参考 `components/graph/GraphSearch.tsx`、本仓库 F10/S10 | 新写有限 SVG、可访问实体/关系列表、服务端名称/关系搜索及真实来源分页；未复制 Sigma/MiniSearch/store 或图编辑代码；与上游图布局/API 不同 |
+| 文档拖放/过滤、模型维护入口、查询引用跳转、S10 组件/API/全链路测试 | 本仓库实施方案 | 新写 TS/React 集成，不复制上游页面、测试期望或模型效果 |
+
+新增 `react-markdown@10.1.0`（MIT）用于 Markdown AST→React 元素；不启用 rehypeRaw，不自动加载图片。其传递依赖及版本以 lockfile 为准，打包分发时保留各自许可。原提示词和算法来源声明继续有效。S10 验证不补充 G01–G12 的独立源码参考验收。

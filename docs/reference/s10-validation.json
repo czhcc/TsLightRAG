@@ -1,0 +1,101 @@
+{
+  "stage": "S10",
+  "recordedAt": "2026-10-19T10:29:50.103119+08:00",
+  "targetParent": "97fb27bd36f6e1318eeecb2a1ea2fae3a9c410c9",
+  "upstream": "HKUDS/LightRAG@aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "platform": "Linux local filesystem",
+    "browser": "/usr/bin/chromium"
+  },
+  "commands": [
+    {
+      "command": "npm_config_devdir=/workspace/TsLightRAG/.cache/node-gyp npm ci",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test -- --reporter=json --outputFile=.tools/s10-vitest.json",
+      "exitCode": 0,
+      "includes": "clean production build"
+    },
+    {
+      "command": "npx playwright test --reporter=json > .tools/s10-playwright.json",
+      "exitCode": 0
+    },
+    {
+      "command": "npm start -- --host 127.0.0.1 --port 9621 --data-dir ./data",
+      "outcome": "listening; managed process retained; existing data preserved"
+    },
+    {
+      "command": "Python HTTP smoke assertions for startup S10, health S10, graph HTML, empty graph, source 404 and nine parser formats",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "dependenciesChanged": true,
+  "addedDirectDependency": {
+    "name": "react-markdown",
+    "version": "10.1.0",
+    "license": "MIT"
+  },
+  "lockfileInstall": "npm ci replaced node_modules from the updated lockfile using retained verified caches; native node-gyp cache stayed inside .cache",
+  "vitest": {
+    "files": 70,
+    "total": 454,
+    "passed": 454,
+    "failed": 0,
+    "skipped": 0
+  },
+  "playwright": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0
+  },
+  "applicationScenario": [
+    "three independent model endpoints configured/tested/saved through UI",
+    "paste and file drop indexed two shared documents",
+    "server name/status filters",
+    "five modes and actual rerank calls",
+    "answer, expandable citation, partial stream and upstream cancellation",
+    "node cap, entity and relationship search, properties, neighbors and actual sources",
+    "confirmed deletion retains surviving shared contributions",
+    "restart preserves configuration and graph without model calls",
+    "no keys in localStorage or password field after save/restart; no browser direct model calls"
+  ],
+  "limits": {
+    "graphNodes": 100,
+    "graphEdges": 300,
+    "sourcePage": 20
+  },
+  "uiAdaptation": "bounded SVG ring and accessible node/edge controls instead of initial Graphology/Sigma; no drag/zoom/force layout",
+  "initialFailures": [
+    "new E2E exact label selectors included dynamic form text/options; replaced with role-based selectors, business assertions retained"
+  ],
+  "startupLogCorrection": "main.ts listening event previously hard-coded S07; aligned to S10, re-typechecked and smoke-verified on restarted production service",
+  "unrun": [
+    "complete G01-G12 independent Python reference acceptance (S11)",
+    "external real model providers and quality",
+    "non-Linux filesystem/platform acceptance",
+    "environment publication and new-task restore"
+  ],
+  "artifacts": {
+    "vitest": ".tools/s10-vitest.json",
+    "playwright": ".tools/s10-playwright.json",
+    "smoke": ".tools/s10-smoke.json",
+    "serverLog": ".tools/s10-server.log",
+    "screenshot": "test-results/application-S10-applicatio-366fc--shared-sources-and-restart/s10-graph.png"
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SafeMarkdown } from './SafeMarkdown.js';
 import { readNdjson } from './api/ndjson.js';
 import { ApiErrorSchema, QueryDataSchema } from '@tslightrag/contracts';
 import type { QueryData, QueryResponse } from '@tslightrag/contracts';
@@ -51,11 +52,11 @@ export function QueryPreview(){
       <button disabled={busy||!query.trim()} type="submit">检索证据</button> <button disabled={busy||!query.trim()} type="button" onClick={()=>void generate()}>生成回答</button>{busy&&<button type="button" onClick={stop}>{answerState?'停止生成':'取消检索'}</button>}
     </form>
     {busy&&!answerState&&<p role="status">正在检索…</p>}{error&&<p role="alert">{error}</p>}
-    {answerState&&<section aria-label="知识库回答"><h2>知识库回答</h2><p role="status">{answerState}</p><pre>{answer}</pre>{answerWarnings.map((w,i)=><p role="alert" key={i}>{w}</p>)}<ul>{answerRefs.map(r=><li key={r.id}>[{r.id}] {r.fileName}</li>)}</ul></section>}
+    {answerState&&<section aria-label="知识库回答"><h2>知识库回答</h2><p role="status">{answerState}</p><SafeMarkdown content={answer} />{answerWarnings.map((w,i)=><p role="alert" key={i}>{w}</p>)}<ul>{answerRefs.map(r=><li key={r.id}><details><summary>[{r.id}] {r.fileName}</summary>{r.location && <p>{r.location}</p>}{r.content && <pre>{r.content}</pre>}<a href={`/documents?id=${encodeURIComponent(r.documentId)}`}>查看来源文档</a></details></li>)}</ul></section>}
     {result&&<div aria-label="检索结果">
       <p role="status">{result.status==='empty'?'没有检索到证据':`找到 ${String(result.chunks.length)} 个文本块、${String(result.entities.length)} 个实体、${String(result.relationships.length)} 条关系`}</p>
       {result.warnings.map((w,i)=><p role="alert" key={i}>{w}</p>)}
-      <h2>来源证据</h2>{result.references.map(r=><article key={r.id}><h3>[{r.id}] {r.fileName}</h3>{result.chunks.filter(c=>c.referenceId===r.id).map(c=><div key={c.id}><p>文档版本 {c.docVersion} · 块 {c.order+1} · {c.source}</p>{c.location&&<details><summary>原始位置</summary><pre>{c.location}</pre></details>}<pre>{c.content}</pre></div>)}</article>)}
+      <h2>来源证据</h2>{result.references.map(r=><article key={r.id}><h3>[{r.id}] {r.fileName}</h3><a href={`/documents?id=${encodeURIComponent(r.documentId)}`}>查看来源文档</a>{result.chunks.filter(c=>c.referenceId===r.id).map(c=><div key={c.id}><p>文档版本 {c.docVersion} · 块 {c.order+1} · {c.source}</p>{c.location&&<details><summary>原始位置</summary><pre>{c.location}</pre></details>}<pre>{c.content}</pre></div>)}</article>)}
       <details><summary>上下文与预算</summary><pre>{result.context}</pre><pre>{JSON.stringify(result.diagnostics,null,2)}</pre></details>
       <details><summary>完整提示词预览</summary><pre>{result.prompt}</pre></details>
     </div>}

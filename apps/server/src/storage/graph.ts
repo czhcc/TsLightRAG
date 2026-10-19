@@ -48,6 +48,29 @@ export class MemoryGraph {
     for (const neighbor of this.neighbors(id)) this.deleteEdge(id, neighbor);
     this.adjacent.delete(id); return this.nodes.delete(id);
   }
+  browse(query: string, root: string | undefined, limit: number, kind: 'nodes' | 'edges' = 'nodes') {
+    const term = query.toLocaleLowerCase();
+    const edgeMatches = (edge: GraphEdge) => [edge.description, ...edge.keywords,
+      this.nodes.get(edge.sourceId)?.name ?? '', this.nodes.get(edge.targetId)?.name ?? ''].some(value => value.toLocaleLowerCase().includes(term));
+    const edgeNodes = new Set<string>();
+    if (kind === 'edges' && !root) for (const edge of this.edges.values()) {
+      if (edgeMatches(edge)) { edgeNodes.add(edge.sourceId); edgeNodes.add(edge.targetId); }
+    }
+    const matches = root ? [root, ...this.neighbors(root)].filter((id) => this.nodes.has(id))
+      : [...this.nodes.values()].filter((node) => kind === 'edges' ? edgeNodes.has(node.id) : node.name.toLocaleLowerCase().includes(term))
+        .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)).map((node) => node.id);
+    const ids = new Set(matches.slice(0, limit));
+    const nodes = [...ids].map((id) => this.getNode(id)!);
+    const edges: GraphEdge[] = []; let edgeCount = 0;
+    for (const edge of this.edges.values()) {
+      if (ids.has(edge.sourceId) && ids.has(edge.targetId) && (root || kind === 'nodes' || edgeMatches(edge))) {
+        edgeCount++; if (edges.length < 300) edges.push(structuredClone(edge));
+      }
+    }
+    return { nodes: nodes.map(({ sourceChunkIds, ...node }) => ({ ...node, sourceCount: sourceChunkIds.length })),
+      edges: edges.map(({ sourceChunkIds, ...edge }) => ({ ...edge, sourceCount: sourceChunkIds.length })), totalNodes: this.nodeCount, totalEdges: this.edgeCount,
+      matchedNodes: matches.length, truncated: matches.length > limit || edgeCount > edges.length };
+  }
   serialize() { return { nodes: [...this.nodes.values()].map((v) => structuredClone(v)), edges: [...this.edges.values()].map((v) => structuredClone(v)) }; }
   static restore(input: unknown) {
     const file = GraphFileSchema.parse(input); const graph = new MemoryGraph();

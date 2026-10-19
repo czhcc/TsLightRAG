@@ -1,7 +1,8 @@
+import { graphSources } from './graph/browse.js';
+import { GraphQuerySchema, GraphSourcesQuerySchema, GraphDataSchema, DocumentListQuerySchema } from '@tslightrag/contracts';
 import { GenerationService } from './generation/service.js';
 import { NdjsonWriter } from './generation/ndjson.js';
 import { QueryService } from './retrieval/service.js';
-import { z } from 'zod';
 import { DocumentService } from './documents/service.js';
 import type { DocumentServiceOptions } from './documents/service.js';
 import { DocumentError } from './documents/files.js';
@@ -72,11 +73,23 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const captured = config.capture();
     const missingRoles = (['query', 'embedding'] as const).filter((role) => !boundProfile(captured, role));
     return HealthSchema.parse({
-      status: 'ok', stage: 'S09', usable: missingRoles.length === 0,
+      status: 'ok', stage: 'S10', usable: missingRoles.length === 0,
       models: { configured: missingRoles.length === 0, missingRoles },
       storage: { initialized: true, status: 'ready', generation: snapshot.generation,
         revision: snapshot.revision, corpusRevision: snapshot.corpusRevision }, jobs: { available: true },
     });
+  });
+  app.get('/api/v1/graph', async (request) => {
+    const query = GraphQuerySchema.safeParse(request.query);
+    if (!query.success) throw new DocumentError('INVALID_GRAPH_QUERY', '图谱参数不合法（节点上限 100）', 400);
+    const view = options.storage.capture();
+    if (query.data.nodeId && !view.node(query.data.nodeId)) throw new DocumentError('NODE_NOT_FOUND', '节点已不存在，请刷新图谱', 404);
+    return GraphDataSchema.parse({ ...view.browseGraph(query.data.q, query.data.nodeId, query.data.limit, query.data.kind), corpusRevision: view.corpusRevision });
+  });
+  app.get('/api/v1/graph/sources', async (request) => {
+    const query = GraphSourcesQuerySchema.safeParse(request.query);
+    if (!query.success) throw new DocumentError('INVALID_GRAPH_QUERY', '来源分页参数不合法', 400);
+    return graphSources(options.storage.capture(), query.data);
   });
   app.get('/api/v1/parsers/capabilities', async () => PARSER_CAPABILITIES);
   app.get('/api/v1/settings/models', async () => config.public());
@@ -149,9 +162,9 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const result = await documents.importText(request.body); return reply.code(result.deduplicated ? 200 : 202).send(result);
   });
   app.get('/api/v1/documents', async (request) => {
-    const parsed = z.strictObject({ offset: z.coerce.number().int().min(0).max(1_000_000).default(0), limit: z.coerce.number().int().min(1).max(100).default(20) }).safeParse(request.query);
+    const parsed = DocumentListQuerySchema.safeParse(request.query);
     if (!parsed.success) throw new DocumentError('INVALID_PAGINATION', '分页参数不合法', 400);
-    return documents.list(parsed.data.offset, parsed.data.limit);
+    return documents.list(parsed.data.offset, parsed.data.limit, parsed.data.q, parsed.data.status);
   });
   app.get<{ Params: { id: string } }>('/api/v1/documents/:id', async (request) => documents.detail(request.params.id));
   app.get<{ Params: { id: string } }>('/api/v1/documents/:id/parsed', async (request) => documents.parsed(request.params.id));
@@ -177,6 +190,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   catch { throw new Error('WebUI 构建产物缺失；请先执行 npm run build'); }
   await app.register(staticFiles, { root, wildcard: false, index: false });
   app.get('/', async (_request, reply) => reply.sendFile('index.html'));
+  app.get('/graph', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/query', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/documents', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/settings/models', async (_request, reply) => reply.sendFile('index.html'));
