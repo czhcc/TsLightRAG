@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Documents } from './Documents.js';
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+beforeEach(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value() { this.setAttribute('open', ''); } });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value() { this.removeAttribute('open'); } });
+});
 it('applies filters on the server and paginates; rejects oversized or unsupported drops before uploading', async () => {
   const mock = vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, json: async () => {
     if (url.includes('/documents?')) return { items: [], total: 12, offset: Number(new URL(`http://localhost${url}`).searchParams.get('offset')), limit: 10 };
@@ -17,9 +21,12 @@ it('applies filters on the server and paginates; rejects oversized or unsupporte
   await userEvent.type(screen.getByLabelText('按名称过滤'), 'Alpha');
   await userEvent.selectOptions(screen.getByLabelText('按状态过滤'), 'failed');
   await waitFor(() => expect(mock.mock.calls.some(([url]) => String(url).includes('offset=0') && String(url).includes('q=Alpha') && String(url).includes('status=failed'))).toBe(true));
+  expect(screen.queryByRole('region', { name: '索引维护' })).toBeNull();
+  expect(screen.queryByRole('textbox', { name: '文档正文' })).toBeNull();
+  await userEvent.click(screen.getByRole('button', { name: '导入文档' }));
   const zone = screen.getByRole('region', { name: '拖放文件导入' });
   fireEvent.drop(zone, { dataTransfer: { files: [new File(['bad'], 'bad.exe')] } });
-  expect(await screen.findByText('不支持的文件格式，请选择能力矩阵中的格式')).toBeTruthy();
+  expect(await screen.findByText('不支持的文件格式，请选择关于页解析能力表中的格式')).toBeTruthy();
   const oversized = new File(['x'], 'large.txt'); Object.defineProperty(oversized, 'size', { value: 20 * 1024 * 1024 + 1 });
   fireEvent.drop(zone, { dataTransfer: { files: [oversized] } });
   expect(await screen.findByText('文件不能为空或超过 20 MiB')).toBeTruthy();

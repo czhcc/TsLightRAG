@@ -197,6 +197,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   app.get('/graph', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/query', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/chat', async (_request, reply) => reply.sendFile('index.html'));
+  app.get('/about', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/documents', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/settings/models', async (_request, reply) => reply.sendFile('index.html'));
   app.setNotFoundHandler((request, reply) => reply.code(404).send(ApiErrorSchema.parse({

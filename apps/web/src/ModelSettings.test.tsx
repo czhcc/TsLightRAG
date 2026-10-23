@@ -122,5 +122,4 @@ it('tests independent unsaved endpoints, preserves omitted keys, clears explicit
   expect(await screen.findByText('已保存模型：3 · 当前配置版本：2')).toBeTruthy();
   expect(screen.getByLabelText('extract 角色').getAttribute('value')).toBeNull();
   expect((screen.getByLabelText('extract 角色') as HTMLSelectElement).value).toBe('');
-  expect(screen.getByRole('link', { name: '前往索引维护' })).toBeTruthy();
 });

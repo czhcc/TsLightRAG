@@ -98,7 +98,7 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
           <label>维度<input type="number" min="1" max="65536" value={p.dimensions} onChange={(e) => { update(i, { dimensions: Number(e.target.value) }); }} /></label>
           <label>批大小<input type="number" min="1" max="256" value={p.batchSize} onChange={(e) => { update(i, { batchSize: Number(e.target.value) }); }} /></label>
           <label>operatorRevision<input type="number" min="0" value={p.operatorRevision} onChange={(e) => { update(i, { operatorRevision: Number(e.target.value) }); }} /></label>
-          <p>同名模型更换权重时增加 operatorRevision。非空索引继续使用活动版本；保存后请到文档页重建三类向量并切换。<a href="/documents">前往索引维护</a></p>
+          <p>同名模型更换权重时增加 operatorRevision。已有索引继续使用原向量配置，保存模型设置不会自动切换已有索引。</p>
         </>}
         {p.kind === 'rerank' && <>
           <label>协议<select value={p.protocol} onChange={(e) => { update(i, { protocol: e.target.value }); }}><option>cohere-compatible</option><option>jina-compatible</option></select></label>

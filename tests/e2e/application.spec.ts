@@ -44,10 +44,13 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await expect(page.getByText('模型配置已保存', { exact: true })).toBeVisible();
     await expect(groups[0]!.getByLabel(/API key/)).toHaveValue('');
     await page.getByRole('link', { name: '文档', exact: true }).click();
+    await page.getByRole('button', { name: '粘贴文本', exact: true }).click();
     await page.getByLabel('文档名称', { exact: true }).fill('共享甲.txt');
     await page.getByLabel('文档正文', { exact: true }).fill('first document Alpha Beta cooperation <img src=x onerror=alert(1)>');
     await page.getByRole('button', { name: '导入文本', exact: true }).click();
     await expect(page.getByRole('region', { name: '任务详情' }).getByText('状态：已索引', { exact: true })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.getByRole('button', { name: '导入文档', exact: true }).click();
     const transfer = await page.evaluateHandle(() => {
       const transfer = new DataTransfer(); transfer.items.add(new File(['second document Alpha Beta Gamma cooperation'], '共享乙.txt', { type: 'text/plain' })); return transfer;
     });
@@ -56,6 +59,7 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await expect(page.getByRole('heading', { name: '任务详情：共享乙.txt', exact: true })).toBeVisible();
     await expect(page.getByRole('region', { name: '任务详情' }).getByText('状态：已索引', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('共 2 个文档', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
     await page.getByLabel('按名称过滤', { exact: true }).fill('共享乙');
     await expect(page.getByText('共 1 个文档', { exact: true })).toBeVisible();
     await page.getByRole('combobox', { name: '按状态过滤', exact: true }).selectOption('failed');
@@ -102,10 +106,9 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await properties.locator('article').filter({ has: page.getByRole('heading', { name: '共享甲.txt', exact: true }) }).getByRole('link', { name: '查看来源文档' }).click();
     await expect(page.getByRole('heading', { name: '任务详情：共享甲.txt', exact: true })).toBeVisible();
-    const panel = page.getByRole('region', { name: '索引维护', exact: true });
-    await expect(panel.getByRole('button', { name: '删除当前文档' })).toBeDisabled();
-    await panel.getByLabel('确认删除所选内容及其索引贡献').check();
-    await panel.getByRole('button', { name: '删除当前文档' }).click();
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.getByRole('row').filter({ hasText: '共享甲.txt' }).getByRole('button', { name: '删除', exact: true }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '确认删除', exact: true }).click();
     await expect(page.getByText('共 1 个文档', { exact: true })).toBeVisible({ timeout: 15000 });
     await page.getByRole('link', { name: '知识图谱', exact: true }).click();
     await page.getByRole('button', { name: '刷新图谱' }).click();
