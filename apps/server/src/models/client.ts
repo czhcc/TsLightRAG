@@ -27,7 +27,7 @@ export class ModelClient {
   async chat(profile: TextProfile, messages: Message[], options: { signal?: AbortSignal; onDelta?: (text: string) => void | Promise<void> } = {}): Promise<ChatResult> {
     if (!messages.length || messages.some((m) => !m.content.trim() || !['system', 'user', 'assistant'].includes(m.role))) throw new ModelError('INVALID_MODEL_INPUT', '文本模型输入不能为空', 400);
     let emitted = false;
-    return this.transport.run(profile, { model: profile.model, messages, temperature: profile.temperature,
+    return this.transport.run(profile, { ...profile.extraBody, model: profile.model, messages, temperature: profile.temperature,
       max_tokens: profile.maxOutputTokens, stream: Boolean(options.onDelta),
       ...(options.onDelta ? { stream_options: { include_usage: true } } : {}),
     }, options.signal, async (response) => {

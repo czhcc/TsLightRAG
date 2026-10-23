@@ -3,6 +3,24 @@ import { expect, it } from 'vitest';
 import { indexingHarness, kgHandler, reply, kg, empty } from '../helpers/indexing.js';
 import { entityId } from '../../apps/server/src/indexing/extraction.js';
 import { SnapshotStore } from '../../apps/server/src/storage/snapshot.js';
+import { textProfile, embeddingProfile, bindings } from '../helpers/model-profiles.js';
+it('uses saved text extensions for both extraction rounds without sending them to embeddings', async () => {
+  const h = await indexingHarness();
+  try {
+    const extraBody = { chat_template_kwargs: { enable_thinking: false } };
+    const saved = await h.app.inject({ method: 'PUT', url: '/api/v1/settings/models', payload: { expectedRevision: 1,
+      profiles: [textProfile(h.model.url, { extraBody }), embeddingProfile(h.model.url)], bindings: { ...bindings, rerank: null } } });
+    expect(saved.statusCode).toBe(200);
+    const imported = await h.import('Alpha and Beta cooperate.');
+    expect((await h.wait(imported.job.id)).status).toBe('processed');
+    const chats = h.model.requests.filter((r) => r.path.endsWith('/chat/completions'));
+    expect(chats).toHaveLength(2);
+    for (const request of chats) expect(request.body).toMatchObject(extraBody);
+    const embeddings = h.model.requests.filter((r) => r.path.endsWith('/embeddings'));
+    expect(embeddings.length).toBeGreaterThan(0);
+    for (const request of embeddings) expect(request.body).not.toHaveProperty('chat_template_kwargs');
+  } finally { await h.close(); }
+});
 it('indexes concurrent documents with exact shared graph, original contributions and three vector namespaces; survives reload', async () => {
   const h = await indexingHarness();
   try {

@@ -6,6 +6,22 @@ const servers: Awaited<ReturnType<typeof startFakeModel>>[] = [];
 afterEach(async () => { await Promise.all(servers.splice(0).map((s) => s.stop())); });
 async function fixture(handler: Parameters<typeof startFakeModel>[0]) { const s = await startFakeModel(handler); servers.push(s); return s; }
 const messages = [{ role: 'user' as const, content: 'distinct input: 中国 🧮' }];
+it('forwards provider extensions at the top level for connection tests and streaming chat', async () => {
+  const server = await fixture((_r, res) => { res.end(JSON.stringify(chatReply)); });
+  const client = new ModelClient();
+  const extraBody = { chat_template_kwargs: { enable_thinking: false }, top_k: 20 };
+  const profile = textProfile(server.url, { extraBody });
+  await client.test(profile);
+  const deltas: string[] = [];
+  await client.chat(profile, messages, { onDelta: (text) => { deltas.push(text); } });
+  for (const request of server.requests) {
+    expect(request.body).toMatchObject({ ...extraBody, model: 'text-model', max_tokens: 2048 });
+    expect(request.body).not.toHaveProperty('extraBody');
+  }
+  expect(server.requests[0]?.body).toMatchObject({ stream: false });
+  expect(server.requests[1]?.body).toMatchObject({ stream: true, stream_options: { include_usage: true } });
+  expect(deltas).toEqual(['Hello connection test']);
+});
 it('sends actual OpenAI request fields/auth and returns text/usage', async () => {
   const server = await fixture((_r, res) => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(chatReply)); });
   const client = new ModelClient(); const profile = textProfile(`${server.url}/proxy/v1/`);

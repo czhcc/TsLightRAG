@@ -19,6 +19,8 @@ test('browser configures three real endpoints, tests unsaved candidates and rest
     await groups[0]!.getByLabel('Base URL', { exact: true }).fill(`${text.url}/v1`);
     await groups[0]!.getByLabel('模型名称', { exact: true }).fill('browser-text');
     await groups[0]!.getByLabel(/API key/).fill('browser-synthetic-secret');
+    const extraBody = { chat_template_kwargs: { enable_thinking: false } };
+    await groups[0]!.getByLabel('扩展参数（JSON 对象）', { exact: true }).fill(JSON.stringify(extraBody, null, 2));
     await groups[1]!.getByLabel('Base URL', { exact: true }).fill(`${embedding.url}/v1`);
     await groups[1]!.getByLabel('维度', { exact: true }).fill('2');
     await groups[2]!.getByLabel('完整重排 endpoint', { exact: true }).fill(`${rerank.url}/rank`);
@@ -27,6 +29,7 @@ test('browser configures three real endpoints, tests unsaved candidates and rest
       await expect(page.getByRole('status').filter({ hasText: /测试通过/ })).toBeVisible();
     }
     expect([text.requests.length, embedding.requests.length, rerank.requests.length]).toEqual([1, 1, 1]);
+    expect(text.requests[0]?.body).toMatchObject(extraBody);
     expect((await (await page.request.get(`${service.address}/api/v1/settings/models`)).json() as { revision: number }).revision).toBe(0);
     await page.getByRole('button', { name: '保存配置', exact: true }).click();
     await expect(page.getByText('模型配置已保存', { exact: true })).toBeVisible();
@@ -35,14 +38,17 @@ test('browser configures three real endpoints, tests unsaved candidates and rest
     await page.reload();
     await expect(page.getByText('已保存模型：3 · 当前配置版本：1')).toBeVisible();
     await expect(groups[0]!.getByLabel(/API key（已保存）/)).toHaveValue('');
+    await expect(groups[0]!.getByLabel('扩展参数（JSON 对象）', { exact: true })).toHaveValue(JSON.stringify(extraBody, null, 2));
     expect(await (await page.request.get(`${service.address}/api/v1/settings/models`)).text()).not.toContain('browser-synthetic-secret');
     await groups[0]!.getByRole('button', { name: '测试连接（发送示例）' }).click();
     await expect(page.getByRole('status').filter({ hasText: /测试通过/ })).toBeVisible();
     expect(text.requests[1]?.headers.authorization).toBe('Bearer browser-synthetic-secret');
+    expect(text.requests[1]?.body).toMatchObject(extraBody);
     expect(await service.stop()).toBe(0); service = await startService(['--data-dir', directory.path]);
     await page.goto(`${service.address}/settings/models`);
     await expect(page.getByText('已保存模型：3 · 当前配置版本：1')).toBeVisible();
     await expect(groups[0]!.getByLabel('模型名称', { exact: true })).toHaveValue('browser-text');
+    await expect(groups[0]!.getByLabel('扩展参数（JSON 对象）', { exact: true })).toHaveValue(JSON.stringify(extraBody, null, 2));
     await expect(page.getByLabel('extract 角色')).toHaveValue('');
     expect(await page.evaluate(() => localStorage.length)).toBe(0);
     await groups[0]!.getByLabel('清除密钥', { exact: true }).check();

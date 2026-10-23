@@ -10,6 +10,17 @@ const endpoint = z.url().max(2048).refine((value) => {
 }, '必须是没有凭据、query 或 fragment 的 HTTP(S) 地址');
 
 export const ModelRoleSchema = z.enum(['query', 'extract', 'keyword', 'embedding', 'rerank']);
+// These fields are controlled by the application and its response/budget contracts.
+const reservedChatFields = new Set(['model', 'messages', 'temperature', 'max_tokens', 'max_completion_tokens',
+  'stream', 'stream_options', 'n', 'tools', 'tool_choice', 'functions', 'function_call']);
+export const ChatExtraBodySchema = z.record(z.string(), z.json()).superRefine((value, ctx) => {
+  if (Object.keys(value).some((key) => reservedChatFields.has(key))) {
+    ctx.addIssue({ code: 'custom', message: '扩展参数不能覆盖模型、消息、温度、输出预算、流式或工具调用设置' });
+  }
+  if (new TextEncoder().encode(JSON.stringify(value)).length > 16 * 1024) {
+    ctx.addIssue({ code: 'custom', message: '扩展参数不能超过 16 KiB' });
+  }
+});
 const profile = z.strictObject({
   id: IdSchema, name: z.string().trim().min(1).max(100), endpoint,
   model: z.string().trim().min(1).max(200),
@@ -25,6 +36,7 @@ const textOptions = {
   maxOutputTokens: z.number().int().min(1).max(131_072).default(2048),
   contextTokens: z.number().int().min(1).max(2_000_000).default(32768),
   tokenizer: z.enum(['cl100k_base', 'o200k_base']).default('cl100k_base'),
+  extraBody: ChatExtraBodySchema.optional(),
 };
 const embeddingOptions = {
   kind: z.literal('embedding'), protocol: z.literal('openai-compatible'),

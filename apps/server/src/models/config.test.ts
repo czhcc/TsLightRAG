@@ -16,6 +16,19 @@ async function fixture(hook?: (point: 'before-rename' | 'after-rename') => Promi
 }
 const input = () => ({ expectedRevision: 0, profiles: [textProfile('http://127.0.0.1:7777/v1'), embeddingProfile('http://localhost:7778/v1')],
   bindings: { query: 'text', extract: null, keyword: null, embedding: 'embedding', rerank: null } });
+it('persists text extensions across restart and clearing without changing captured revisions', async () => {
+  const { dir, storage, config } = await fixture();
+  const original = input();
+  const extraBody = { chat_template_kwargs: { enable_thinking: false } };
+  const saved = await config.save({ ...original, profiles: [textProfile(original.profiles[0]!.endpoint, { extraBody }), original.profiles[1]!] });
+  expect(saved.profiles[0]).toMatchObject({ extraBody });
+  const restored = await ModelConfigStore.open(dir, storage); cleanup.push(() => restored.close());
+  expect(restored.public()).toEqual(saved);
+  expect(restored.candidate({ expectedRevision: 1, profile: { ...restored.capture().profiles[0]!, apiKey: undefined } })).toMatchObject({ extraBody });
+  await restored.save({ ...original, expectedRevision: 1 });
+  expect(restored.public().profiles[0]).not.toHaveProperty('extraBody');
+  expect(restored.revision(1).profiles[0]).toMatchObject({ extraBody });
+});
 it('starts unconfigured, persists versioned private config and restores masked profiles', async () => {
   const { dir, storage, config } = await fixture(); expect(config.public().profiles).toEqual([]);
   const saved = await config.save(input()); expect(saved.revision).toBe(1); expect(saved.profiles[0]?.hasApiKey).toBe(true);

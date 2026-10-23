@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ModelProfileInputSchema, SaveModelsSchema } from '@tslightrag/contracts';
+import { ChatExtraBodySchema, ModelProfileInputSchema, SaveModelsSchema } from '@tslightrag/contracts';
 import type { ModelProfileInput, ModelSettings } from '@tslightrag/contracts';
 import type { ApplicationApi } from './api/client.js';
 
@@ -12,6 +12,8 @@ function editable(settings: ModelSettings) {
 export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelSettings; api: ApplicationApi; onSaved: (value: ModelSettings) => void }) {
   const [saved, setSaved] = useState(initial);
   const [profiles, setProfiles] = useState<ModelProfileInput[]>(() => editable(initial));
+  // Keep incomplete JSON editable; parse only when testing or saving.
+  const [extraBodyDrafts, setExtraBodyDrafts] = useState<Record<string, string>>({});
   const [bindings, setBindings] = useState(initial.bindings);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -20,6 +22,17 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
   function update(index: number, patch: Record<string, unknown>) {
     setProfiles((all) => all.map((p, i) => i === index ? { ...p, ...patch } as ModelProfileInput : p));
     setMessage('');
+  }
+  function candidate(p: ModelProfileInput): ModelProfileInput {
+    if (p.kind !== 'text' || extraBodyDrafts[p.id] === undefined) return p;
+    const raw = extraBodyDrafts[p.id]!.trim();
+    let value: unknown;
+    try { value = raw ? JSON.parse(raw) as unknown : {}; }
+    catch { throw new Error(`文本模型「${p.name}」的扩展参数必须是合法的 JSON 对象`); }
+    const parsed = ChatExtraBodySchema.safeParse(value);
+    if (!parsed.success) throw new Error('扩展参数必须是 JSON 对象（不超过 16 KiB），且不能覆盖模型、消息、温度、输出预算、流式或工具调用设置');
+    const { extraBody, ...rest } = p; void extraBody;
+    return raw ? { ...rest, extraBody: parsed.data } : rest;
   }
   function add(kind: ModelProfileInput['kind']) {
     // getRandomValues is also available on HTTP IP origins, unlike randomUUID.
@@ -70,6 +83,12 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
           <label>最大输出 token<input type="number" value={p.maxOutputTokens} onChange={(e) => { update(i, { maxOutputTokens: Number(e.target.value) }); }} /></label>
           <label>上下文 token<input type="number" value={p.contextTokens} onChange={(e) => { update(i, { contextTokens: Number(e.target.value) }); }} /></label>
           <label>Tokenizer<select value={p.tokenizer} onChange={(e) => { update(i, { tokenizer: e.target.value }); }}><option>cl100k_base</option><option>o200k_base</option></select></label>
+          <label htmlFor={`extra-body-${p.id}`}>扩展参数（JSON 对象）</label>
+          <textarea id={`extra-body-${p.id}`} rows={6} spellCheck={false}
+            placeholder={'{\n  "chat_template_kwargs": { "enable_thinking": false }\n}'}
+            value={extraBodyDrafts[p.id] ?? (p.extraBody ? JSON.stringify(p.extraBody, null, 2) : '')}
+            onChange={(e) => { setExtraBodyDrafts((old) => ({ ...old, [p.id]: e.target.value })); setMessage(''); }} />
+          <p className="muted">参数直接加入聊天请求 JSON 顶层，适用于连接测试及使用此模型的抽取、关键词和问答。留空并保存可清除；请勿填写密钥。是否支持取决于模型服务。不能覆盖模型、消息、温度、输出预算、流式或工具调用设置。</p>
         </>}
         {p.kind === 'embedding' && <>
           <label>维度<input type="number" min="1" max="65536" value={p.dimensions} onChange={(e) => { update(i, { dimensions: Number(e.target.value) }); }} /></label>
@@ -84,7 +103,7 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
           <label>失败策略<select value={p.failurePolicy} onChange={(e) => { update(i, { failurePolicy: e.target.value }); }}><option value="fail">返回错误</option><option value="fallback-with-warning">保留原顺序并警告</option></select></label>
         </>}
         <button onClick={() => { void perform(async (signal) => {
-          const parsed = ModelProfileInputSchema.safeParse(p); if (!parsed.success) throw new Error('请检查模型字段');
+          const parsed = ModelProfileInputSchema.safeParse(candidate(p)); if (!parsed.success) throw new Error('请检查模型字段');
           const result = await api.testModel(parsed.data, saved.revision, signal); setMessage(result.message);
         }); }}>测试连接（发送示例）</button>
         <button onClick={() => { setProfiles((all) => all.filter((x) => x.id !== p.id)); setBindings((old) => Object.fromEntries(Object.entries(old).map(([role, id]) => [role, id === p.id ? null : id])) as ModelSettings['bindings']); }}>移除模型</button>
@@ -94,12 +113,12 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
         {profiles.filter((p) => p.kind === (role === 'embedding' || role === 'rerank' ? role : 'text')).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select></label>)}</fieldset>
       <button onClick={() => { void perform(async (signal) => {
-        const parsed = SaveModelsSchema.safeParse({ profiles, bindings, expectedRevision: saved.revision });
+        const parsed = SaveModelsSchema.safeParse({ profiles: profiles.map(candidate), bindings, expectedRevision: saved.revision });
         if (!parsed.success) throw new Error('配置字段或角色绑定不合法');
         const result = await api.saveModels(parsed.data, signal);
-        setSaved(result); setProfiles(editable(result)); setBindings(result.bindings); onSaved(result); setMessage('模型配置已保存');
+        setSaved(result); setProfiles(editable(result)); setExtraBodyDrafts({}); setBindings(result.bindings); onSaved(result); setMessage('模型配置已保存');
       }); }}>保存配置</button>
-      <button onClick={() => { void perform(async (signal) => { const result = await api.models(signal); setSaved(result); setProfiles(editable(result)); setBindings(result.bindings); onSaved(result); setMessage('已重新加载，未保存修改已丢弃'); }); }}>重新加载配置</button>
+      <button onClick={() => { void perform(async (signal) => { const result = await api.models(signal); setSaved(result); setProfiles(editable(result)); setExtraBodyDrafts({}); setBindings(result.bindings); onSaved(result); setMessage('已重新加载，未保存修改已丢弃'); }); }}>重新加载配置</button>
     </fieldset>
     {busy && <button onClick={() => { active.current?.abort(); setBusy(false); setMessage('操作已取消；若保存已提交，请重新加载核对版本'); }}>取消请求</button>}
     <p role="status">{message}</p>

@@ -18,9 +18,11 @@ it('tests a vLLM-compatible candidate using its configured budget without persis
   const service = await startService(); closers.push(service.stop);
   const result = await fetch(`${service.address}/api/v1/settings/models/test`, { method: 'POST',
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: 0,
-      profile: textProfile(`${upstream.url}/v1`, { maxOutputTokens: 1024, model: 'synthetic-vllm-model' }) }) });
+      profile: textProfile(`${upstream.url}/v1`, { maxOutputTokens: 1024, model: 'synthetic-vllm-model',
+        extraBody: { chat_template_kwargs: { enable_thinking: false } } }) }) });
   expect(result.status).toBe(200); expect(TestModelResultSchema.parse(await result.json())).toMatchObject({ ok: true, kind: 'text' });
-  expect(upstream.requests[0]).toMatchObject({ path: '/v1/chat/completions', body: { max_tokens: 1024, model: 'synthetic-vllm-model', stream: false } });
+  expect(upstream.requests[0]).toMatchObject({ path: '/v1/chat/completions', body: { max_tokens: 1024, model: 'synthetic-vllm-model', stream: false,
+    chat_template_kwargs: { enable_thinking: false } } });
   expect(upstream.requests).toHaveLength(1);
   const current = ModelSettingsSchema.parse(await (await fetch(`${service.address}/api/v1/settings/models`)).json());
   expect(current.revision).toBe(0); expect(current.profiles).toEqual([]);

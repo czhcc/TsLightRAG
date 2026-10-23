@@ -43,6 +43,24 @@ vLLM 的 Base URL 通常以 `/v1` 结尾，程序实际发送 `POST /v1/chat/com
 
 错误不回显供应商原始响应、key、正文或思考内容。若继续失败，可提供删去这些内容后的字段结构及新的错误提示；真实供应商兼容结果不能由本地模拟用例替代。
 
+### 文本模型扩展参数
+
+在文本模型的“扩展参数（JSON 对象）”中填写 OpenAI 兼容服务支持的额外聊天请求字段。例如，服务的聊天模板支持该参数时，可关闭思考模式：
+
+```json
+{
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}
+```
+
+界面填写上述对象本身，不要再包裹 `extraBody` 或 `extra_body`。程序将其合并到 `/chat/completions` 请求 JSON 的顶层。连接测试使用当前编辑值但不保存；点击“保存配置”后，使用该文本模型的实体关系抽取、关键词提取、摘要和问答都会携带这些参数，包含流式请求。若 extract 单独绑定了其他模型，需在该模型上配置；为空时复用 query。
+
+扩展参数随模型配置版本持久保存，重新加载和重启后保留；留空并保存可清除。旧配置没有该字段时行为不变。API 字段为文本模型的 `extraBody`，是可选 JSON 对象，每个模型最多 16 KiB。不要在其中填写密钥，扩展参数会在设置页面和配置查询中显示。模型、消息、温度、输出 token 预算、流式设置、返回数量及工具调用字段由程序管理，不能通过扩展参数覆盖（`model`、`messages`、`temperature`、`max_tokens`、`max_completion_tokens`、`stream`、`stream_options`、`n`、`tools`、`tool_choice`、`functions`、`function_call`）。
+
+参数是否有效取决于 vLLM 版本和模型聊天模板；程序会发送该字段，不保证服务一定支持关闭思考。保存后请手动重试原失败文档，以采用新配置版本。关闭思考也不保证解决全部截断或超时，仍需按实际响应调整输出预算与超时。
+
 ## 通过主机 IP 访问
 
 旧版 CLI 和 HTTP Host 都仅支持 loopback。更新源码后必须重新构建，`npm start` 本身不会编译，否则 dist 仍会报“仅允许 loopback”：
