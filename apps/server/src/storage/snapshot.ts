@@ -46,6 +46,8 @@ export class SnapshotView {
   conversations() { return this.current.state.conversations.entries().map(([, conversation]) => conversation); }
   conversation(id: string) { return this.current.state.conversations.get(id); }
   browseGraph(query: string, root: string | undefined, limit: number, kind: 'nodes' | 'edges') { return this.current.state.graph.browse(query, root, limit, kind); }
+  graphCatalog(kind: 'nodes' | 'edges', offset: number, limit: number) { return this.current.state.graph.catalog(kind, offset, limit); }
+  graphSelection(nodeIds: string[], edgeIds: string[]) { return this.current.state.graph.select(nodeIds, edgeIds); }
   node(id: string) { return this.current.state.graph.getNode(id); }
   edgeById(id: string) { return this.current.state.graph.getEdgeById(id); }
   edge(source: string, target: string) { return this.current.state.graph.getEdge(source, target); }

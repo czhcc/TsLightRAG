@@ -1,6 +1,33 @@
 import { expect, it } from 'vitest';
-import { GraphDataSchema, GraphSourcesSchema } from '@tslightrag/contracts';
+import { GraphDataSchema, GraphSourcesSchema, GraphCatalogSchema, GraphSelectionDataSchema } from '@tslightrag/contracts';
 import { indexingHarness } from '../helpers/indexing.js';
+
+it('pages the whole committed catalogue and adds only selected records and relation endpoints without model calls', async () => {
+  const h = await indexingHarness();
+  try {
+    const imported = await h.import('second document Alpha Beta Gamma'); expect((await h.wait(imported.job.id)).status).toBe('processed');
+    const calls = h.model.requests.length;
+    const read = async (url: string) => { const r = await h.app.inject({ url }); expect(r.statusCode).toBe(200); return r.json(); };
+    const first = GraphCatalogSchema.parse(await read('/api/v1/graph/catalog?kind=nodes&limit=1&offset=0'));
+    const second = GraphCatalogSchema.parse(await read('/api/v1/graph/catalog?kind=nodes&limit=1&offset=1'));
+    expect(first.total).toBe(3); expect(second.total).toBe(3); expect(first.items).toHaveLength(1); expect(first.items[0]?.id).not.toBe(second.items[0]?.id);
+    const relations = GraphCatalogSchema.parse(await read('/api/v1/graph/catalog?kind=edges&limit=1&offset=1'));
+    expect(relations.total).toBe(2); expect(relations.items).toHaveLength(1);
+    if (relations.kind !== 'edges') throw new Error('Expected relations');
+    expect(relations.items[0]?.sourceName).toBeTruthy(); expect(JSON.stringify(relations)).not.toContain('sourceChunkIds');
+    const post = (payload: Record<string, unknown>) => h.app.inject({ method: 'POST', url: '/api/v1/graph/selection', payload });
+    const node = GraphSelectionDataSchema.parse((await post({ nodeIds: [first.items[0]!.id], edgeIds: [] })).json());
+    expect(node.nodes).toHaveLength(1); expect(node.edges).toHaveLength(0);
+    const edge = relations.items[0]!;
+    const selected = GraphSelectionDataSchema.parse((await post({ nodeIds: [], edgeIds: [edge.id] })).json());
+    expect(selected.nodes.map(n => n.id).sort()).toEqual([edge.sourceId, edge.targetId].sort()); expect(selected.edges.map(e => e.id)).toContain(edge.id);
+    const connected = GraphSelectionDataSchema.parse((await post({ nodeIds: [edge.sourceId, edge.targetId] })).json()); expect(connected.edges.map(e => e.id)).toContain(edge.id);
+    expect((await post({ nodeIds: Array(101).fill('id') })).statusCode).toBe(400);
+    expect((await h.app.inject({ method: 'POST', url: '/api/v1/graph/selection', headers: { origin: 'http://evil.invalid' }, payload: { nodeIds: [] } })).statusCode).toBe(403);
+    for (const url of ['/api/v1/graph/catalog?kind=nodes&limit=101', '/api/v1/graph/catalog?kind=edges&offset=-1', '/api/v1/graph/catalog?kind=bad']) expect((await h.app.inject({ url })).statusCode).toBe(400);
+    expect(h.model.requests).toHaveLength(calls);
+  } finally { await h.close(); }
+});
 
 it('browses a bounded committed graph, expands neighbors and paginates actual source documents without model calls', async () => {
   const h = await indexingHarness();

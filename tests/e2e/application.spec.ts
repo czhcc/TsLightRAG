@@ -98,8 +98,8 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await page.getByRole('combobox', { name: '搜索对象', exact: true }).selectOption('edges');
     await page.getByLabel('关系关键词', { exact: true }).fill('cooperate');
     await page.getByRole('button', { name: '搜索图谱' }).click();
-    await expect(page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button')).toHaveCount(1);
-    await page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button').click();
+    await expect(page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button')).toHaveCount(2);
+    await page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button').filter({ hasText: /Alpha.*Beta|Beta.*Alpha/ }).click();
     await expect(properties.getByText(/权重：/)).toBeVisible();
     await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await page.getByRole('button', { name: '展开邻居' }).click();

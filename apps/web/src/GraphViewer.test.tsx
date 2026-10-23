@@ -6,13 +6,19 @@ import { GraphViewer } from './GraphViewer.js';
 import type { GraphData } from '@tslightrag/contracts';
 const graph: GraphData = { nodes: [{ id: 'a', name: '<img src=x onerror=alert(1)>', type: 'concept', description: '<script>bad()</script>', sourceCount: 1 }],
   edges: [{ id: 'broken', sourceId: 'a', targetId: 'missing', description: 'broken endpoint', keywords: [], weight: 1, sourceCount: 1 }], totalNodes: 500, totalEdges: 400, matchedNodes: 500, truncated: true, corpusRevision: 3 };
+function catalogue(url: string) {
+  const params = new URL(`http://localhost${url}`).searchParams;
+  const kind = params.get('kind') === 'edges' ? 'edges' : 'nodes';
+  return { kind, items: kind === 'nodes' ? graph.nodes : [], total: kind === 'nodes' ? 1 : 0,
+    offset: 0, limit: 10, corpusRevision: 3 };
+}
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 it('keeps the bounded graph usable with missing edge endpoints, renders text safely and expands real sources', async () => {
-  const fetcher = vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, json: async () => url.includes('/sources')
+  const fetcher = vi.fn().mockImplementation((url: string) => Promise.resolve({ ok: true, json: async () => url.includes('/catalog?') ? catalogue(url) : url.includes('/sources')
     ? { items: [], total: 0, offset: 0, corpusRevision: 3 } : graph }));
   vi.stubGlobal('fetch', fetcher);
   const view = render(<GraphViewer />);
-  expect(fetcher).not.toHaveBeenCalled();
+  expect(fetcher.mock.calls.every(([url]) => String(url).includes('/catalog?'))).toBe(true);
   await userEvent.type(screen.getByLabelText('实体名称'), 'Alpha');
   await userEvent.click(screen.getByRole('button', { name: '搜索图谱' }));
   expect(await screen.findByText(/显示 1 \/ 500/)).toBeTruthy();
@@ -30,7 +36,7 @@ it('reports source revision changes and API failures, and aborts owned requests 
   const signals: AbortSignal[] = [];
   const fetcher = vi.fn().mockImplementation((url: string, options: { signal: AbortSignal }) => {
     signals.push(options.signal);
-    return Promise.resolve({ ok: true, json: async () => url.includes('/sources') ? { items: [], total: 0, offset: 0, corpusRevision: 4 } : graph });
+    return Promise.resolve({ ok: true, json: async () => url.includes('/catalog?') ? catalogue(url) : url.includes('/sources') ? { items: [], total: 0, offset: 0, corpusRevision: 4 } : graph });
   });
   vi.stubGlobal('fetch', fetcher); const view = render(<GraphViewer />);
   await userEvent.type(screen.getByLabelText('实体名称'), 'Alpha');

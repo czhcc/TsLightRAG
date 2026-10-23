@@ -72,6 +72,8 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f0f5f2; paddi
 .graph-pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; }
 .graph-pagination label { margin: 0; font-size: 12px; }
 .graph-pagination button { padding: 6px 10px; margin: 0; font-size: 12px; }
+.graph-catalog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; }
+.graph-catalog-actions button { padding: 7px 10px; margin: 0; font-size: 12px; }
 button[aria-pressed=true] { background: #78551f; }
 .drop-zone { border: 2px dashed #a8bdb3; border-radius: 8px; padding: 16px; }
 .document-toolbar, .dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }

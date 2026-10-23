@@ -1,5 +1,6 @@
 import { graphSources } from './graph/browse.js';
 import { GraphQuerySchema, GraphSourcesQuerySchema, GraphDataSchema, DocumentListQuerySchema } from '@tslightrag/contracts';
+import { GraphCatalogQuerySchema, GraphCatalogSchema, GraphSelectionSchema, GraphSelectionDataSchema } from '@tslightrag/contracts';
 import { GenerationService } from './generation/service.js';
 import { NdjsonWriter } from './generation/ndjson.js';
 import { ConversationService, registerConversations } from './chat/service.js';
@@ -93,6 +94,18 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
     const query = GraphSourcesQuerySchema.safeParse(request.query);
     if (!query.success) throw new DocumentError('INVALID_GRAPH_QUERY', '来源分页参数不合法', 400);
     return graphSources(options.storage.capture(), query.data);
+  });
+  app.get('/api/v1/graph/catalog', async request => {
+    const query = GraphCatalogQuerySchema.safeParse(request.query);
+    if (!query.success) throw new ModelError('INVALID_GRAPH_QUERY', '图谱列表分页参数不合法', 400);
+    const view = options.storage.capture();
+    return GraphCatalogSchema.parse({ ...view.graphCatalog(query.data.kind, query.data.offset, query.data.limit), corpusRevision: view.corpusRevision });
+  });
+  app.post('/api/v1/graph/selection', async request => {
+    const selected = GraphSelectionSchema.safeParse(request.body);
+    if (!selected.success) throw new ModelError('INVALID_GRAPH_SELECTION', '每次最多选择 100 个实体及 100 条关系', 400);
+    const view = options.storage.capture();
+    return GraphSelectionDataSchema.parse({ ...view.graphSelection(selected.data.nodeIds, selected.data.edgeIds), corpusRevision: view.corpusRevision });
   });
   app.get('/api/v1/parsers/capabilities', async () => PARSER_CAPABILITIES);
   app.get('/api/v1/settings/models', async () => config.public());

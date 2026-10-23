@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ApiErrorSchema, GraphDataSchema, GraphSourcesSchema } from '@tslightrag/contracts';
+import { ApiErrorSchema, GraphDataSchema, GraphSourcesSchema, GraphSelectionDataSchema } from '@tslightrag/contracts';
 import type { GraphData, GraphSources } from '@tslightrag/contracts';
 import { graphLayout, GRAPH_HEIGHT, GRAPH_WIDTH } from './graph-layout.js';
 import type { GraphLayout } from './graph-layout.js';
+import { GraphCatalog } from './GraphCatalog.js';
 
 class GraphRequestError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
 }
-async function get(path: string, signal: AbortSignal) {
-  const response = await fetch(`/api/v1/graph${path}`, { signal });
+async function get(path: string, signal: AbortSignal, body?: unknown) {
+  const response = await fetch(`/api/v1/graph${path}`, { signal, ...(body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) });
   const payload: unknown = await response.json();
   if (!response.ok) {
     const error = ApiErrorSchema.safeParse(payload);
@@ -17,7 +18,7 @@ async function get(path: string, signal: AbortSignal) {
   return payload;
 }
 type Selection = { kind: 'node' | 'edge'; id: string };
-type Exploration = { q: string; count: number; kind: 'nodes' | 'edges'; root?: string };
+type Exploration = { q: string; count: number; kind: 'nodes' | 'edges'; root?: string; items?: { nodeIds: string[]; edgeIds: string[] } };
 const MAX_NODES = 500, MAX_EDGES = 1500, MAX_EXPLORATIONS = 100;
 export function mergeGraph(previous: GraphData | null, next: GraphData): GraphData {
   const nodes = new Map(previous?.nodes.map(n => [n.id, n]));
@@ -27,28 +28,17 @@ export function mergeGraph(previous: GraphData | null, next: GraphData): GraphDa
   return { ...next, nodes: [...nodes.values()], edges: [...edges.values()],
     truncated: Boolean(previous?.truncated || next.truncated || next.nodes.some(n => !nodes.has(n.id)) || next.edges.some(e => !edges.has(e.id))) };
 }
-function Pagination({ label, total, page, size, onPage, onSize }: {
-  label: string; total: number; page: number; size: number; onPage: (page: number) => void; onSize: (size: number) => void;
-}) {
-  const pages = Math.max(1, Math.ceil(total / size));
-  return <div className="graph-pagination"><label htmlFor={`graph-size-${label}`}>每页行数</label>
-    <select id={`graph-size-${label}`} aria-label={`${label}每页行数`} value={size} onChange={e => { onSize(Number(e.target.value)); onPage(0); }}>{[10, 20, 50, 100].map(n => <option key={n} value={n}>{n} 行/页</option>)}</select>
-    <span>共 {total} 条 · 第 {page + 1} / {pages} 页</span>
-    <button type="button" disabled={page === 0} onClick={() => onPage(page - 1)}>上一页{label}</button>
-    <button type="button" disabled={page + 1 >= pages} onClick={() => onPage(page + 1)}>下一页{label}</button>
-  </div>;
-}
 export function GraphViewer() {
   const [query, setQuery] = useState(''), [limit, setLimit] = useState(50), [kind, setKind] = useState<'nodes' | 'edges'>('nodes');
   const [data, setData] = useState<GraphData | null>(null), [selected, setSelected] = useState<Selection | null>(null);
   const [layout, setLayout] = useState<GraphLayout>('force');
-  const [nodeSize, setNodeSize] = useState(10), [edgeSize, setEdgeSize] = useState(10), [nodePage, setNodePage] = useState(0), [edgePage, setEdgePage] = useState(0);
+  const [catalogRefresh, setCatalogRefresh] = useState(0), [inspected, setInspected] = useState<GraphData | null>(null);
   const [sources, setSources] = useState<GraphSources | null>(null), [offset, setOffset] = useState(0);
   const [error, setError] = useState(''), [note, setNote] = useState(''), [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null), shown = useRef<GraphData | null>(null), explorations = useRef<Exploration[]>([]);
   useEffect(() => () => pending.current?.abort(), []);
   function commit(value: GraphData) {
-    shown.current = value; setData(value);
+    shown.current = value; setData(value); setInspected(null);
     setSelected(current => current && (current.kind === 'node' ? value.nodes.some(n => n.id === current.id) : value.edges.some(e => e.id === current.id)) ? current : null);
   }
   async function load(spec?: Exploration) {
@@ -61,6 +51,7 @@ export function GraphViewer() {
     pending.current?.abort(); const abort = new AbortController(); pending.current = abort;
     setBusy(true); setError(''); setNote('');
     const fetchGraph = async (item: Exploration) => {
+      if (item.items) return GraphSelectionDataSchema.parse(await get('/selection', abort.signal, item.items));
       const params = new URLSearchParams({ q: item.q, kind: item.kind, limit: String(item.count), ...(item.root ? { nodeId: item.root } : {}) });
       try { return GraphDataSchema.parse(await get(`?${params}`, abort.signal)); }
       catch (e) { if (item.root && e instanceof GraphRequestError && e.status === 404) return null; throw e; }
@@ -98,27 +89,37 @@ export function GraphViewer() {
       if (!abort.signal.aborted) setSources(result);
     }).catch(e => { if (!abort.signal.aborted) setError(e instanceof Error ? e.message : '来源加载失败'); });
     return () => abort.abort();
-  }, [selected, offset, data?.corpusRevision]);
-  const node = data?.nodes.find(n => selected?.kind === 'node' && n.id === selected.id);
-  const edge = data?.edges.find(e => selected?.kind === 'edge' && e.id === selected.id);
+  }, [selected, offset, inspected?.corpusRevision, data?.corpusRevision]);
+  const node = inspected?.nodes.find(n => selected?.kind === 'node' && n.id === selected.id) ?? data?.nodes.find(n => selected?.kind === 'node' && n.id === selected.id);
+  const edge = inspected?.edges.find(e => selected?.kind === 'edge' && e.id === selected.id) ?? data?.edges.find(e => selected?.kind === 'edge' && e.id === selected.id);
   const points = useMemo(() => graphLayout(data?.nodes ?? [], data?.edges ?? [], layout), [data, layout]);
-  const names = new Map(data?.nodes.map(n => [n.id, n.name]));
   const nodes = data?.nodes ?? [], edges = data?.edges ?? [];
-  const currentNodePage = Math.min(nodePage, Math.max(0, Math.ceil(nodes.length / nodeSize) - 1));
-  const currentEdgePage = Math.min(edgePage, Math.max(0, Math.ceil(edges.length / edgeSize) - 1));
-  function select(value: Selection) { setSelected(current => current?.kind === value.kind && current.id === value.id ? current : value); setOffset(0); }
+  function select(value: Selection) { setInspected(null); setSelected(current => current?.kind === value.kind && current.id === value.id ? current : value); setOffset(0); }
   function expand(id: string) { void load({ q: '', count: limit, kind: 'nodes', root: id }); }
   function clear() {
     pending.current?.abort(); setBusy(false); shown.current = null; explorations.current = [];
-    setData(null); setSelected(null); setSources(null); setError(''); setNote(''); setNodePage(0); setEdgePage(0); setOffset(0);
+    setData(null); setSelected(null); setSources(null); setError(''); setNote(''); setInspected(null); setOffset(0);
+  }
+  async function inspect(kind: 'node' | 'edge', id: string) {
+    if (busy) return;
+    pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
+    setBusy(true); setError('');
+    try {
+      const value = GraphSelectionDataSchema.parse(await get('/selection', controller.signal, { nodeIds: kind === 'node' ? [id] : [], edgeIds: kind === 'edge' ? [id] : [] }));
+      if (!controller.signal.aborted) {
+        setInspected(value); setSelected({ kind, id }); setOffset(0);
+        if (!value.nodes.length && !value.edges.length) setError('对象已不存在，请刷新列表。');
+      }
+    } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : '属性加载失败'); }
+    finally { if (!controller.signal.aborted) setBusy(false); }
   }
   return <section aria-label="知识图谱">
-    <p>搜索结果会逐步加入关联图，双击实体可扩展一层邻居。每次最多 100 个节点、300 条关系；累计最多 500 个节点、1500 条关系。</p>
+    <p>搜索结果会逐步加入关联图，双击实体可扩展一层邻居。下方表格为全部实体和关系，选中后可加入关联图；选中关系时同时加入两端实体。累计最多 500 个节点、1500 条关系。</p>
     <form className="graph-search" onSubmit={e => { e.preventDefault(); if (query.trim()) void load({ q: query.trim(), count: limit, kind }); }}>
       <div className="graph-search-field"><label htmlFor="graph-kind">搜索对象</label><select id="graph-kind" value={kind} disabled={busy} onChange={e => setKind(e.target.value as 'nodes' | 'edges')}><option value="nodes">实体</option><option value="edges">关系</option></select></div>
       <div className="graph-search-field graph-search-query"><label htmlFor="graph-query">{kind === 'nodes' ? '实体名称' : '关系关键词'}</label><input id="graph-query" value={query} maxLength={500} disabled={busy} onChange={e => setQuery(e.target.value)} /></div>
       <div className="graph-search-field"><label htmlFor="graph-limit">节点上限</label><input id="graph-limit" type="number" min={1} max={100} required value={limit} disabled={busy} onChange={e => setLimit(Number(e.target.value))} /></div>
-      <div className="graph-search-actions"><button disabled={busy || !query.trim()}>搜索图谱</button><button type="button" disabled={busy || !explorations.current.length} onClick={() => { void load(); }}>刷新图谱</button></div>
+      <div className="graph-search-actions"><button disabled={busy || !query.trim()}>搜索图谱</button><button type="button" disabled={busy} onClick={() => { setCatalogRefresh(v => v + 1); setInspected(null); setSelected(null); setSources(null); void load(); }}>刷新图谱</button></div>
     </form>
     {busy && <p role="status">正在加载图谱…</p>}{error && <p role="alert">{error}</p>}{note && <p className="muted">{note}</p>}
     {data && <p role="status">显示 {nodes.length} / {data.totalNodes} 个节点、{edges.length} / {data.totalEdges} 条关系{data.truncated && (nodes.length < data.totalNodes || edges.length < data.totalEdges) ? '（已达上限，部分结果未显示，可缩小搜索或清空图谱）' : ''}</p>}
@@ -139,20 +140,15 @@ export function GraphViewer() {
           </g>;
         })}
       </svg>}
-    <div className="graph-lists"><section aria-label="图谱实体"><h2>实体</h2><div className="graph-table"><table><thead><tr><th>名称</th><th>类型</th><th>来源数</th></tr></thead><tbody>
-      {nodes.slice(currentNodePage * nodeSize, (currentNodePage + 1) * nodeSize).map(n => <tr key={n.id}><td><button aria-pressed={node?.id === n.id} onClick={() => select({ kind: 'node', id: n.id })}>{n.name}</button></td><td>{n.type}</td><td>{n.sourceCount}</td></tr>)}
-      {!nodes.length && <tr><td colSpan={3}>暂无实体，请先搜索。</td></tr>}
-    </tbody></table></div><Pagination label="实体" total={nodes.length} page={currentNodePage} size={nodeSize} onPage={setNodePage} onSize={setNodeSize} /></section>
-    <section aria-label="图谱关系"><h2>关系</h2><div className="graph-table"><table><thead><tr><th>关系</th><th>关键词</th><th>权重</th></tr></thead><tbody>
-      {edges.slice(currentEdgePage * edgeSize, (currentEdgePage + 1) * edgeSize).map(e => <tr key={e.id}><td><button aria-pressed={edge?.id === e.id} onClick={() => select({ kind: 'edge', id: e.id })}>{names.get(e.sourceId) ?? e.sourceId} ↔ {names.get(e.targetId) ?? e.targetId}</button></td><td>{e.keywords.join('、')}</td><td>{e.weight}</td></tr>)}
-      {!edges.length && <tr><td colSpan={3}>暂无关系，请搜索关系或双击实体扩展。</td></tr>}
-    </tbody></table></div><Pagination label="关系" total={edges.length} page={currentEdgePage} size={edgeSize} onPage={setEdgePage} onSize={setEdgeSize} /></section></div>
-    {(node || edge) && data && <section aria-label="图谱属性"><h2>{node?.name ?? '关系属性'}</h2>
+    <div className="graph-lists">{(['nodes', 'edges'] as const).map(catalogKind => <GraphCatalog key={catalogKind} kind={catalogKind} busy={busy}
+      refresh={`${String(catalogRefresh)}:${String(data?.corpusRevision ?? '')}`} onInspect={(kind, id) => { void inspect(kind, id); }}
+      onAdd={(nodeIds, edgeIds) => { void load({ q: '', count: limit, kind: 'nodes', items: { nodeIds, edgeIds } }); }} />)}</div>
+    {(node || edge) && <section aria-label="图谱属性"><h2>{node?.name ?? '关系属性'}</h2>
       {node && <><p>类型：{node.type}</p><button disabled={busy} onClick={() => expand(node.id)}>展开邻居</button></>}
       {edge && <p>权重：{edge.weight} · 关键词：{edge.keywords.join('、')}</p>}
       <pre>{node?.description ?? edge?.description}</pre>
       <h3>来源证据</h3>{!sources && !error && <p role="status">正在读取来源…</p>}
-      {sources && sources.corpusRevision !== data.corpusRevision ? <p role="alert">语料已变化，请刷新图谱后查看来源。</p> : sources && <>
+      {sources && sources.corpusRevision !== (inspected ?? data)?.corpusRevision ? <p role="alert">语料已变化，请刷新图谱后查看来源。</p> : sources && <>
         <p>共 {sources.total} 个来源块</p>{sources.items.map(s => <article key={s.chunk.id}><h3>{s.fileName}</h3><p>文档版本 {s.documentVersion} · 块 {s.chunk.order + 1}</p>{s.chunk.location && <details><summary>原始位置</summary><pre>{s.chunk.location}</pre></details>}<pre>{s.chunk.content}</pre><a href={`/documents?id=${encodeURIComponent(s.chunk.docId)}`}>查看来源文档</a></article>)}
         <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 10))}>上一页来源</button> <button disabled={offset + 10 >= sources.total} onClick={() => setOffset(offset + 10)}>下一页来源</button>
       </>}

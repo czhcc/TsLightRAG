@@ -37,3 +37,18 @@ it('caps dense graph browsing at 100 nodes and 300 edges without returning dangl
   const small = graph.browse('', 'n0', 2);
   expect(small.nodes[0]!.id).toBe('n0'); expect(small.nodes).toHaveLength(2); expect(small.edges).toHaveLength(1);
 });
+
+it('catalogue pagination reaches beyond exploration caps and selected relations include their endpoints', () => {
+  const graph = new MemoryGraph();
+  for (let i = 0; i < 620; i++) graph.setNode({ id: `n${String(i).padStart(3, '0')}`, name: `Node ${String(i).padStart(3, '0')}`, type: 'concept', description: 'synthetic', sourceChunkIds: ['c'] });
+  const edgeId = graph.setEdge({ sourceId: 'n600', targetId: 'n601', description: 'connected', keywords: [], weight: 1, sourceChunkIds: ['c'] });
+  const page = graph.catalog('nodes', 600, 10);
+  expect(page.total).toBe(620); expect(page.items).toHaveLength(10); expect(page.items[0]?.id).toBe('n600');
+  const selection = graph.select([], [edgeId]);
+  expect(selection.nodes.map(n => n.id)).toEqual(['n600', 'n601']); expect(selection.edges[0]?.id).toBe(edgeId);
+  const relations = graph.catalog('edges', 0, 10);
+  if (relations.kind !== 'edges') throw new Error('Expected edges');
+  relations.items[0]!.keywords.push('mutated'); selection.edges[0]!.keywords.push('mutated');
+  expect(graph.getEdgeById(edgeId)?.keywords).toEqual([]);
+  expect(graph.catalog('edges', 1, 10).items).toEqual([]);
+});

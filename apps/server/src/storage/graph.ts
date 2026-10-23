@@ -48,6 +48,29 @@ export class MemoryGraph {
     for (const neighbor of this.neighbors(id)) this.deleteEdge(id, neighbor);
     this.adjacent.delete(id); return this.nodes.delete(id);
   }
+  catalog(kind: 'nodes' | 'edges', offset: number, limit: number) {
+    if (kind === 'nodes') {
+      const sorted = [...this.nodes.values()].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+      return { kind, total: sorted.length, offset, limit, items: sorted.slice(offset, offset + limit).map(({ sourceChunkIds, ...node }) => ({ ...node, sourceCount: sourceChunkIds.length })) };
+    }
+    const sorted = [...this.edges.values()].sort((a, b) => a.id.localeCompare(b.id));
+    return { kind, total: sorted.length, offset, limit, items: sorted.slice(offset, offset + limit).map(({ sourceChunkIds, ...edge }) => ({ ...edge,
+      keywords: [...edge.keywords], sourceCount: sourceChunkIds.length, sourceName: this.nodes.get(edge.sourceId)!.name, targetName: this.nodes.get(edge.targetId)!.name })) };
+  }
+  select(nodeIds: string[], edgeIds: string[]) {
+    const ids = new Set(nodeIds.filter(id => this.nodes.has(id))), chosen = new Map<string, GraphEdge>();
+    for (const id of edgeIds) {
+      const edge = this.edges.get(id); if (!edge) continue;
+      ids.add(edge.sourceId); ids.add(edge.targetId); chosen.set(edge.id, edge);
+    }
+    let truncated = false;
+    for (const edge of this.edges.values()) if (ids.has(edge.sourceId) && ids.has(edge.targetId)) {
+      if (chosen.size < 300 || chosen.has(edge.id)) chosen.set(edge.id, edge); else truncated = true;
+    }
+    return { nodes: [...ids].map(id => { const { sourceChunkIds, ...node } = this.nodes.get(id)!; return { ...node, sourceCount: sourceChunkIds.length }; }),
+      edges: [...chosen.values()].map(({ sourceChunkIds, ...edge }) => ({ ...edge, keywords: [...edge.keywords], sourceCount: sourceChunkIds.length })),
+      totalNodes: this.nodeCount, totalEdges: this.edgeCount, matchedNodes: ids.size, truncated };
+  }
   browse(query: string, root: string | undefined, limit: number, kind: 'nodes' | 'edges' = 'nodes') {
     const term = query.toLocaleLowerCase();
     const edgeMatches = (edge: GraphEdge) => [edge.description, ...edge.keywords,

@@ -167,6 +167,19 @@ export const GraphDataSchema = z.strictObject({
   matchedNodes: z.number().int().nonnegative(), truncated: z.boolean(), corpusRevision: z.number().int().nonnegative(),
 });
 export type GraphData = z.infer<typeof GraphDataSchema>;
+export const GraphCatalogQuerySchema = z.strictObject({
+  kind: z.enum(['nodes', 'edges']), offset: z.coerce.number().int().min(0).max(1_000_000).default(0),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+const catalogPage = { total: z.number().int().nonnegative(), offset: z.number().int().nonnegative(),
+  limit: z.number().int().positive(), corpusRevision: z.number().int().nonnegative() };
+export const GraphCatalogSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ ...catalogPage, kind: z.literal('nodes'), items: GraphDataSchema.shape.nodes }),
+  z.strictObject({ ...catalogPage, kind: z.literal('edges'), items: z.array(GraphDataSchema.shape.edges.element.extend({ sourceName: z.string(), targetName: z.string() })).max(100) }),
+]);
+export type GraphCatalog = z.infer<typeof GraphCatalogSchema>;
+export const GraphSelectionSchema = z.strictObject({ nodeIds: z.array(IdSchema).max(100).default([]), edgeIds: z.array(IdSchema).max(100).default([]) });
+export const GraphSelectionDataSchema = GraphDataSchema.extend({ nodes: z.array(GraphDataSchema.shape.nodes.element).max(300) });
 export const GraphSourcesQuerySchema = z.strictObject({
   id: IdSchema, kind: z.enum(['node', 'edge']),
   offset: z.coerce.number().int().min(0).max(10_000).default(0),

@@ -24,12 +24,18 @@ test('graph starts empty, accumulates searches and double-click expansion, lays 
     await expect.poll(async () => (await (await page.request.get(`${service.address}/api/v1/jobs/${document.job.id}`)).json() as { status: string }).status).toBe('processed');
     await page.goto(`${service.address}/graph`);
     await expect(page.getByText('请输入实体名称或关系关键词搜索，结果会逐步加入关联图。')).toBeVisible();
-    expect(graphCalls).toEqual([]);
+    expect(graphCalls.every(url => url.includes('/catalog?'))).toBe(true);
     const entities = page.getByRole('region', { name: '图谱实体', exact: true }), relations = page.getByRole('region', { name: '图谱关系', exact: true });
-    await expect(entities.getByRole('table').getByRole('button')).toHaveCount(0);
+    await expect(entities.getByRole('table').getByRole('row')).toHaveCount(11);
+    await expect(relations.getByRole('table').getByRole('row')).toHaveCount(11);
+    await entities.getByRole('button', { name: 'Entity 01', exact: true }).click();
+    await expect(page.getByRole('region', { name: '图谱属性', exact: true })).toContainText('Entity 01');
+    await expect(page.getByRole('group', { name: '关联图', exact: true })).toHaveCount(0);
     const input = page.getByLabel('实体名称', { exact: true });
     const search = async (q: string) => { await input.fill(q); await page.getByRole('button', { name: '搜索图谱', exact: true }).click(); };
-    await search('Entity 01'); await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toHaveText('显示 1 / 25 个节点、0 / 24 条关系');
+    await entities.getByRole('checkbox', { name: '选择实体 Entity 01', exact: true }).check();
+    await entities.getByRole('button', { name: '将所选实体加入关联图', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toHaveText('显示 1 / 25 个节点、0 / 24 条关系');
     const inputBox = (await input.boundingBox())!, buttonBox = (await page.getByRole('button', { name: '搜索图谱', exact: true }).boundingBox())!;
     expect(Math.abs(inputBox.y + inputBox.height - buttonBox.y - buttonBox.height)).toBeLessThan(2);
     await search('Entity 02'); await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toHaveText('显示 2 / 25 个节点、0 / 24 条关系');
@@ -42,6 +48,8 @@ test('graph starts empty, accumulates searches and double-click expansion, lays 
     await entities.getByLabel('实体每页行数', { exact: true }).selectOption('20');
     await expect(entities.getByRole('table').getByRole('row')).toHaveCount(21);
     await entities.getByRole('button', { name: '下一页实体', exact: true }).click(); await expect(entities.getByRole('table').getByRole('row')).toHaveCount(6);
+    await entities.getByRole('checkbox', { name: '选择实体 Entity 21', exact: true }).check();
+    await expect(entities.getByText('已选 2 项', { exact: true })).toBeVisible();
     await relations.getByRole('button', { name: '下一页关系', exact: true }).click();
     await expect(relations.getByRole('table').getByRole('row')).toHaveCount(11);
     await relations.getByLabel('关系每页行数', { exact: true }).selectOption('50'); await expect(relations.getByRole('table').getByRole('row')).toHaveCount(25);
@@ -50,6 +58,17 @@ test('graph starts empty, accumulates searches and double-click expansion, lays 
     }
     await search('not-existing'); await expect(page.getByText('本次未找到匹配对象，已保留之前的探索结果。')).toBeVisible();
     await expect(page.getByRole('status').filter({ hasText: '显示' })).toHaveText('显示 25 / 25 个节点、24 / 24 条关系');
+    await page.getByRole('button', { name: '清空图谱', exact: true }).click();
+    await expect(page.getByRole('group', { name: '关联图', exact: true })).toHaveCount(0);
+    await expect(entities.getByRole('table').getByRole('row')).toHaveCount(6);
+    await entities.getByRole('button', { name: '将所选实体加入关联图', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toHaveText('显示 2 / 25 个节点、0 / 24 条关系');
+    await expect(page.getByRole('button', { name: '图谱实体：Entity 01', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '图谱实体：Entity 21', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '清空图谱', exact: true }).click();
+    await relations.getByRole('checkbox').first().check();
+    await relations.getByRole('button', { name: '将所选关系加入关联图', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toHaveText('显示 2 / 25 个节点、1 / 24 条关系');
     await page.screenshot({ path: test.info().outputPath('graph-exploration.png'), fullPage: true });
     const maintenance = await (await page.request.get(`${service.address}/api/v1/maintenance`)).json() as { corpusRevision: number };
     const deleted = await page.request.delete(`${service.address}/api/v1/documents/${document.document.id}`, { data: { expectedCorpusRevision: maintenance.corpusRevision, expectedConfigRevision: 1, expectedDocumentVersion: 1 } });
