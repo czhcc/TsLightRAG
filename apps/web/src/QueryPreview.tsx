@@ -43,13 +43,15 @@ export function QueryPreview(){
   }
   return <section aria-label="检索预览">
     <p>检索文档证据或生成带来源的回答；模型使用你配置的接口。</p>
-    <form onSubmit={e=>{e.preventDefault();void submit();}}>
-      <label>检索问题<textarea value={query} onChange={e=>setQuery(e.target.value)} maxLength={20000} required disabled={busy}/></label>
-      <label>检索模式<select value={mode} onChange={e=>setMode(e.target.value)} disabled={busy}>{['naive','local','global','hybrid','mix'].map(m=><option key={m}>{m}</option>)}</select></label>
-      <label>来源块选择<select value={method} onChange={e=>setMethod(e.target.value)} disabled={busy}><option>VECTOR</option><option>WEIGHT</option></select></label>
-      <label>关联块数量<input type="number" min="0" max="100" value={related} onChange={e=>setRelated(Number(e.target.value))} disabled={busy}/></label>
-      <label><input type="checkbox" checked={rerank} onChange={e=>setRerank(e.target.checked)} disabled={busy}/>启用重排</label>
-      <button disabled={busy||!query.trim()} type="submit">检索证据</button> <button disabled={busy||!query.trim()} type="button" onClick={()=>void generate()}>生成回答</button>{busy&&<button type="button" onClick={stop}>{answerState?'停止生成':'取消检索'}</button>}
+    <form className="query-form" onSubmit={e=>{e.preventDefault();void submit();}}>
+      <div className="query-question"><label htmlFor="preview-question">检索问题</label><textarea id="preview-question" rows={2} value={query} onChange={e=>setQuery(e.target.value)} maxLength={20000} required disabled={busy}/></div>
+      <div className="query-settings">
+        <div className="query-setting"><label htmlFor="preview-mode">检索模式</label><select id="preview-mode" value={mode} onChange={e=>setMode(e.target.value)} disabled={busy}>{['naive','local','global','hybrid','mix'].map(m=><option key={m}>{m}</option>)}</select></div>
+        <div className="query-setting"><label htmlFor="preview-method">来源块选择</label><select id="preview-method" value={method} onChange={e=>setMethod(e.target.value)} disabled={busy}><option>VECTOR</option><option>WEIGHT</option></select></div>
+        <div className="query-setting"><label htmlFor="preview-related">关联块数量</label><input id="preview-related" type="number" min="0" max="100" value={related} onChange={e=>setRelated(Number(e.target.value))} disabled={busy}/></div>
+        <label className="query-setting"><input type="checkbox" checked={rerank} onChange={e=>setRerank(e.target.checked)} disabled={busy}/>启用重排</label>
+      </div>
+      <div className="query-actions"><button disabled={busy||!query.trim()} type="submit">检索证据</button><button disabled={busy||!query.trim()} type="button" onClick={()=>void generate()}>生成回答</button>{busy&&<button type="button" onClick={stop}>{answerState?'停止生成':'取消检索'}</button>}</div>
     </form>
     {busy&&!answerState&&<p role="status">正在检索…</p>}{error&&<p role="alert">{error}</p>}
     {answerState&&<section aria-label="知识库回答"><h2>知识库回答</h2><p role="status">{answerState}</p><SafeMarkdown content={answer} />{answerWarnings.map((w,i)=><p role="alert" key={i}>{w}</p>)}<ul>{answerRefs.map(r=><li key={r.id}><details><summary>[{r.id}] {r.fileName}</summary>{r.location && <p>{r.location}</p>}{r.content && <pre>{r.content}</pre>}<a href={`/documents?id=${encodeURIComponent(r.documentId)}`}>查看来源文档</a></details></li>)}</ul></section>}

@@ -75,6 +75,15 @@ button[aria-pressed=true] { background: #78551f; }
 .document-dialog form label { display: flex; margin-right: 0; }
 .document-dialog form input { width: 100%; }
 .document-dialog section { margin-bottom: 0; }
+.query-form { display: grid; gap: 18px; margin-bottom: 24px; }
+.query-question { display: flex; align-items: center; gap: 16px; }
+.query-form label { margin: 0; white-space: nowrap; }
+.query-question textarea { flex: 1; width: 100%; min-width: 0; max-width: none; resize: vertical; }
+.query-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.query-setting { display: inline-flex; flex-direction: row; align-items: center; gap: 8px; }
+.query-setting input[type=number] { width: 90px; }
+.query-setting input[type=checkbox] { align-self: center; }
+.query-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .markdown { overflow-wrap: anywhere; }
 .markdown pre { overflow-x: auto; }
 .markdown blockquote { border-left: 3px solid #79934f; margin-left: 0; padding-left: 16px; }
