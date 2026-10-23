@@ -27,7 +27,7 @@ test('S10 application: configure three endpoints, import, query five modes, trac
   page.on('request', r => { if ([text.url, embedding.url, rerank.url].some(url => r.url().startsWith(url))) external.push(r.url()); });
   try {
     await page.goto(`${service.address}/graph`);
-    await expect(page.getByText('暂无图谱，请先配置模型并导入文档完成索引。')).toBeVisible();
+    await expect(page.getByText('请输入实体名称或关系关键词搜索，结果会逐步加入关联图。')).toBeVisible();
     await page.getByRole('link', { name: '模型设置', exact: true }).click();
     for (const kind of ['文本模型', '向量模型', '重排模型']) await page.getByRole('button', { name: `添加${kind}` }).click();
     const groups = [1, 2, 3].map(n => page.getByRole('group', { name: `配置 ${n}`, exact: true }));
@@ -84,9 +84,10 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await page.getByRole('button', { name: '停止生成', exact: true }).click();
     await expect(answer.getByRole('status')).toContainText('回答已取消'); await expect.poll(() => cancelled).toBe(true); hold = false;
     await page.getByRole('link', { name: '知识图谱', exact: true }).click();
-    await expect(page.getByRole('status')).toHaveText('显示 3 / 3 个节点、2 / 2 条关系');
+    await expect(page.getByText('请输入实体名称或关系关键词搜索，结果会逐步加入关联图。')).toBeVisible();
+    await page.getByLabel('实体名称', { exact: true }).fill('a');
     await page.getByLabel('节点上限', { exact: true }).fill('1'); await page.getByRole('button', { name: '搜索图谱' }).click();
-    await expect(page.getByRole('status')).toContainText('显示 1 / 3 个节点'); await expect(page.getByRole('status')).toContainText('已达上限');
+    await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toContainText('显示 1 / 3 个节点'); await expect(page.getByRole('status')).toContainText('已达上限');
     await page.getByLabel('节点上限', { exact: true }).fill('50'); await page.getByLabel('实体名称', { exact: true }).fill('Alpha');
     await page.getByRole('button', { name: '搜索图谱' }).click(); await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await expect(page.getByText('共 2 个来源块', { exact: true })).toBeVisible();
@@ -97,12 +98,12 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await page.getByRole('combobox', { name: '搜索对象', exact: true }).selectOption('edges');
     await page.getByLabel('关系关键词', { exact: true }).fill('cooperate');
     await page.getByRole('button', { name: '搜索图谱' }).click();
-    await expect(page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('button')).toHaveCount(1);
-    await page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('button').click();
+    await expect(page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button')).toHaveCount(1);
+    await page.getByRole('region', { name: '图谱关系', exact: true }).getByRole('table').getByRole('button').click();
     await expect(properties.getByText(/权重：/)).toBeVisible();
     await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await page.getByRole('button', { name: '展开邻居' }).click();
-    await expect(page.getByRole('status')).toHaveText('显示 3 / 3 个节点、2 / 2 条关系');
+    await expect(page.getByRole('status').filter({ hasText: /^显示/ })).toContainText('显示 3 / 3 个节点、2 / 2 条关系');
     await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await properties.locator('article').filter({ has: page.getByRole('heading', { name: '共享甲.txt', exact: true }) }).getByRole('link', { name: '查看来源文档' }).click();
     await expect(page.getByRole('heading', { name: '任务详情：共享甲.txt', exact: true })).toBeVisible();
@@ -111,7 +112,8 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     await page.getByRole('dialog').getByRole('button', { name: '确认删除', exact: true }).click();
     await expect(page.getByText('共 1 个文档', { exact: true })).toBeVisible({ timeout: 15000 });
     await page.getByRole('link', { name: '知识图谱', exact: true }).click();
-    await page.getByRole('button', { name: '刷新图谱' }).click();
+    await page.getByLabel('实体名称', { exact: true }).fill('Alpha');
+    await page.getByRole('button', { name: '搜索图谱' }).click();
     await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await expect(page.getByText('共 1 个来源块', { exact: true })).toBeVisible();
     await expect(properties.getByRole('heading', { name: '共享乙.txt', exact: true })).toBeVisible();
@@ -120,7 +122,10 @@ test('S10 application: configure three endpoints, import, query five modes, trac
     expect(text.requests.length).toBeGreaterThan(1); expect(embedding.requests.length).toBeGreaterThan(1); expect(rerank.requests.length).toBeGreaterThan(1);
     const calls = text.requests.length + embedding.requests.length + rerank.requests.length;
     expect(await service.stop()).toBe(0); service = await startService(['--data-dir', directory.path]);
-    await page.goto(`${service.address}/graph`); await page.getByRole('button', { name: 'Alpha', exact: true }).click();
+    await page.goto(`${service.address}/graph`);
+    await page.getByLabel('实体名称', { exact: true }).fill('Alpha');
+    await page.getByRole('button', { name: '搜索图谱' }).click();
+    await page.getByRole('button', { name: 'Alpha', exact: true }).click();
     await expect(page.getByText('共 1 个来源块', { exact: true })).toBeVisible();
     await page.getByRole('link', { name: '模型设置', exact: true }).click();
     await expect(page.getByText('已保存模型：3 · 当前配置版本：1')).toBeVisible();

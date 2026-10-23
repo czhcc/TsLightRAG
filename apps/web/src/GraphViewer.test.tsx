@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, it, vi } from 'vitest';
 import { GraphViewer } from './GraphViewer.js';
@@ -12,9 +12,12 @@ it('keeps the bounded graph usable with missing edge endpoints, renders text saf
     ? { items: [], total: 0, offset: 0, corpusRevision: 3 } : graph }));
   vi.stubGlobal('fetch', fetcher);
   const view = render(<GraphViewer />);
+  expect(fetcher).not.toHaveBeenCalled();
+  await userEvent.type(screen.getByLabelText('实体名称'), 'Alpha');
+  await userEvent.click(screen.getByRole('button', { name: '搜索图谱' }));
   expect(await screen.findByText(/显示 1 \/ 500/)).toBeTruthy();
   expect(view.container.querySelector('img,script')).toBeNull();
-  await userEvent.click(screen.getByRole('button', { name: graph.nodes[0]!.name }));
+  await userEvent.click(within(screen.getByRole('region', { name: '图谱实体' })).getByRole('button', { name: graph.nodes[0]!.name }));
   expect(await screen.findByText('共 0 个来源块')).toBeTruthy();
   expect(screen.getByText('<script>bad()</script>')).toBeTruthy();
   await userEvent.click(screen.getByRole('button', { name: '展开邻居' }));
@@ -30,10 +33,12 @@ it('reports source revision changes and API failures, and aborts owned requests 
     return Promise.resolve({ ok: true, json: async () => url.includes('/sources') ? { items: [], total: 0, offset: 0, corpusRevision: 4 } : graph });
   });
   vi.stubGlobal('fetch', fetcher); const view = render(<GraphViewer />);
-  await userEvent.click(await screen.findByRole('button', { name: graph.nodes[0]!.name }));
+  await userEvent.type(screen.getByLabelText('实体名称'), 'Alpha');
+  await userEvent.click(screen.getByRole('button', { name: '搜索图谱' }));
+  await userEvent.click(await within(screen.getByRole('region', { name: '图谱实体' })).findByRole('button', { name: graph.nodes[0]!.name }));
   expect(await screen.findByRole('alert')).toHaveProperty('textContent', '语料已变化，请刷新图谱后查看来源。');
   fetcher.mockResolvedValueOnce({ ok: false, json: async () => ({ code: 'FAILED', message: '服务暂不可用', requestId: 'r' }) });
   await userEvent.click(screen.getByRole('button', { name: '刷新图谱' }));
-  expect(await screen.findByRole('alert')).toHaveProperty('textContent', '服务暂不可用');
+  expect((await screen.findByText('服务暂不可用')).getAttribute('role')).toBe('alert');
   view.unmount(); expect(signals.every(signal => signal.aborted)).toBe(true);
 });
