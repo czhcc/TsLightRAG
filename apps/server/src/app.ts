@@ -2,6 +2,7 @@ import { graphSources } from './graph/browse.js';
 import { GraphQuerySchema, GraphSourcesQuerySchema, GraphDataSchema, DocumentListQuerySchema } from '@tslightrag/contracts';
 import { GenerationService } from './generation/service.js';
 import { NdjsonWriter } from './generation/ndjson.js';
+import { ConversationService, registerConversations } from './chat/service.js';
 import { QueryService } from './retrieval/service.js';
 import { DocumentService } from './documents/service.js';
 import type { DocumentServiceOptions } from './documents/service.js';
@@ -29,8 +30,9 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   const generation = new GenerationService(queries,models);
   const activeQueries = new Map<string,AbortController>();
   const shutdown = new AbortController();
+  const conversations = new ConversationService(options.storage, generation, config, shutdown.signal);
   const app = Fastify({ logger: false, bodyLimit: 1024 * 1024, requestTimeout: 30_000, connectionTimeout: 30_000, forceCloseConnections: true });
-  app.addHook('preClose', async () => { shutdown.abort(); await documents.close(); });
+  app.addHook('preClose', async () => { shutdown.abort(); await conversations.close(); await documents.close(); });
   app.addHook('onClose', async () => { await config.close(); });
   await app.register(multipart, { limits: { fileSize: 20 * 1024 * 1024, files: 1, fields: 0, parts: 1 }, preservePath: true });
   app.addHook('onSend', async (_request, reply) => {
@@ -186,6 +188,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   app.post<{Params:{id:string}}>('/api/v1/documents/:id/reindex',{bodyLimit:8*1024*1024},async(request,reply)=>reply.code(202).send(await documents.requestMaintenance('reindex',request.params.id,request.body)));
   app.post<{Params:{id:string}}>('/api/v1/jobs/:id/retry',async(request,reply)=>reply.code(202).send(await documents.retryMaintenance(request.params.id,request.body)));
 
+  await registerConversations(app, conversations);
   const root = options.staticDir ?? webDist;
   try { await access(join(root, 'index.html')); }
   catch { throw new Error('WebUI 构建产物缺失；请先执行 npm run build'); }
@@ -193,6 +196,7 @@ export async function buildApp(options: { storage: SnapshotStore; staticDir?: st
   app.get('/', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/graph', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/query', async (_request, reply) => reply.sendFile('index.html'));
+  app.get('/chat', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/documents', async (_request, reply) => reply.sendFile('index.html'));
   app.get('/settings/models', async (_request, reply) => reply.sendFile('index.html'));
   app.setNotFoundHandler((request, reply) => reply.code(404).send(ApiErrorSchema.parse({

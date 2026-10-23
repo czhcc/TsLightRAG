@@ -1,6 +1,6 @@
 import { LedgerSchema, entityId, hash } from '../indexing/extraction.js';
 import { edgeId } from './graph.js';
-import { ChunkSchema, DocumentSchema, JobSchema, IdSchema, IndexBindingSchema, CleanupTaskSchema } from '@tslightrag/contracts';
+import { ChunkSchema, DocumentSchema, JobSchema, IdSchema, IndexBindingSchema, CleanupTaskSchema, ConversationSchema } from '@tslightrag/contracts';
 import { z } from 'zod';
 import { MemoryKV, JsonSchema } from './kv.js';
 import { MemoryVectors } from './vectors.js';
@@ -24,6 +24,7 @@ export { ChunkSchema } from '@tslightrag/contracts';
 const StatusFileSchema = z.strictObject({
   documents: z.array(z.tuple([IdSchema, DocumentSchema])), jobs: z.array(z.tuple([IdSchema, JobSchema])),
   indexBinding: IndexBindingSchema.optional(), cleanupTasks: z.array(CleanupTaskSchema).optional(),
+  conversations: z.array(z.tuple([IdSchema, ConversationSchema])).max(200).optional(),
 });
 type Document = z.infer<typeof DocumentSchema>;
 type Job = z.infer<typeof JobSchema>;
@@ -48,6 +49,7 @@ export class WorkspaceDraft {
   kv = Object.fromEntries(KV_NAMES.map((name) => [name, new MemoryKV()])) as Record<KVName, MemoryKV>;
   documents = new MemoryKV<Document>((value) => DocumentSchema.parse(value));
   jobs = new MemoryKV<Job>((value) => JobSchema.parse(value));
+  conversations = new MemoryKV<z.infer<typeof ConversationSchema>>((value) => ConversationSchema.parse(value));
   vectors = { chunks: new MemoryVectors(), entities: new MemoryVectors(), relations: new MemoryVectors() };
   graph = new MemoryGraph();
   setEmbeddingSpace(space: VectorSpace) {
@@ -57,7 +59,7 @@ export class WorkspaceDraft {
   serialize(): Files {
     return {
       'kv.json': Object.fromEntries(KV_NAMES.map((name) => [name, this.kv[name].entries()])),
-      'document-status.json': { documents: this.documents.entries(), jobs: this.jobs.entries(), ...(this.indexBinding ? {indexBinding: this.indexBinding} : {}), ...(this.cleanupTasks.length ? {cleanupTasks: this.cleanupTasks} : {}) },
+      'document-status.json': { documents: this.documents.entries(), jobs: this.jobs.entries(), ...(this.indexBinding ? {indexBinding: this.indexBinding} : {}), ...(this.cleanupTasks.length ? {cleanupTasks: this.cleanupTasks} : {}), ...(this.conversations.size ? {conversations: this.conversations.entries()} : {}) },
       'vectors-chunks.json': this.vectors.chunks.serialize(), 'vectors-entities.json': this.vectors.entities.serialize(),
       'vectors-relations.json': this.vectors.relations.serialize(), 'graph.json': this.graph.serialize(),
     };
@@ -70,11 +72,13 @@ export class WorkspaceDraft {
     draft.indexBinding = statuses.indexBinding; draft.cleanupTasks = statuses.cleanupTasks ?? [];
     draft.documents = MemoryKV.restore(statuses.documents, (value) => DocumentSchema.parse(value));
     draft.jobs = MemoryKV.restore(statuses.jobs, (value) => JobSchema.parse(value));
+    draft.conversations = MemoryKV.restore(statuses.conversations ?? [], (value) => ConversationSchema.parse(value));
     for (const name of VECTOR_NAMES) draft.vectors[name] = MemoryVectors.restore(files[`vectors-${name}.json`]);
     draft.graph = MemoryGraph.restore(files['graph.json']);
     draft.validate(); return draft;
   }
   validate() {
+    for (const [id, conversation] of this.conversations.entries()) if (id !== conversation.id) throw new Error('Conversation identity mismatch');
     const docs = new Map(this.kv.fullDocs.entries().map(([id, value]) => {
       const doc = StoredDocumentSchema.parse(value);
       if (doc.id !== id) throw new Error('Document identity mismatch');

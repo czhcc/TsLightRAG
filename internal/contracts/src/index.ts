@@ -265,3 +265,36 @@ export const StreamEventSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('cancelled') }),
 ]);
 export type StreamEvent = z.infer<typeof StreamEventSchema>;
+
+export const ChatSettingsSchema = z.strictObject({
+  mode: QueryModeSchema.default('mix'), kgChunkPickMethod: z.enum(['VECTOR', 'WEIGHT']).default('VECTOR'),
+  relatedChunkNumber: z.number().int().min(0).max(100).default(5), enableRerank: z.boolean().default(false),
+});
+export const ChatTurnSchema = z.strictObject({
+  id: IdSchema, question: text, answer: z.string().max(1024 * 1024), createdAt: timestamp,
+  status: z.enum(['generating', 'completed', 'failed', 'cancelled', 'interrupted']),
+  references: z.array(CitationSchema).max(1000), warnings: z.array(z.string().max(2000)).max(100),
+  error: z.string().max(2000).optional(), settings: ChatSettingsSchema,
+  finishReason: z.enum(['stop', 'length']).optional(),
+});
+export const ConversationSchema = z.strictObject({
+  id: IdSchema, title: z.string().min(1).max(80), revision: z.number().int().nonnegative(),
+  createdAt: timestamp, updatedAt: timestamp, settings: ChatSettingsSchema,
+  turns: z.array(ChatTurnSchema).max(100),
+}).superRefine((value, ctx) => {
+  if (new Set(value.turns.map(t => t.id)).size !== value.turns.length
+    || value.turns.some((t, i) => t.status === 'generating' && i !== value.turns.length - 1)) {
+    ctx.addIssue({ code: 'custom', message: '对话轮次不合法' });
+  }
+});
+export type Conversation = z.infer<typeof ConversationSchema>;
+export type ChatSettings = z.infer<typeof ChatSettingsSchema>;
+export const ConversationSummarySchema = z.strictObject({
+  id: IdSchema, title: z.string().min(1).max(80), revision: z.number().int().nonnegative(),
+  createdAt: timestamp, updatedAt: timestamp, status: ChatTurnSchema.shape.status.nullable(),
+});
+export const ConversationListSchema = z.array(ConversationSummarySchema).max(200);
+export type ConversationSummary = z.infer<typeof ConversationSummarySchema>;
+export const ChatMessageRequestSchema = z.strictObject({
+  expectedRevision: z.number().int().nonnegative(), question: text, settings: ChatSettingsSchema,
+});
