@@ -18,6 +18,9 @@ test('browser configures three real endpoints, tests unsaved candidates and rest
     const groups = [1, 2, 3].map((n) => page.getByRole('group', { name: `配置 ${String(n)}`, exact: true }));
     await groups[0]!.getByLabel('Base URL', { exact: true }).fill(`${text.url}/v1`);
     await groups[0]!.getByLabel('模型名称', { exact: true }).fill('browser-text');
+    await groups[0]!.getByLabel('最大输出 token', { exact: true }).fill('26384');
+    await groups[0]!.getByLabel('上下文 token', { exact: true }).fill('32768');
+    await expect(groups[0]!.getByText(/输入预算最多 6384 token/)).toBeVisible();
     await groups[0]!.getByLabel(/API key/).fill('browser-synthetic-secret');
     const extraBody = { chat_template_kwargs: { enable_thinking: false } };
     await groups[0]!.getByLabel('扩展参数（JSON 对象）', { exact: true }).fill(JSON.stringify(extraBody, null, 2));
@@ -48,6 +51,7 @@ test('browser configures three real endpoints, tests unsaved candidates and rest
     await page.goto(`${service.address}/settings/models`);
     await expect(page.getByText('已保存模型：3 · 当前配置版本：1')).toBeVisible();
     await expect(groups[0]!.getByLabel('模型名称', { exact: true })).toHaveValue('browser-text');
+    await expect(groups[0]!.getByText(/输入预算最多 6384 token/)).toBeVisible();
     await expect(groups[0]!.getByLabel('扩展参数（JSON 对象）', { exact: true })).toHaveValue(JSON.stringify(extraBody, null, 2));
     await expect(page.getByLabel('extract 角色')).toHaveValue('');
     expect(await page.evaluate(() => localStorage.length)).toBe(0);

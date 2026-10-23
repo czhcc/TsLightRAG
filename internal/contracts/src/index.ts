@@ -181,7 +181,8 @@ export const QuerySchema = z.strictObject({
   maxRelationTokens: z.number().int().min(0).max(100_000).default(8000),
   cosineThreshold: z.number().min(-1).max(1).default(0.2),
   minRerankScore: z.number().min(0).max(1).default(0.5),
-  maxTotalTokens: z.number().int().min(1).max(1_000_000).default(16_000),
+  // Omitted means use the bound query model's configured context capacity.
+  maxTotalTokens: z.number().int().min(1).max(1_000_000).optional(),
   enableRerank: z.boolean().default(false),
   kgChunkPickMethod: z.enum(['VECTOR', 'WEIGHT']).default('VECTOR'),
   relatedChunkNumber: z.number().int().min(0).max(100).default(5),

@@ -9,6 +9,19 @@ import type { ApplicationApi } from './api/client.js';
 import type { ModelSettings, SaveModels } from '@tslightrag/contracts';
 import { webcrypto } from 'node:crypto';
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it('shows the input capacity left after reserving output and warns when no capacity remains', () => {
+  const { apiKey, ...profile } = textProfile('http://localhost:8000/v1', { maxOutputTokens: 26384, contextTokens: 32768 }); void apiKey;
+  const initial = ModelSettingsSchema.parse({ revision: 1, editingAvailable: true,
+    profiles: [{ ...profile, hasApiKey: false }], bindings: { ...bindings, embedding: null, rerank: null } });
+  const api: ApplicationApi = { health: vi.fn(), models: vi.fn(), saveModels: vi.fn(), testModel: vi.fn() };
+  render(<ModelSettingsEditor initial={initial} api={api} onSaved={vi.fn()} />);
+  expect(screen.getByText(/输入预算最多 6384 token/)).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('最大输出 token'), { target: { value: '32768' } });
+  expect(screen.getByRole('alert').textContent).toContain('最大输出 token 必须小于上下文 token');
+  fireEvent.change(screen.getByLabelText('上下文 token'), { target: { value: '65536' } });
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByText(/输入预算最多 32768 token/)).toBeTruthy();
+});
 it('edits JSON extensions, tests without saving, restores saved values and clears them explicitly', async () => {
   const extraBody = { chat_template_kwargs: { enable_thinking: false } };
   const { apiKey, ...profile } = textProfile('http://localhost:8000/v1'); void apiKey;

@@ -82,6 +82,10 @@ export function ModelSettingsEditor({ initial, api, onSaved }: { initial: ModelS
           <label>温度<input type="number" min="0" max="2" step="0.1" value={p.temperature} onChange={(e) => { update(i, { temperature: Number(e.target.value) }); }} /></label>
           <label>最大输出 token<input type="number" value={p.maxOutputTokens} onChange={(e) => { update(i, { maxOutputTokens: Number(e.target.value) }); }} /></label>
           <label>上下文 token<input type="number" value={p.contextTokens} onChange={(e) => { update(i, { contextTokens: Number(e.target.value) }); }} /></label>
+          <p className="muted">上下文 token 是输入和输出共用的总容量，请按模型服务实际限制填写。检索预览和问答默认使用此容量作为总预算。</p>
+          {p.maxOutputTokens < p.contextTokens
+            ? <p className="muted">扣除最大输出预留后，输入预算最多 {String(p.contextTokens - p.maxOutputTokens)} token，由系统提示、问题、历史和检索证据共同使用。</p>
+            : <p role="alert">最大输出 token 必须小于上下文 token，才能为提示词和检索证据留出空间；当前配置无法用于正常问答。</p>}
           <label>Tokenizer<select value={p.tokenizer} onChange={(e) => { update(i, { tokenizer: e.target.value }); }}><option>cl100k_base</option><option>o200k_base</option></select></label>
           <label htmlFor={`extra-body-${p.id}`}>扩展参数（JSON 对象）</label>
           <textarea id={`extra-body-${p.id}`} rows={6} spellCheck={false}

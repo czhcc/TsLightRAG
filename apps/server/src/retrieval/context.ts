@@ -20,7 +20,7 @@ export function generationMessages(query:Query,context:string):Message[]{
   return [{role:'system',content:system},...query.conversationHistory,{role:'user',content:query.query}];
 }
 export function buildContext(view:SnapshotView,query:Query,profile:Extract<ModelProfileInput,{kind:'text'}>,entities:GraphNode[],relationships:GraphEdge[],chunks:QueryChunk[]){
-  const limit=Math.min(query.maxTotalTokens,profile.contextTokens);
+  const limit=Math.min(query.maxTotalTokens??profile.contextTokens,profile.contextTokens);
   const count=(s:string)=>countTokens(s,profile.tokenizer);
   const create=(nodes:GraphNode[],edges:GraphEdge[],rows:QueryChunk[])=>{
     // References are scoped to document ID AND published version, never a possibly duplicated filename.
@@ -45,7 +45,8 @@ export function buildContext(view:SnapshotView,query:Query,profile:Extract<Model
     return {context,prompt:messages.map(m=>`---${m.role}---\n${m.content}`).join('\n\n'),messages,chunks:linked,references:refs,budget:{limit,inputTokens,reservedOutputTokens:profile.maxOutputTokens,totalTokens:inputTokens+profile.maxOutputTokens}};
   };
   // Contexts are previews of the real generation request, including history and answer reserve.
-  if(create([],[],[]).budget.totalTokens>limit)throw new ModelError('QUERY_BUDGET_EXCEEDED','问题、历史、系统提示和回答预留超过上下文预算',400);
+  const fixed=create([],[],[]).budget;
+  if(fixed.totalTokens>limit)throw new ModelError('QUERY_BUDGET_EXCEEDED',`问题、历史、系统提示和回答预留超过上下文预算：输入 ${String(fixed.inputTokens)} + 回答预留 ${String(fixed.reservedOutputTokens)} > 总预算 ${String(limit)} token；请降低 query 模型的最大输出 token、缩短输入，或核对上下文容量及请求预算`,400);
   let nodes=entities,edges=relationships,rows=chunks;let result=create(nodes,edges,rows);
   while(result.budget.totalTokens>limit){if(rows.length) rows=rows.slice(0,-1);else if(edges.length)edges=edges.slice(0,-1);else nodes=nodes.slice(0,-1);result=create(nodes,edges,rows);}
   return {...result,entities:nodes,relationships:edges};

@@ -19,6 +19,10 @@ describe('query contracts', () => {
       query: '知识图谱是什么？', mode: 'mix', kgChunkPickMethod: 'VECTOR', relatedChunkNumber: 5,
     });
   });
+  it('leaves the total budget to the model unless explicitly supplied', () => {
+    expect(QuerySchema.parse({ query: 'question' }).maxTotalTokens).toBeUndefined();
+    expect(QuerySchema.parse({ query: 'question', maxTotalTokens: 16000 }).maxTotalTokens).toBe(16000);
+  });
   it.each(['naive', 'local', 'global', 'hybrid', 'mix'])('accepts %s mode', (mode) => {
     expect(QuerySchema.parse({ query: 'question', mode }).mode).toBe(mode);
   });
