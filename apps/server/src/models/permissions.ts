@@ -23,10 +23,17 @@ function Protect-Item([string]$target) {
     $acl = [System.Security.AccessControl.FileSecurity]::new()
     $rule = [System.Security.AccessControl.FileSystemAccessRule]::new($user, [System.Security.AccessControl.FileSystemRights]::FullControl, [System.Security.AccessControl.AccessControlType]::Allow)
   }
-  $acl.SetOwner($user)
   $acl.SetAccessRuleProtection($true, $false)
   $acl.AddAccessRule($rule)
-  Set-Acl -LiteralPath $item.FullName -AclObject $acl
+  $owner = $item.GetAccessControl([System.Security.AccessControl.AccessControlSections]::Owner).GetOwner([System.Security.Principal.SecurityIdentifier])
+  if ($owner.Value -ne $user.Value) {
+    $acl.SetOwner($user)
+    Set-Acl -LiteralPath $item.FullName -AclObject $acl
+  } else {
+    # Persist only the DACL when ownership is already correct. Reapplying
+    # Set-Acl may otherwise request the unrelated SeSecurityPrivilege.
+    $item.SetAccessControl($acl)
+  }
   if ($item.PSIsContainer) {
     foreach ($child in @(Get-ChildItem -LiteralPath $item.FullName -Force)) { Protect-Item $child.FullName }
   }
