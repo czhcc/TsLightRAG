@@ -4,6 +4,15 @@
 
 ## pnpm 安装、构建与启动
 
+如果执行时报 `This project is configured to use npm because ... has a "packageManager" field`，说明命令被 Corepack 拦截，尚未进入 pnpm。在当前 PowerShell 会话执行以下命令，再安装依赖：
+
+```powershell
+$env:COREPACK_ENABLE_STRICT = '0'
+pnpm.cmd install --frozen-lockfile
+```
+
+此设置仅作用于当前终端会话；新终端需重新设置。保留 `package.json` 的 npm 默认声明和两份锁文件。`pnpm-workspace.yaml` 的 `packageManagerStrict: false` 仅控制 pnpm 自身，无法阻止 Corepack 提前拦截。
+
 可选择 pnpm **10.34.7**，仍需 Node 24.19.0/npm 11.9.0（构建脚本内部使用 npm）。仓库已有 pnpm workspace 和从 npm 导入的锁；使用全局 pnpm CLI 或 npx 直接运行，保持 package.json 中默认 npm 设置：
 
 ```bash

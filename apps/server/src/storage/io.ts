@@ -1,18 +1,21 @@
 import { constants } from 'node:fs';
 import { mkdir, open, lstat, realpath } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, toNamespacedPath } from 'node:path';
 
 export async function directory(path: string) {
   const firstCreated = await mkdir(path, { recursive: true, mode: 0o700 });
   const stat = await lstat(path);
   if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('Storage directory must not be a symlink');
   if (firstCreated) {
-    let cursor = resolve(path);
-    const stop = dirname(resolve(firstCreated));
+    // Windows mkdir may return an extended-length path even for ordinary input.
+    let cursor = toNamespacedPath(resolve(path));
+    const stop = dirname(toNamespacedPath(resolve(firstCreated)));
     while (true) {
       await syncDirectory(cursor);
       if (cursor === stop) break;
-      cursor = dirname(cursor);
+      const parent = dirname(cursor);
+      if (parent === cursor) throw new Error('Created directory ancestor was not reached');
+      cursor = parent;
     }
   }
 }
